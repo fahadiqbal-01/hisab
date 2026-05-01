@@ -6,6 +6,9 @@ const supabaseAdmin = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY,
 );
 
+// Check if we are in production
+const isProduction = process.env.NODE_ENV === "production";
+
 export const authOptions = {
   providers: [
     CredentialsProvider({
@@ -44,7 +47,23 @@ export const authOptions = {
   },
   session: { strategy: "jwt" },
   secret: process.env.NEXTAUTH_SECRET,
+  // Add this to handle Vercel's HTTPS requirements
+  useSecureCookies: isProduction,
   pages: {
     signIn: "/sign-up",
+  },
+  // Ensure cookies are shared correctly across your Vercel domain
+  cookies: {
+    sessionToken: {
+      name: isProduction
+        ? `__Secure-next-auth.session-token`
+        : `next-auth.session-token`,
+      options: {
+        httpOnly: true,
+        sameSite: "lax",
+        path: "/",
+        secure: isProduction,
+      },
+    },
   },
 };
