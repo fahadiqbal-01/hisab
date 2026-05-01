@@ -1,37 +1,51 @@
-import { getToken } from "next-auth/jwt";
+import { withAuth } from "next-auth/middleware";
 import { NextResponse } from "next/server";
 
-export async function middleware(req) {
-  const token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET });
-  const { pathname } = req.nextUrl;
+export default withAuth(
+  function middleware(req) {
+    const token = req.nextauth.token;
+    const { pathname } = req.nextUrl;
 
-  // 1. Allow the root path and auth pages to be accessed without a token
-  const isAuthPage =
-    pathname === "/sign-up" || pathname === "/login" || pathname === "/";
+    // Redirect authenticated users away from landing/auth pages
+    const isAuthPage =
+      pathname === "/" || pathname === "/sign-up" || pathname === "/login";
 
-  // 2. Redirect authenticated users away from auth pages to dashboard
-  if (isAuthPage && token && pathname !== "/dashboard") {
-    return NextResponse.redirect(new URL("/dashboard", req.url));
-  }
+    if (isAuthPage && token) {
+      return NextResponse.redirect(new URL("/dashboard", req.url));
+    }
 
-  // 3. Protect dashboard: If no token, send to sign-up
-  if (pathname.startsWith("/dashboard") && !token) {
-    return NextResponse.redirect(new URL("/sign-up", req.url));
-  }
+    return NextResponse.next();
+  },
+  {
+    callbacks: {
+      // Only runs the middleware logic if this returns true
+      // This ensures we don't redirect people who are already on the sign-up page
+      authorized: ({ token, req }) => {
+        const { pathname } = req.nextUrl;
+        const isAuthPage =
+          pathname === "/" || pathname === "/sign-up" || pathname === "/login";
 
-  return NextResponse.next();
-}
+        // If it's an auth page, we don't require a token to view it
+        if (isAuthPage) return true;
+
+        // Otherwise, require a token (protects /dashboard and others)
+        return !!token;
+      },
+    },
+    pages: {
+      signIn: "/sign-up",
+    },
+  },
+);
 
 export const config = {
   matcher: [
     /*
-     * Match all request paths except for the ones starting with:
-     * - api (API routes)
-     * - _next/static (static files)
-     * - _next/image (image optimization files)
-     * - favicon.ico (favicon file)
-     * - images, video (your public assets)
+     * Match all request paths except for:
+     * 1. /api/auth (NextAuth endpoints - MUST be excluded)
+     * 2. /_next (Static files)
+     * 3. /images, /video, favicon.ico (Assets)
      */
-    "/((?!api|_next/static|_next/image|images|video|favicon.ico).*)",
+    "/((?!api/auth|_next/static|_next/image|images|video|favicon.ico).*)",
   ],
 };
