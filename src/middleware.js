@@ -6,29 +6,29 @@ export default withAuth(
     const token = req.nextauth.token;
     const { pathname } = req.nextUrl;
 
-    // Redirect authenticated users away from landing/auth pages
+    // If they are logged in and try to go to sign-up/login/root, send them to dashboard
     const isAuthPage =
       pathname === "/" || pathname === "/sign-up" || pathname === "/login";
-
     if (isAuthPage && token) {
       return NextResponse.redirect(new URL("/dashboard", req.url));
     }
-
     return NextResponse.next();
   },
   {
     callbacks: {
-      // Only runs the middleware logic if this returns true
-      // This ensures we don't redirect people who are already on the sign-up page
+      // This logic determines if the middleware should even run
       authorized: ({ token, req }) => {
         const { pathname } = req.nextUrl;
-        const isAuthPage =
-          pathname === "/" || pathname === "/sign-up" || pathname === "/login";
-
-        // If it's an auth page, we don't require a token to view it
-        if (isAuthPage) return true;
-
-        // Otherwise, require a token (protects /dashboard and others)
+        // Allow public access to these paths
+        if (
+          pathname === "/" ||
+          pathname === "/sign-up" ||
+          pathname === "/login" ||
+          pathname.startsWith("/api/auth")
+        ) {
+          return true;
+        }
+        // Require token for everything else (like /dashboard)
         return !!token;
       },
     },
@@ -40,12 +40,7 @@ export default withAuth(
 
 export const config = {
   matcher: [
-    /*
-     * Match all request paths except for:
-     * 1. /api/auth (NextAuth endpoints - MUST be excluded)
-     * 2. /_next (Static files)
-     * 3. /images, /video, favicon.ico (Assets)
-     */
+    // Protect everything except internal Next.js and static assets
     "/((?!api/auth|_next/static|_next/image|images|video|favicon.ico).*)",
   ],
 };
