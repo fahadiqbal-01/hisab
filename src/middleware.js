@@ -6,8 +6,9 @@ export async function middleware(req) {
   const { pathname } = req.nextUrl;
 
   // 1. Allow the root path and auth pages to be accessed without a token
-  const isAuthPage = pathname === "/sign-up" || pathname === "/login" || pathname === "/";
-  
+  const isAuthPage =
+    pathname === "/sign-up" || pathname === "/login" || pathname === "/";
+
   // 2. Redirect authenticated users away from auth pages to dashboard
   if (isAuthPage && token && pathname !== "/dashboard") {
     return NextResponse.redirect(new URL("/dashboard", req.url));
