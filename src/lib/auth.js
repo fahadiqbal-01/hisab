@@ -6,7 +6,6 @@ const supabaseAdmin = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY,
 );
 
-// Check if we are in production
 const isProduction = process.env.NODE_ENV === "production";
 
 export const authOptions = {
@@ -25,7 +24,10 @@ export const authOptions = {
           password: credentials.password,
         });
 
-        if (error || !data.user) return null;
+        if (error || !data.user) {
+          console.error("Supabase Auth Error:", error?.message);
+          return null;
+        }
 
         return {
           id: data.user.id,
@@ -41,18 +43,26 @@ export const authOptions = {
       return token;
     },
     async session({ session, token }) {
-      if (session.user) session.user.id = token.id;
+      if (session.user) {
+        session.user.id = token.id;
+      }
       return session;
     },
   },
-  session: { strategy: "jwt" },
+  session: {
+    strategy: "jwt",
+    maxAge: 30 * 24 * 60 * 60, // 30 days
+  },
   secret: process.env.NEXTAUTH_SECRET,
-  // Add this to handle Vercel's HTTPS requirements
-  useSecureCookies: isProduction,
+
+  // 1. CRITICAL: Allow NextAuth to trust the Vercel proxy headers
+  trustHost: true,
+
   pages: {
     signIn: "/sign-up",
   },
-  // Ensure cookies are shared correctly across your Vercel domain
+
+  // 2. Optimized Cookie Handling for Vercel
   cookies: {
     sessionToken: {
       name: isProduction
@@ -63,6 +73,8 @@ export const authOptions = {
         sameSite: "lax",
         path: "/",
         secure: isProduction,
+        // 3. Add domain only if in production to prevent localhost issues
+        domain: isProduction ? ".hisab-dash.vercel.app" : undefined,
       },
     },
   },
