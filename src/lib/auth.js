@@ -51,18 +51,20 @@ export const authOptions = {
   },
   session: {
     strategy: "jwt",
-    maxAge: 30 * 24 * 60 * 60, // 30 days
+    maxAge: 30 * 24 * 60 * 60,
   },
   secret: process.env.NEXTAUTH_SECRET,
 
-  // 1. CRITICAL: Allow NextAuth to trust the Vercel proxy headers
+  // 1. MUST BE TRUE for Vercel deployments
   trustHost: true,
 
   pages: {
     signIn: "/sign-up",
   },
 
-  // 2. Optimized Cookie Handling for Vercel
+  // 2. Simplified Cookie Config
+  // Removing the manual 'domain' allows Vercel to handle the routing properly
+  useSecureCookies: isProduction,
   cookies: {
     sessionToken: {
       name: isProduction
@@ -73,8 +75,6 @@ export const authOptions = {
         sameSite: "lax",
         path: "/",
         secure: isProduction,
-        // 3. Add domain only if in production to prevent localhost issues
-        domain: isProduction ? ".hisab-dash.vercel.app" : undefined,
       },
     },
   },
