@@ -37,7 +37,7 @@ export default async function InvoicesPage() {
         </div>
         <Link
           href="/dashboard/invoices/new"
-          className="bg-[#071f18] text-white px-6 py-2 rounded-full font-medium hover:bg-[#0a2d23] transition-all"
+          className="select-none cursor-pointer bg-[#071f18] text-white px-6 py-2 rounded-full font-medium hover:bg-[#0a2d23] transition-all"
         >
           + Create Invoice
         </Link>
@@ -104,7 +104,7 @@ export default async function InvoicesPage() {
                           href={whatsappUrl}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="text-green-600 font-medium hover:underline text-sm"
+                          className="select-none cursor-pointer text-green-600 font-medium hover:underline text-sm"
                         >
                           WhatsApp
                         </a>
@@ -116,7 +116,7 @@ export default async function InvoicesPage() {
 
                       <Link
                         href={`/dashboard/invoices/${inv.id}`}
-                        className="text-[#071f18] font-medium hover:underline text-sm"
+                        className=" select-none cursor-pointer text-[#071f18] font-medium hover:underline text-sm"
                       >
                         View
                       </Link>

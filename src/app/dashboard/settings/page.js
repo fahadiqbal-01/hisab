@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
 import { toast, Toaster } from "react-hot-toast";
 import { getProfile, updateProfile } from "@/app/actions/profiles";
+import AppearanceSettings from "@/components/AppearanceSettings";
 
 export default function SettingsPageClient() {
   const { data: session, status } = useSession();
@@ -65,7 +66,7 @@ export default function SettingsPageClient() {
   if (loading)
     return (
       <div className="p-10 text-[#071f18]/20 uppercase font-bold tracking-[0.3em] text-xs animate-pulse">
-        Initializing Lynx Settings...
+        Initializing Settings...
       </div>
     );
 
@@ -73,13 +74,17 @@ export default function SettingsPageClient() {
     <>
       <Toaster position="top-right" reverseOrder={false} />
 
-      <div className="max-w-4xl pb-20">
+      <div className="max-w-4xl pb-20 select-none ">
         <header className="mb-12">
           <h2 className="text-3xl font-bold text-[#071f18]">Settings</h2>
           <p className="text-black/50 mt-1">
             Configure your professional identity and defaults.
           </p>
         </header>
+
+        <div className=" mb-8 w-full md:w-[65%] ml-0 md:ml-auto md:mx-0 mx-auto ">
+          <AppearanceSettings />
+        </div>
 
         <div className="space-y-12">
           {/* Section 1: Business Branding */}
@@ -184,7 +189,7 @@ export default function SettingsPageClient() {
             <button
               onClick={handleSave}
               disabled={saving}
-              className="bg-white text-[#071f18] w-full sm:w-auto px-10 py-4 rounded-full font-bold uppercase tracking-widest hover:bg-[#e2e2e2] transition-all disabled:opacity-50"
+              className="select-none cursor-pointer bg-white text-[#071f18] w-full sm:w-auto px-10 py-4 rounded-full font-bold uppercase tracking-widest hover:bg-[#e2e2e2] transition-all disabled:opacity-50"
             >
               {saving ? "Saving..." : "Save Settings"}
             </button>

@@ -12,18 +12,12 @@ export default async function NewClientPage() {
   async function createClientAction(formData) {
     "use server";
 
-    console.log("--- INITIATING CLIENT SAVE ---");
-
     const supabaseAdmin = createClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL,
       process.env.SUPABASE_SERVICE_ROLE_KEY,
     );
 
-    // Verify session data
-    if (!session?.user?.id) {
-      console.error("ERROR: No active session found. User ID is missing.");
-      return;
-    }
+    if (!session?.user?.id) return;
 
     const { error } = await supabaseAdmin.from("clients").insert([
       {
@@ -36,27 +30,26 @@ export default async function NewClientPage() {
       },
     ]);
 
-    if (error) {
-      console.error("SUPABASE ERROR:", error.message);
-    } else {
-      console.log("SUCCESS: Client saved to database.");
-      revalidatePath("/dashboard/clients"); // Revalidate the clients list page
+    if (!error) {
+      revalidatePath("/dashboard/clients");
       redirect("/dashboard/clients");
     }
   }
 
   return (
-    <div className="max-w-2xl">
-      <header className="mb-10">
-        <h2 className="text-3xl font-bold text-[#071f18]">New Client</h2>
-        <p className="text-black/50 mt-1">
+    <div className="max-w-2xl px-4 sm:px-0 pb-10">
+      <header className="mb-8 md:mb-10">
+        <h2 className="text-2xl md:text-3xl font-bold text-[#071f18]">New Client</h2>
+        <p className="text-black/50 mt-1 text-sm md:text-base">
           Fill in the details to register a new client.
         </p>
       </header>
 
       <form action={createClientAction} className="space-y-6">
-        <div className="bg-white p-6 md:p-8 rounded-2xl shadow-sm border border-black/5 grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div className="col-span-2">
+        {/* Changed to grid-cols-1 by default, md:grid-cols-2 for tablet/desktop */}
+        <div className="bg-white p-5 md:p-8 rounded-2xl shadow-sm border border-black/5 grid grid-cols-1 md:grid-cols-2 gap-5 md:gap-6">
+          
+          <div className="md:col-span-2">
             <label className="block text-sm font-semibold text-black/60 mb-2">
               Full Name
             </label>
@@ -66,6 +59,7 @@ export default async function NewClientPage() {
               className="w-full p-3 bg-[#fdfaf1] rounded-xl outline-none focus:ring-2 ring-[#071f18]/10"
             />
           </div>
+
           <div>
             <label className="block text-sm font-semibold text-black/60 mb-2">
               Email Address
@@ -76,6 +70,7 @@ export default async function NewClientPage() {
               className="w-full p-3 bg-[#fdfaf1] rounded-xl outline-none focus:ring-2 ring-[#071f18]/10"
             />
           </div>
+
           <div>
             <label className="block text-sm font-semibold text-black/60 mb-2">
               Phone Number
@@ -85,13 +80,14 @@ export default async function NewClientPage() {
               className="w-full p-3 bg-[#fdfaf1] rounded-xl outline-none focus:ring-2 ring-[#071f18]/10"
             />
           </div>
+
           <div>
             <label className="block text-sm font-semibold text-black/60 mb-2">
               Payment Method
             </label>
             <select
               name="method"
-              className="w-full p-3 bg-[#fdfaf1] rounded-xl outline-none focus:ring-2 ring-[#071f18]/10"
+              className="w-full p-3 bg-[#fdfaf1] rounded-xl outline-none focus:ring-2 ring-[#071f18]/10 appearance-none"
             >
               <option value="bkash">bKash</option>
               <option value="nagad">Nagad</option>
@@ -99,27 +95,29 @@ export default async function NewClientPage() {
               <option value="cash">Cash</option>
             </select>
           </div>
+
           <div>
             <label className="block text-sm font-semibold text-black/60 mb-2">
-              Payment Number (bKash/Nagad)
+              Payment Number
             </label>
             <input
               name="payment_number"
+              placeholder="e.g. 017XXXXXXXX"
               className="w-full p-3 bg-[#fdfaf1] rounded-xl outline-none focus:ring-2 ring-[#071f18]/10"
             />
           </div>
         </div>
 
-        <div className="flex flex-col sm:flex-row gap-4">
+        <div className="flex flex-col gap-3 md:flex-row md:gap-4">
           <button
             type="submit"
-            className="bg-[#071f18] text-white px-10 py-3 rounded-full font-semibold hover:bg-[#0a2d23] transition-all w-full sm:w-auto"
+            className="select-none cursor-pointer bg-[#071f18] text-white px-10 py-4 rounded-full font-semibold hover:bg-[#0a2d23] transition-all w-full md:w-auto order-1 md:order-none"
           >
             Save Client
           </button>
           <Link
             href="/dashboard/clients"
-            className="px-10 py-3 rounded-full font-semibold border border-black/10 hover:bg-black/5 transition-all text-center w-full sm:w-auto"
+            className="select-none cursor-pointer px-10 py-4 rounded-full font-semibold border border-black/10 hover:bg-black/5 transition-all text-center w-full md:w-auto"
           >
             Cancel
           </Link>

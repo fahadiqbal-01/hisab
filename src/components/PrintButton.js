@@ -108,22 +108,34 @@ export default function PrintButton({ invoiceId, initialStatus }) {
   };
 
   return (
-    <div className="flex gap-4 print:hidden">
+    <div className="select-none cursor-pointer flex flex-col sm:flex-row items-center gap-3 w-full sm:w-auto print:hidden">
       {status !== "paid" && (
         <button
           onClick={markAsPaid}
           disabled={loading}
-          className="border border-[#071f18] text-[#071f18] px-8 py-3 rounded-full font-semibold hover:bg-[#071f18] hover:text-white transition-all disabled:opacity-50"
+          /* 
+         w-full: Takes full width on mobile
+         rounded-xl: Matches your input field roundness
+         px-8 py-4: Larger touch targets for mobile
+      */
+          className="w-full sm:w-auto border border-[#071f18] text-[#071f18] px-8 py-3.5 
+                 rounded-xl text-[11px] font-bold uppercase tracking-widest 
+                 hover:bg-[#071f18] hover:text-white transition-all 
+                 disabled:opacity-50 text-center whitespace-nowrap"
         >
           {loading ? "Updating..." : "Mark as Paid"}
         </button>
       )}
+
       <button
         onClick={handleDownloadPDF}
         disabled={isDownloading}
-        className="bg-[#071f18] text-white px-8 py-3 rounded-full font-semibold hover:bg-black transition-all disabled:opacity-50"
+        className="select-none cursor-pointer w-full sm:w-auto bg-[#071f18] text-white px-8 py-3.5 
+               rounded-xl text-[11px] font-bold uppercase tracking-widest 
+               hover:bg-black transition-all disabled:opacity-50 
+               shadow-lg shadow-black/5 text-center whitespace-nowrap"
       >
-        {isDownloading ? "Generating PDF..." : "Download PDF"}
+        {isDownloading ? "Generating..." : "Download PDF"}
       </button>
     </div>
   );

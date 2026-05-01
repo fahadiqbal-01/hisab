@@ -1,7 +1,6 @@
 "use client";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
-import Link from "next/link";
 import { useSession } from "next-auth/react";
 import { fetchClients } from "@/app/actions/clients";
 import { getProfile } from "@/app/actions/profiles";
@@ -9,15 +8,22 @@ import { getProfile } from "@/app/actions/profiles";
 export default function NewInvoicePage() {
   const router = useRouter();
   const { data: session } = useSession();
+
+  // State Management
   const [clients, setClients] = useState([]);
   const [profile, setProfile] = useState(null);
   const [selectedClientId, setSelectedClientId] = useState("");
+  const [selectedClientName, setSelectedClientName] =
+    useState("Choose a client...");
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+
   const [items, setItems] = useState([
-    { description: "", quantity: 1, price: 0 },
+    { description: "", quantity: 1, price: "" },
   ]);
   const [loading, setLoading] = useState(false);
+  const dropdownRef = useRef(null);
 
-  // Fetch clients for the dropdown
+  // Fetch Data
   useEffect(() => {
     async function loadInitialData() {
       if (session?.user?.id) {
@@ -32,8 +38,25 @@ export default function NewInvoicePage() {
     loadInitialData();
   }, [session]);
 
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    function handleClickOutside(event) {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setIsDropdownOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  const handleClientSelect = (id, name) => {
+    setSelectedClientId(id);
+    setSelectedClientName(name);
+    setIsDropdownOpen(false);
+  };
+
   const addItem = () => {
-    setItems([...items, { description: "", quantity: 1, price: 0 }]);
+    setItems([...items, { description: "", quantity: 1, price: "" }]);
   };
 
   const updateItem = (index, field, value) => {
@@ -43,28 +66,27 @@ export default function NewInvoicePage() {
   };
 
   const calculateTotal = () => {
-    return items.reduce((acc, item) => acc + item.quantity * item.price, 0);
+    return items.reduce(
+      (acc, item) => acc + Number(item.quantity) * Number(item.price || 0),
+      0,
+    );
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (!selectedClientId) {
+      alert("Please select a client");
+      return;
+    }
     setLoading(true);
 
-    const total = calculateTotal();
-
-    // Call an API route or handle logic to save the invoice and line items
-    // For now, we will hit a dedicated route to handle the complex insert
-    // Inside handleSubmit...
-    // Change this line in your handleSubmit function
     const res = await fetch("/dashboard/invoices/create", {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         clientId: selectedClientId,
         items,
-        total,
+        total: calculateTotal(),
         sender_name: profile?.studio_name || session?.user?.name,
         sender_email: profile?.contact_email || session?.user?.email,
         payment_method: profile?.payment_method,
@@ -82,7 +104,7 @@ export default function NewInvoicePage() {
   };
 
   return (
-    <div className="max-w-4xl">
+    <div className="max-w-4xl px-4 md:px-0 pb-10">
       <header className="mb-10">
         <h2 className="text-3xl font-bold text-[#071f18]">Create Invoice</h2>
         <p className="text-black/50 mt-1">
@@ -91,25 +113,62 @@ export default function NewInvoicePage() {
       </header>
 
       <form onSubmit={handleSubmit} className="space-y-8">
-        <div className="bg-white p-8 rounded-2xl shadow-sm border border-black/5 space-y-6">
-          {/* Client Selection */}
-          <div>
+        <div className="bg-white p-6 md:p-8 rounded-2xl shadow-sm border border-black/5 space-y-6">
+          {/* Custom Client Selection Dropdown */}
+          <div className="relative" ref={dropdownRef}>
             <label className="block text-sm font-semibold text-black/60 mb-2">
               Select Client
             </label>
-            <select
-              required
-              value={selectedClientId}
-              onChange={(e) => setSelectedClientId(e.target.value)}
-              className="w-full p-3 bg-[#fdfaf1] rounded-xl outline-none focus:ring-2 ring-[#071f18]/10"
+            <div
+              onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+              className="w-full flex justify-between items-center px-5 py-3 bg-[#fdfaf1] rounded-xl border border-black/5 cursor-pointer outline-none focus:ring-2 ring-[#071f18]/10 transition-all"
             >
-              <option value="">Choose a client...</option>
-              {clients.map((c) => (
-                <option key={c.id} value={c.id}>
-                  {c.name}
-                </option>
-              ))}
-            </select>
+              <span
+                className={
+                  selectedClientId
+                    ? "text-[#071f18] font-medium"
+                    : "text-black/30"
+                }
+              >
+                {selectedClientName}
+              </span>
+              <svg
+                className={`transition-transform duration-200 text-[#071f18] opacity-40 ${isDropdownOpen ? "rotate-180" : ""}`}
+                width="18"
+                height="18"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <path d="m6 9 6 6 6-6" />
+              </svg>
+            </div>
+
+            {isDropdownOpen && (
+              <div className="absolute z-50 w-full mt-2 bg-white rounded-xl shadow-xl border border-black/5 overflow-hidden animate-in fade-in zoom-in duration-200">
+                {clients.map((c) => (
+                  <div
+                    key={c.id}
+                    onClick={() => handleClientSelect(c.id, c.name)}
+                    className={`px-5 py-3 cursor-pointer transition-colors ${
+                      selectedClientId === c.id
+                        ? "bg-[#061e18] text-white"
+                        : "text-[#071f18] hover:bg-[#fdfaf1]"
+                    }`}
+                  >
+                    {c.name}
+                  </div>
+                ))}
+                {clients.length === 0 && (
+                  <div className="px-5 py-3 text-black/30 italic">
+                    No clients found
+                  </div>
+                )}
+              </div>
+            )}
           </div>
 
           {/* Line Items */}
@@ -122,7 +181,7 @@ export default function NewInvoicePage() {
                 key={index}
                 className="flex flex-col md:flex-row gap-4 items-start md:items-end border-b border-black/5 pb-4 md:border-0 md:pb-0"
               >
-                <div className="flex-1">
+                <div className="flex-1 w-full">
                   <input
                     placeholder="Description (e.g. Web Development)"
                     value={item.description}
@@ -133,10 +192,10 @@ export default function NewInvoicePage() {
                     required
                   />
                 </div>
-                <div className="w-full md:w-24">
+                <div className="w-full md:w-32">
                   <input
                     type="number"
-                    placeholder="Qty"
+                    placeholder="Quantity"
                     value={item.quantity}
                     onChange={(e) =>
                       updateItem(index, "quantity", e.target.value)
@@ -145,7 +204,7 @@ export default function NewInvoicePage() {
                     required
                   />
                 </div>
-                <div className="w-full md:w-32">
+                <div className="w-full md:w-40">
                   <input
                     type="number"
                     placeholder="Price"
@@ -169,7 +228,7 @@ export default function NewInvoicePage() {
 
         {/* Total & Summary */}
         <div className="flex flex-col md:flex-row justify-between items-center bg-[#071f18] text-white p-8 rounded-2xl gap-8">
-          <div>
+          <div className="text-center md:text-left">
             <p className="text-white/50 text-sm uppercase tracking-widest font-bold">
               Total Amount
             </p>
@@ -177,17 +236,17 @@ export default function NewInvoicePage() {
               ৳ {calculateTotal().toLocaleString()}
             </h3>
           </div>
-          <div className="flex items-center gap-6">
+          <div className="flex flex-col sm:flex-row items-center gap-6 w-full md:w-auto">
             <button
               type="button"
               onClick={() => router.back()}
-              className="text-sm font-bold uppercase tracking-widest text-white/50 hover:text-white transition-colors"
+              className="text-sm font-bold uppercase tracking-widest text-white/50 hover:text-white transition-colors order-2 sm:order-1"
             >
               Cancel
             </button>
             <button
               disabled={loading}
-              className="bg-white text-[#071f18] px-12 py-4 rounded-full font-bold hover:bg-[#fdfaf1] transition-all disabled:opacity-50"
+              className="bg-white text-[#071f18] px-12 py-4 rounded-full font-bold hover:bg-[#fdfaf1] transition-all disabled:opacity-50 w-full sm:w-auto order-1 sm:order-2"
             >
               {loading ? "Generating..." : "Save Invoice"}
             </button>

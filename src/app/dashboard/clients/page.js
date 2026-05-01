@@ -24,7 +24,7 @@ export default async function ClientsPage() {
         <h2 className="text-3xl font-bold text-[#071f18]">Clients</h2>
         <Link
           href="/dashboard/clients/new"
-          className="bg-[#071f18] text-white px-6 py-2 rounded-full font-medium shadow-sm"
+          className="select-none cursor-pointer bg-[#071f18] text-white px-6 py-2 rounded-full font-medium shadow-sm"
         >
           + Add Client
         </Link>

@@ -4,20 +4,23 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import SignOutButton from "@/components/SignOutButton";
 import SidebarLink from "@/components/SidebarLink";
+import { MdOutlineAnalytics } from "react-icons/md";
+import { FaFileInvoice, FaUsers } from "react-icons/fa";
+import { SlSettings } from "react-icons/sl";
 
 export default async function DashboardLayout({ children }) {
   // 1. Fetch the session on the server
   const session = await getServerSession(authOptions);
 
   const menuItems = [
-    { name: "Overview", href: "/dashboard", icon: "📊" },
-    { name: "Invoices", href: "/dashboard/invoices", icon: "📄" },
-    { name: "Clients", href: "/dashboard/clients", icon: "👥" },
-    { name: "Settings", href: "/dashboard/settings", icon: "⚙️" },
+    { name: "Overview", href: "/dashboard", icon: <MdOutlineAnalytics /> },
+    { name: "Invoices", href: "/dashboard/invoices", icon: <FaFileInvoice /> },
+    { name: "Clients", href: "/dashboard/clients", icon: <FaUsers /> },
+    { name: "Settings", href: "/dashboard/settings", icon: <SlSettings /> },
   ];
 
   return (
-    <div className="flex flex-col md:flex-row h-screen bg-[#fdfaf1] overflow-hidden">
+    <div className=" select-none flex flex-col md:flex-row h-screen bg-[#fdfaf1] overflow-hidden">
       {/* Mobile Header */}
       <header className="md:hidden bg-[#071f18] text-white p-4 flex justify-between items-center z-50">
         <div className="flex items-center gap-2">
@@ -50,7 +53,7 @@ export default async function DashboardLayout({ children }) {
       {/* Sidebar */}
       <aside
         className="
-        fixed inset-y-0 left-0 z-40 w-64 bg-[#071f18] text-white flex flex-col border-r border-white/10
+        fixed inset-y-0 left-0 z-40 w-45 bg-[#071f18] dark:bg-[#000000] text-white flex flex-col border-r border-white/10
         transition-transform -translate-x-full peer-checked:translate-x-0
         md:relative md:translate-x-0
       "
@@ -72,7 +75,7 @@ export default async function DashboardLayout({ children }) {
                 href={item.href}
                 icon={item.icon}
                 name={item.name}
-                className="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-white/10 transition-all text-white/80 hover:text-white"
+                className=" select-none flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-white/10 transition-all text-white/80 hover:text-white"
               />
             ))}
           </nav>
