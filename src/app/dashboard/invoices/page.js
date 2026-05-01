@@ -74,7 +74,7 @@ export default async function InvoicesPage() {
 
               // Only generate WhatsApp link if a phone number exists
               const whatsappUrl = clientPhone
-                ? `https://wa.me/${clientPhone.replace(/\D/g, "")}?text=${encodeURIComponent(message)}`
+                ? `https://api.whatsapp.com/send?phone=${clientPhone.replace(/\D/g, "")}&text=${encodeURIComponent(message)}`
                 : null;
 
               return (

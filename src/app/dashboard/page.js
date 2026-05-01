@@ -2,11 +2,11 @@ import InvoiceAnalysisChart from "@/components/InvoiceAnalysisChart";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { supabaseAdmin } from "@/lib/supabase";
+import EmptyFinanceState from "@/components/EmptyFinanceState"; // Import the cool intro UI
 
 export default async function DashboardPage() {
   const session = await getServerSession(authOptions);
 
-  // Safety Gate: If no session found during render, prevent crash
   if (!session?.user?.id) {
     return (
       <div className="p-10 text-black/20 font-bold uppercase tracking-widest text-xs">
@@ -15,22 +15,28 @@ export default async function DashboardPage() {
     );
   }
 
-  // 1. Filter by user_id to ensure data isolation
-  const { data: invoices } = await supabaseAdmin
-    .from("invoices")
-    .select(
-      `
-      id, 
-      total, 
-      status, 
-      created_at,
-      clients ( name )
-    `,
-    )
-    .eq("user_id", session.user.id)
-    .order("created_at", { ascending: true });
+  // 1. Fetch both invoices and client count to check for "Empty State"
+  const [invoicesResponse, clientsResponse] = await Promise.all([
+    supabaseAdmin
+      .from("invoices")
+      .select(`id, total, status, created_at, clients ( name )`)
+      .eq("user_id", session.user.id)
+      .order("created_at", { ascending: true }),
+    supabaseAdmin
+      .from("clients")
+      .select("id", { count: "exact", head: true })
+      .eq("user_id", session.user.id),
+  ]);
 
-  // 2. Calculate Totals Grid
+  const invoices = invoicesResponse.data;
+  const clientCount = clientsResponse.count || 0;
+
+  // 2. THE GATE: If no clients exist, show the cool Intro UI
+  if (clientCount === 0) {
+    return <EmptyFinanceState />;
+  }
+
+  // 3. Calculate Totals Grid
   const revenue = invoices?.reduce(
     (acc, inv) => {
       if (inv.status === "paid") acc.collected += inv.total;
@@ -40,13 +46,14 @@ export default async function DashboardPage() {
     { collected: 0, pending: 0 },
   ) || { collected: 0, pending: 0 };
 
-  // 3. REAL-TIME GROWTH CALCULATION
+  // 4. REAL-TIME GROWTH CALCULATION
   const calculateGrowth = () => {
     const now = new Date();
     const currentMonth = now.getMonth();
     const currentYear = now.getFullYear();
 
-    const lastMonthDate = new Date(now.setMonth(now.getMonth() - 1));
+    const lastMonthDate = new Date();
+    lastMonthDate.setMonth(now.getMonth() - 1);
     const lastMonth = lastMonthDate.getMonth();
     const lastMonthYear = lastMonthDate.getFullYear();
 
@@ -74,10 +81,7 @@ export default async function DashboardPage() {
         })
         .reduce((sum, inv) => sum + inv.total, 0) || 0;
 
-    if (lastMonthRevenue === 0) {
-      return currentMonthRevenue > 0 ? "100%" : "0%";
-    }
-
+    if (lastMonthRevenue === 0) return currentMonthRevenue > 0 ? "100%" : "0%";
     const growth =
       ((currentMonthRevenue - lastMonthRevenue) / lastMonthRevenue) * 100;
     return `${growth > 0 ? "+" : ""}${growth.toFixed(1)}%`;
@@ -85,7 +89,7 @@ export default async function DashboardPage() {
 
   const growthDisplay = calculateGrowth();
 
-  // 4. Data for the Editorial Scatter Chart (Individual Invoices)
+  // 5. Data for the Editorial Scatter Chart
   const analysisData =
     invoices?.map((inv) => {
       const d = new Date(inv.created_at);
@@ -100,21 +104,21 @@ export default async function DashboardPage() {
     }) || [];
 
   return (
-    <div className="space-y-10 pb-20">
+    <div className="space-y-10 pb-20 animate-in fade-in duration-700">
       <header className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6">
         <div>
-          <h2 className="text-3xl font-bold text-[#071f18]">
+          <h2 className="text-3xl font-bold text-[#071f18] dark:text-white">
             Finance Overview
           </h2>
-          <p className="text-black/50 mt-1">
+          <p className="text-black/50 dark:text-white/40 mt-1">
             Real-time performance for {session?.user?.name || "your studio"}.
           </p>
         </div>
         <div className="md:text-right">
-          <p className="text-[10px] uppercase font-bold tracking-[0.2em] text-black/30">
+          <p className="text-[10px] uppercase font-bold tracking-[0.2em] text-black/30 dark:text-white/30">
             Total Growth
           </p>
-          <p className="text-xl font-serif italic text-[#071f18]">
+          <p className="text-xl font-serif italic text-[#071f18] dark:text-white">
             {growthDisplay} vs last month
           </p>
         </div>
@@ -122,27 +126,29 @@ export default async function DashboardPage() {
 
       {/* Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="bg-[#071f18] text-white p-8 rounded-3xl shadow-sm">
-          <p className="text-white/50 text-xs uppercase tracking-widest font-bold text-[10px]">
+        <div className="bg-[#071f18] dark:bg-white text-white dark:text-[#071f18] p-8 rounded-3xl shadow-sm">
+          <p className="opacity-50 text-xs uppercase tracking-widest font-bold text-[10px]">
             Revenue Collected
           </p>
           <h3 className="text-4xl font-bold mt-2">
             ৳ {revenue.collected.toLocaleString()}
           </h3>
         </div>
-        <div className="bg-white p-8 rounded-3xl border border-black/5 shadow-sm">
-          <p className="text-black/30 text-xs uppercase tracking-widest font-bold text-[10px]">
+
+        <div className="bg-white dark:bg-white/5 p-8 rounded-3xl border border-black/5 dark:border-white/10 shadow-sm">
+          <p className="text-black/30 dark:text-white/30 text-xs uppercase tracking-widest font-bold text-[10px]">
             Pending Payment
           </p>
-          <h3 className="text-4xl font-bold mt-2 text-[#071f18]">
+          <h3 className="text-4xl font-bold mt-2 text-[#071f18] dark:text-white">
             ৳ {revenue.pending.toLocaleString()}
           </h3>
         </div>
-        <div className="bg-white p-8 rounded-3xl border border-black/5 shadow-sm">
-          <p className="text-black/30 text-xs uppercase tracking-widest font-bold text-[10px]">
+
+        <div className="bg-white dark:bg-white/5 p-8 rounded-3xl border border-black/5 dark:border-white/10 shadow-sm">
+          <p className="text-black/30 dark:text-white/30 text-xs uppercase tracking-widest font-bold text-[10px]">
             Total Invoices
           </p>
-          <h3 className="text-4xl font-bold mt-2 text-[#071f18]">
+          <h3 className="text-4xl font-bold mt-2 text-[#071f18] dark:text-white">
             {invoices?.length || 0}
           </h3>
         </div>
