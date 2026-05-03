@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useSession } from "next-auth/react";
 import { toast, Toaster } from "react-hot-toast";
 import { getProfile, updateProfile } from "@/app/actions/profiles";
@@ -20,6 +20,9 @@ export default function SettingsPageClient() {
     currency: "৳",
   });
 
+  const [isPaymentDropdownOpen, setIsPaymentDropdownOpen] = useState(false);
+  const paymentDropdownRef = useRef(null);
+
   useEffect(() => {
     const init = async () => {
       if (userId) {
@@ -30,6 +33,20 @@ export default function SettingsPageClient() {
     };
     init();
   }, [userId, status]);
+
+  // Close payment dropdown when clicking outside
+  useEffect(() => {
+    function handleClickOutside(event) {
+      if (
+        paymentDropdownRef.current &&
+        !paymentDropdownRef.current.contains(event.target)
+      ) {
+        setIsPaymentDropdownOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   async function fetchProfile() {
     const { data, error } = await getProfile();
@@ -111,11 +128,11 @@ export default function SettingsPageClient() {
             </div>
             <div className="md:col-span-2 space-y-6 bg-white dark:bg-[#0d0d0d] p-8 rounded-3xl border border-black/5">
               <div>
-                <label className="text-[10px] font-bold uppercase text-black/30 block mb-2 ">
+                <label className="text-[10px] font-bold uppercase text-black/30 dark:text-white block mb-2 ">
                   Studio / Agency Name
                 </label>
                 <input
-                  className="w-full bg-[#f9fafb] dark:bg-white/30 border-none rounded-xl p-4 focus:ring-2 focus:ring-[#071f18] outline-none transition-all"
+                  className="w-full bg-[#fcfaf0] dark:bg-white/30 text-black dark:text-white/70 border-none rounded-xl p-4 focus:ring-2 focus:ring-[#071f18] outline-none transition-all"
                   value={profile.studio_name || ""}
                   onChange={(e) =>
                     setProfile({ ...profile, studio_name: e.target.value })
@@ -124,11 +141,11 @@ export default function SettingsPageClient() {
                 />
               </div>
               <div>
-                <label className="text-[10px] font-bold uppercase text-black/30 block mb-2">
+                <label className="text-[10px] font-bold uppercase text-black/30 dark:text-white block mb-2">
                   Professional Title
                 </label>
                 <input
-                  className="w-full bg-[#f9fafb] dark:bg-white/30 border-none rounded-xl p-4 focus:ring-2 focus:ring-[#071f18] outline-none transition-all"
+                  className="w-full bg-[#fcfaf0] dark:bg-white/30 text-black dark:text-white/70 border-none rounded-xl p-4 focus:ring-2 focus:ring-[#071f18] outline-none transition-all"
                   value={profile.professional_title || ""}
                   onChange={(e) =>
                     setProfile({
@@ -161,48 +178,84 @@ export default function SettingsPageClient() {
             </div>
             <div className="md:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-6 bg-white dark:bg-[#0d0d0d] p-8 rounded-3xl border border-black/5">
               <div className="col-span-2 md:col-span-1">
-                <label className="text-[10px] font-bold uppercase text-black/30 dark:text-white block mb-2">
+                <label className="text-[10px] font-bold uppercase text-black/30 dark:text-white block mb-2 ml-1">
                   Preferred Method
                 </label>
-                <select
-                  className="w-full bg-[#f9fafb] dark:bg-white/30 border-none rounded-xl p-4 focus:ring-2 focus:ring-[#071f18] outline-none appearance-none cursor-pointer"
-                  value={profile.payment_method || "BKASH"}
-                  onChange={(e) =>
-                    setProfile({ ...profile, payment_method: e.target.value })
-                  }
-                >
-                  <option
-                    className=" bg-white dark:bg-[#0d0d0d] "
-                    value="BKASH"
+                <div className="relative" ref={paymentDropdownRef}>
+                  <div
+                    onClick={() =>
+                      setIsPaymentDropdownOpen(!isPaymentDropdownOpen)
+                    }
+                    className="w-full flex justify-between items-center px-5 py-3 bg-[#fcfaf0] dark:bg-white/30 rounded-xl border border-black/5 cursor-pointer outline-none focus:ring-2 ring-[#071f18]/10 transition-all"
                   >
-                    bKash
-                  </option>
-                  <option
-                    className=" bg-white dark:bg-[#0d0d0d] "
-                    value="NAGAD"
-                  >
-                    Nagad
-                  </option>
-                  <option
-                    className=" bg-white dark:bg-[#0d0d0d] "
-                    value="PAYPAL"
-                  >
-                    PayPal
-                  </option>
-                  <option className=" bg-white dark:bg-[#0d0d0d] " value="CARD">
-                    Credit/Debit Card
-                  </option>
-                  <option className=" bg-white dark:bg-[#0d0d0d] " value="BANK">
-                    Bank Transfer
-                  </option>
-                </select>
+                    <span
+                      className={
+                        profile.payment_method
+                          ? "text-black dark:text-white/70 font-medium"
+                          : "text-black/33 dark:text-white/50"
+                      }
+                    >
+                      {profile.payment_method || "Choose a method..."}
+                    </span>
+                    <svg
+                      className={`transition-transform duration-200 text-black dark:text-white opacity-40 ${isPaymentDropdownOpen ? "rotate-180" : ""}`}
+                      width="18"
+                      height="18"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2.5"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    >
+                      <path d="m6 9 6 6 6-6" />
+                    </svg>
+                  </div>
+
+                  {isPaymentDropdownOpen && (
+                    <motion.div
+                      initial={{ opacity: 0, y: -10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -10 }}
+                      transition={{ duration: 0.2 }}
+                      className="absolute z-50 w-full mt-2 bg-[#fcfaf0] dark:bg-[#0d0d0d] rounded-xl shadow-xl border border-black/5 overflow-hidden"
+                    >
+                      {[
+                        { id: "BKASH", label: "bKash" },
+                        { id: "NAGAD", label: "Nagad" },
+                        { id: "PAYPAL", label: "PayPal" },
+                        { id: "CARD", label: "Credit/Debit Card" },
+                        { id: "BANK", label: "Bank Transfer" },
+                      ].map((method) => (
+                        <motion.div
+                          key={method.id}
+                          whileTap={{ scale: 0.98 }}
+                          onClick={() => {
+                            setProfile({
+                              ...profile,
+                              payment_method: method.id,
+                            });
+                            setIsPaymentDropdownOpen(false);
+                          }}
+                          className={`px-5 py-3 cursor-pointer transition-colors ${
+                            profile.payment_method === method.id
+                              ? "bg-[#061e18] dark:bg-orange-700 text-white"
+                              : "text-black dark:text-white hover:bg-black/5 dark:hover:bg-white/5"
+                          }`}
+                        >
+                          {method.label}
+                        </motion.div>
+                      ))}
+                    </motion.div>
+                  )}
+                </div>
               </div>
               <div className="col-span-2 md:col-span-1">
                 <label className="text-[10px] font-bold uppercase text-black/30 block mb-2">
                   Account / Phone Number
                 </label>
                 <input
-                  className="w-full bg-[#f9fafb] dark:bg-white/30 border-none rounded-xl p-4 focus:ring-2 focus:ring-[#071f18] outline-none"
+                  className="w-full bg-[#fcfaf0] dark:bg-white/30 text-black dark:text-white/70 border-none rounded-xl p-4 focus:ring-2 focus:ring-[#071f18] outline-none"
                   value={profile.payment_number || ""}
                   onChange={(e) =>
                     setProfile({ ...profile, payment_number: e.target.value })

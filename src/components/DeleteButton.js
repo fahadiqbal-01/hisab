@@ -1,8 +1,9 @@
 "use client";
 import { useState } from "react";
 import { deleteInvoice } from "@/app/actions/invoices";
+import { motion, AnimatePresence } from "framer-motion";
 
-export default function DeleteButton({ id, label = "Delete" }) {
+export default function DeleteButton({ id, label = "Invoice" }) {
   const [isConfirming, setIsConfirming] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
 
@@ -13,49 +14,78 @@ export default function DeleteButton({ id, label = "Delete" }) {
     setIsDeleting(false);
   };
 
-  if (isConfirming) {
-    return (
-      <div className="flex items-center gap-2 animate-in fade-in slide-in-from-right-2">
-        <span className="text-[10px] font-bold uppercase text-red-500">
-          Are you sure?
-        </span>
-        <button
-          onClick={handleDelete}
-          disabled={isDeleting}
-          className="text-[10px] font-bold uppercase underline text-red-600 hover:text-red-700 cursor-pointer "
-        >
-          {isDeleting ? "..." : "Yes"}
-        </button>
-        <button
-          onClick={() => setIsConfirming(false)}
-          className="text-[10px] font-bold uppercase underline text-black/40 dark:text-white cursor-pointer"
-        >
-          No
-        </button>
-      </div>
-    );
-  }
-
   return (
-    <button
-      onClick={() => setIsConfirming(true)}
-      className="text-black/30 dark:text-white/70 hover:text-red-500 transition-colors"
-    >
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        width="16"
-        height="16"
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="2"
-        strokeLinecap="round"
-        strokeLinejoin="round"
+    <>
+      <button
+        onClick={() => setIsConfirming(true)}
+        className="text-black/30 dark:text-white/70 hover:text-red-500 transition-colors cursor-pointer"
       >
-        <path d="M3 6h18" />
-        <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6" />
-        <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" />
-      </svg>
-    </button>
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="16"
+          height="16"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        >
+          <path d="M3 6h18" />
+          <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6" />
+          <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" />
+        </svg>
+      </button>
+
+      <AnimatePresence>
+        {isConfirming && (
+          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+            {/* Overlay */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setIsConfirming(false)}
+              className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+            />
+
+            {/* Popup Modal */}
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 20 }}
+              className="relative bg-white dark:bg-[#0d0d0d] p-8 rounded-[2rem] md:rounded-[2.5rem] shadow-2xl border border-black/5 w-full max-w-[320px] text-center"
+            >
+              <h3 className="text-lg font-bold text-[#071f18] dark:text-white mb-2">
+                Delete {label}?
+              </h3>
+              <p className="text-sm text-black/40 dark:text-white/50 mb-8 leading-relaxed">
+                Are you sure you want to delete this {label.toLowerCase()}? This
+                action cannot be undone.
+              </p>
+              <div className="flex flex-col gap-3">
+                <motion.button
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  onClick={handleDelete}
+                  disabled={isDeleting}
+                  className="bg-red-500 text-white py-4 rounded-2xl font-bold uppercase tracking-widest text-[10px] shadow-lg shadow-red-500/20 disabled:opacity-50 cursor-pointer"
+                >
+                  {isDeleting ? "Deleting..." : `Yes, Delete ${label}`}
+                </motion.button>
+                <motion.button
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  onClick={() => setIsConfirming(false)}
+                  className="bg-black/5 dark:bg-white/5 text-black/40 dark:text-white py-4 rounded-2xl font-bold uppercase tracking-widest text-[10px] cursor-pointer"
+                >
+                  Cancel
+                </motion.button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+    </>
   );
 }

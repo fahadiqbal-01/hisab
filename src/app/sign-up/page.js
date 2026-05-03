@@ -1,20 +1,18 @@
 "use client";
 import React, { useState } from "react";
-import { signIn } from "next-auth/react"; // <-- 1. Import NextAuth
-import { useRouter } from "next/navigation"; // <-- 2. Import router for redirects
-import { useTheme } from "next-themes"; // Import useTheme for theme detection
+import { signIn } from "next-auth/react";
+import { useRouter } from "next/navigation";
 
 export default function SignUp() {
   const router = useRouter();
   const [toggleSign, setToggleSign] = useState(false);
-  const [error, setError] = useState(""); // <-- Add error state for bad logins
+  const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [loading, setLoading] = useState(false);
-  const { theme } = useTheme(); // Get the current theme
 
   const handleToggleSign = () => {
     setToggleSign((prev) => !prev);
-    setError(""); // Clear errors on toggle
+    setError("");
     setSuccess("");
   };
 
@@ -95,10 +93,8 @@ export default function SignUp() {
     }
   };
 
-  const logoSrc = theme === "dark" ? "/images/logo.png" : "/images/logosec.png";
-
   return (
-    <main className="w-full h-screen flex justify-center items-center relative">
+    <main className="w-full h-screen flex justify-center items-center select-none relative">
       {error && (
         <div className="absolute top-10 bg-red-500/80 text-white px-6 py-2 rounded-full z-50">
           {error}
@@ -115,9 +111,9 @@ export default function SignUp() {
         className={`${toggleSign ? "hidden" : "bg-[#071f18] dark:bg-[#0d0d0d] flex flex-col justify-center items-center py-8 px-4 h-screen md:h-auto w-full sm:w-auto"}`}
       >
         <img
-          src={logoSrc}
+          src="images/logothird.png"
           alt="Logo"
-          className="w-20 rounded-full my-5 mx-auto "
+          className="w-20 my-5 mx-auto  "
         />
         <form
           onSubmit={handleSignIn}
@@ -166,9 +162,9 @@ export default function SignUp() {
         className={`${toggleSign ? "bg-[#071f18] dark:bg-[#0d0d0d] flex flex-col items-center py-8 px-4 w-full sm:w-auto" : "hidden"}`}
       >
         <img
-          src={logoSrc}
+          src="images/logothird.png"
           alt="Logo"
-          className="w-20 rounded-full my-5 mx-auto"
+          className="w-20 my-5 mx-auto "
         />
         <form
           onSubmit={handleSignUp}
