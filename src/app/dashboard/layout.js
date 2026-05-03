@@ -23,7 +23,7 @@ export default async function DashboardLayout({ children }) {
   return (
     <div className=" select-none flex flex-col md:flex-row h-screen bg-[#fdfaf1] overflow-hidden">
       {/* Mobile Header */}
-      <header className="md:hidden bg-[#071f18] text-white p-4 flex justify-between items-center z-50">
+      <header className="md:hidden bg-[#071f18] dark:bg-[#0d0d0d] text-white p-4 flex justify-between items-center z-50">
         <div className="flex items-center gap-2">
           <DasboardLogo />
         </div>
@@ -51,14 +51,14 @@ export default async function DashboardLayout({ children }) {
       {/* Sidebar */}
       <aside
         className="
-        fixed inset-y-0 left-0 z-40 w-45 bg-[#071f18] dark:bg-[#0d0d0d] text-white flex flex-col border-r border-white/10
+        fixed inset-y-0 left-0 z-40 w-45 bg-[#071f18] dark:bg-[#0d0d0d] md:pt-0 pt-15 text-white flex flex-col border-r border-white/10
         transition-transform -translate-x-full peer-checked:translate-x-0
         md:relative md:translate-x-0
       "
       >
         <div className="flex flex-col h-full">
           <div className="p-6">
-            <DasboardLogo />
+            <DasboardLogo className=" md:block hidden " />
             <p className="text-[18px] uppercase tracking-[0.2em] text-white/30 dark:text-orange-700 line-through font-bold px-2 mt-5 ">
               {session?.user?.name || "Studio"}
             </p>
