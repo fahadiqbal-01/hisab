@@ -106,34 +106,34 @@ export default function NewInvoicePage() {
   return (
     <div className="max-w-4xl px-4 md:px-0 pb-10">
       <header className="mb-10">
-        <h2 className="text-3xl font-bold text-[#071f18]">Create Invoice</h2>
+        <h2 className="text-3xl font-bold text-[#071f18] dark:text-white ">Create Invoice</h2>
         <p className="text-black/50 mt-1">
           Generate a professional invoice for your client.
         </p>
       </header>
 
       <form onSubmit={handleSubmit} className="space-y-8">
-        <div className="bg-white p-6 md:p-8 rounded-2xl shadow-sm border border-black/5 space-y-6">
+        <div className="bg-white dark:bg-[#0d0d0d] p-6 md:p-8 rounded-2xl shadow-sm border border-black/5 space-y-6">
           {/* Custom Client Selection Dropdown */}
           <div className="relative" ref={dropdownRef}>
-            <label className="block text-sm font-semibold text-black/60 mb-2">
+            <label className="block text-sm font-semibold text-black/60 dark:text-white mb-2">
               Select Client
             </label>
             <div
               onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-              className="w-full flex justify-between items-center px-5 py-3 bg-[#fdfaf1] rounded-xl border border-black/5 cursor-pointer outline-none focus:ring-2 ring-[#071f18]/10 transition-all"
+              className="w-full flex justify-between items-center px-5 py-3 bg-[#fdfaf1] dark:bg-white/20 rounded-xl border border-black/5 cursor-pointer outline-none focus:ring-2 ring-[#071f18]/10 transition-all"
             >
               <span
                 className={
                   selectedClientId
-                    ? "text-[#071f18] font-medium"
-                    : "text-black/30"
+                    ? "text-[#071f18] dark:text-white font-medium"
+                    : "text-black/33 dark:text-white/50 "
                 }
               >
                 {selectedClientName}
               </span>
               <svg
-                className={`transition-transform duration-200 text-[#071f18] opacity-40 ${isDropdownOpen ? "rotate-180" : ""}`}
+                className={`transition-transform duration-200 text-[#071f18] dark:text-white opacity-40 ${isDropdownOpen ? "rotate-180" : ""}`}
                 width="18"
                 height="18"
                 viewBox="0 0 24 24"
@@ -148,7 +148,7 @@ export default function NewInvoicePage() {
             </div>
 
             {isDropdownOpen && (
-              <div className="absolute z-50 w-full mt-2 bg-white rounded-xl shadow-xl border border-black/5 overflow-hidden animate-in fade-in zoom-in duration-200">
+              <div className="absolute z-50 w-full mt-2 bg-white dark:bg-white rounded-xl shadow-xl border border-black/5 overflow-hidden animate-in fade-in zoom-in duration-200">
                 {clients.map((c) => (
                   <div
                     key={c.id}
@@ -156,14 +156,14 @@ export default function NewInvoicePage() {
                     className={`px-5 py-3 cursor-pointer transition-colors ${
                       selectedClientId === c.id
                         ? "bg-[#061e18] text-white"
-                        : "text-[#071f18] hover:bg-[#fdfaf1]"
+                        : "text-[#071f18] "
                     }`}
                   >
                     {c.name}
                   </div>
                 ))}
                 {clients.length === 0 && (
-                  <div className="px-5 py-3 text-black/30 italic">
+                  <div className="px-5 py-3 text-black/30 dark:text-white italic">
                     No clients found
                   </div>
                 )}
@@ -173,7 +173,7 @@ export default function NewInvoicePage() {
 
           {/* Line Items */}
           <div className="space-y-4">
-            <label className="block text-sm font-semibold text-black/60">
+            <label className="block text-sm font-semibold text-black/6 dark:text-white ">
               Services / Items
             </label>
             {items.map((item, index) => (
@@ -188,7 +188,7 @@ export default function NewInvoicePage() {
                     onChange={(e) =>
                       updateItem(index, "description", e.target.value)
                     }
-                    className="w-full p-3 bg-[#fdfaf1] rounded-xl outline-none"
+                    className="w-full p-3 bg-[#fdfaf1] dark:bg-white/20 text-black/60 dark:text-white dark:placeholder:text-white/50 rounded-xl outline-none"
                     required
                   />
                 </div>
@@ -200,7 +200,7 @@ export default function NewInvoicePage() {
                     onChange={(e) =>
                       updateItem(index, "quantity", e.target.value)
                     }
-                    className="w-full p-3 bg-[#fdfaf1] rounded-xl outline-none"
+                    className="w-full p-3 bg-[#fdfaf1] dark:bg-white/20 text-black/60 dark:text-white/50 dark:placeholder:text-white/50 rounded-xl outline-none"
                     required
                   />
                 </div>
@@ -210,7 +210,7 @@ export default function NewInvoicePage() {
                     placeholder="Price"
                     value={item.price}
                     onChange={(e) => updateItem(index, "price", e.target.value)}
-                    className="w-full p-3 bg-[#fdfaf1] rounded-xl outline-none"
+                    className="w-full p-3 bg-[#fdfaf1] dark:bg-white/20 text-black/60 dark:text-white dark:placeholder:text-white/50 rounded-xl outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                     required
                   />
                 </div>
@@ -219,7 +219,7 @@ export default function NewInvoicePage() {
             <button
               type="button"
               onClick={addItem}
-              className="text-sm font-bold text-[#071f18] hover:underline"
+              className="text-sm font-bold text-[#071f18] dark:text-white hover:underline"
             >
               + Add another item
             </button>
@@ -227,7 +227,7 @@ export default function NewInvoicePage() {
         </div>
 
         {/* Total & Summary */}
-        <div className="flex flex-col md:flex-row justify-between items-center bg-[#071f18] text-white p-8 rounded-2xl gap-8">
+        <div className="flex flex-col md:flex-row justify-between items-center bg-[#071f18] dark:bg-[#0d0d0d] text-white p-8 rounded-2xl gap-8">
           <div className="text-center md:text-left">
             <p className="text-white/50 text-sm uppercase tracking-widest font-bold">
               Total Amount
@@ -240,13 +240,13 @@ export default function NewInvoicePage() {
             <button
               type="button"
               onClick={() => router.back()}
-              className="text-sm font-bold uppercase tracking-widest text-white/50 hover:text-white transition-colors order-2 sm:order-1"
+              className="text-sm font-bold uppercase tracking-widest text-white/50 dark:hover:text-red-700 hover:text-white transition-colors order-2 sm:order-1 select-none cursor-pointer"
             >
               Cancel
             </button>
             <button
               disabled={loading}
-              className="bg-white text-[#071f18] px-12 py-4 rounded-full font-bold hover:bg-[#fdfaf1] transition-all disabled:opacity-50 w-full sm:w-auto order-1 sm:order-2"
+              className="bg-white text-[#071f18] px-12 py-4 rounded-full font-bold hover:bg-[#fdfaf1] transition-all disabled:opacity-50 w-full sm:w-auto order-1 sm:order-2 select-none cursor-pointer "
             >
               {loading ? "Generating..." : "Save Invoice"}
             </button>

@@ -113,15 +113,10 @@ export default function PrintButton({ invoiceId, initialStatus }) {
         <button
           onClick={markAsPaid}
           disabled={loading}
-          /* 
-         w-full: Takes full width on mobile
-         rounded-xl: Matches your input field roundness
-         px-8 py-4: Larger touch targets for mobile
-      */
-          className="w-full sm:w-auto border border-[#071f18] text-[#071f18] px-8 py-3.5 
+          className="w-full sm:w-auto border-2 border-[#071f18] dark:border-orange-700 text-[#071f18] dark:text-orange-700 px-8 py-3.5 
                  rounded-xl text-[11px] font-bold uppercase tracking-widest 
-                 hover:bg-[#071f18] hover:text-white transition-all 
-                 disabled:opacity-50 text-center whitespace-nowrap"
+                 hover:bg-[#071f18] dark:hover:bg-orange-700 hover:text-white transition-all 
+                 disabled:opacity-50 text-center whitespace-nowrap cursor-pointer "
         >
           {loading ? "Updating..." : "Mark as Paid"}
         </button>
@@ -130,7 +125,7 @@ export default function PrintButton({ invoiceId, initialStatus }) {
       <button
         onClick={handleDownloadPDF}
         disabled={isDownloading}
-        className="select-none cursor-pointer w-full sm:w-auto bg-[#071f18] text-white px-8 py-3.5 
+        className="select-none cursor-pointer w-full sm:w-auto bg-[#071f18] dark:bg-blue-700 text-white dark:text-white px-8 py-3.5 
                rounded-xl text-[11px] font-bold uppercase tracking-widest 
                hover:bg-black transition-all disabled:opacity-50 
                shadow-lg shadow-black/5 text-center whitespace-nowrap"

@@ -23,13 +23,13 @@ export default function DeleteClientButton({ id }) {
         <button
           onClick={handleDelete}
           disabled={isDeleting}
-          className="text-[10px] font-bold uppercase underline text-red-600"
+          className="text-[10px] font-bold uppercase underline text-red-600 cursor-pointer"
         >
           {isDeleting ? "..." : "Yes"}
         </button>
         <button
           onClick={() => setIsConfirming(false)}
-          className="text-[10px] font-bold uppercase underline text-black/40"
+          className="text-[10px] font-bold uppercase underline text-black/40 dark:text-white cursor-pointer "
         >
           No
         </button>
@@ -40,7 +40,7 @@ export default function DeleteClientButton({ id }) {
   return (
     <button
       onClick={() => setIsConfirming(true)}
-      className="text-black/20 hover:text-red-500 transition-colors"
+      className="text-black/20 dark:text-white/70 hover:text-red-500 transition-colors cursor-pointer"
     >
       <svg
         xmlns="http://www.w3.org/2000/svg"

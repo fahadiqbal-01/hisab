@@ -1,5 +1,11 @@
 @import "tailwindcss";
 
+@theme {
+  --color-grae: "#0d0d0d";
+  --color-green: "#0b271e";
+  --color-beige: "#fdfaf2";
+}
+
 /* In your globals.css or a style tag */
 @media print {
   .print-color-adjust {

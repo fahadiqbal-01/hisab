@@ -21,7 +21,9 @@ export default async function ClientsPage() {
   return (
     <section>
       <header className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6 mb-10">
-        <h2 className="text-3xl font-bold text-[#071f18]">Clients</h2>
+        <h2 className="text-3xl font-bold text-[#071f18] dark:text-white ">
+          Clients
+        </h2>
         <Link
           href="/dashboard/clients/new"
           className="select-none cursor-pointer bg-[#071f18] text-white px-6 py-2 rounded-full font-medium shadow-sm"
@@ -30,25 +32,31 @@ export default async function ClientsPage() {
         </Link>
       </header>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+      >
         {clients?.map((client) => (
           <div
             key={client.id}
-            className="bg-white p-6 rounded-3xl border border-black/5 flex justify-between items-start"
+            className="bg-white dark:bg-[#0d0d0d] p-6 rounded-3xl border border-black/5 flex justify-between items-start"
           >
             <div>
-              <h3 className="font-bold text-lg text-[#071f18]">
+              <h3 className="font-bold text-lg text-[#071f18 dark:text-orange-700 ">
                 {client.name}
               </h3>
-              <p className="text-sm text-black/40">{client.email}</p>
-              <p className="text-xs text-black/30 mt-2 font-mono uppercase tracking-tighter">
+              <p className="text-sm text-black/40 dark:text-white ">
+                {client.email}
+              </p>
+              <p className="text-xs text-black/30 dark:text-white mt-2 font-mono uppercase tracking-tighter">
                 {client.preferred_payment_method}: {client.payment_number}
               </p>
             </div>
             <div className="flex flex-col items-end gap-4">
               <Link
                 href={`/dashboard/clients/${client.id}/edit`}
-                className="text-black/20 hover:text-[#071f18] transition-colors"
+                className="text-black/20 dark:text-blue-700 dark:hover:text-blue-400 hover:text-[#071f18] transition-colors"
               >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"

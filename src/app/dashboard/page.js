@@ -2,7 +2,7 @@ import InvoiceAnalysisChart from "@/components/InvoiceAnalysisChart";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { supabaseAdmin } from "@/lib/supabase";
-import EmptyFinanceState from "@/components/EmptyFinanceState"; // Import the cool intro UI
+import EmptyFinanceState from "@/components/EmptyFinanceState";
 
 export default async function DashboardPage() {
   const session = await getServerSession(authOptions);
@@ -104,10 +104,12 @@ export default async function DashboardPage() {
     }) || [];
 
   return (
-    <div className="space-y-10 pb-20 animate-in fade-in duration-700">
+    <div className="space-y-10 pb-20 animate-in fade-in duration-700 ">
       <header className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6">
         <div>
-          <h2 className="text-3xl font-bold text-[#071f18] dark:text-white">
+          <h2
+            className="text-3xl font-bold text-[#071f18] dark:text-white"
+          >
             Finance Overview
           </h2>
           <p className="text-black/50 dark:text-white/40 mt-1">
@@ -126,17 +128,17 @@ export default async function DashboardPage() {
 
       {/* Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="bg-[#071f18] dark:bg-white text-white dark:text-[#071f18] p-8 rounded-3xl shadow-sm">
-          <p className="opacity-50 text-xs uppercase tracking-widest font-bold text-[10px]">
+        <div className="bg-[#071f18] dark:bg-green-700  p-8 rounded-3xl shadow-sm">
+          <p className="text-white dark:text-white opacity-50 text-xs uppercase tracking-widest font-bold text-[10px]">
             Revenue Collected
           </p>
-          <h3 className="text-4xl font-bold mt-2">
+          <h3 className=" text-white text-4xl font-bold mt-2">
             ৳ {revenue.collected.toLocaleString()}
           </h3>
         </div>
 
-        <div className="bg-white dark:bg-white/5 p-8 rounded-3xl border border-black/5 dark:border-white/10 shadow-sm">
-          <p className="text-black/30 dark:text-white/30 text-xs uppercase tracking-widest font-bold text-[10px]">
+        <div className="bg-white dark:bg-[#0d0d0d] p-8 rounded-3xl border border-black/5 dark:border-white/10 shadow-sm">
+          <p className="text-black/30 dark:text-white/70 text-xs uppercase tracking-widest font-bold text-[10px]">
             Pending Payment
           </p>
           <h3 className="text-4xl font-bold mt-2 text-[#071f18] dark:text-white">
@@ -144,8 +146,8 @@ export default async function DashboardPage() {
           </h3>
         </div>
 
-        <div className="bg-white dark:bg-white/5 p-8 rounded-3xl border border-black/5 dark:border-white/10 shadow-sm">
-          <p className="text-black/30 dark:text-white/30 text-xs uppercase tracking-widest font-bold text-[10px]">
+        <div className="bg-white dark:bg-[#0d0d0d] p-8 rounded-3xl border border-black/5 dark:border-white/10 shadow-sm">
+          <p className="text-black/30 dark:text-white/70 text-xs uppercase tracking-widest font-bold text-[10px]">
             Total Invoices
           </p>
           <h3 className="text-4xl font-bold mt-2 text-[#071f18] dark:text-white">

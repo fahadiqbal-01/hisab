@@ -2,6 +2,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { updateClient } from "@/app/actions/clients";
+import { motion } from "framer-motion";
 
 export default function EditClientForm({ client }) {
   const router = useRouter();
@@ -30,14 +31,17 @@ export default function EditClientForm({ client }) {
   };
 
   const inputClass =
-    "w-full p-4 rounded-2xl border border-black/5 bg-[#fdfaf1] focus:outline-none focus:ring-1 focus:ring-[#071f18] transition-all text-[#071f18] font-medium";
+    "w-full p-4 rounded-2xl text-black/70 dark:text-white/70 border border-black/5 bg-[#fdfaf1] dark:bg-white/20 focus:outline-none focus:ring-1 focus:ring-[#071f18] transition-all text-[#071f18] font-medium";
   const labelClass =
-    "text-[10px] font-bold uppercase tracking-[0.2em] text-black/30 mb-2 block ml-1";
+    "text-[10px] font-bold uppercase tracking-[0.2em] text-black/30 dark:text-white/50 mb-2 block ml-1";
 
   return (
-    <form
+    <motion.form
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5 }}
       onSubmit={handleSubmit}
-      className="space-y-8 bg-white p-6 sm:p-10 rounded-[2rem] sm:rounded-[2.5rem] border border-black/5 shadow-sm"
+      className="space-y-8 bg-white dark:bg-[#0d0d0d] p-6 sm:p-10 rounded-4xl sm:rounded-[2.5rem] border border-black/5 shadow-sm"
     >
       {/* Basic Information */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -77,7 +81,7 @@ export default function EditClientForm({ client }) {
 
       {/* Payment Information */}
       <div className="pt-6 border-t border-black/5">
-        <h3 className="text-xs font-bold uppercase tracking-widest text-[#071f18] mb-6">
+        <h3 className="text-xs font-bold uppercase tracking-widest text-[#071f18] dark:text-white mb-6">
           Payment Settings
         </h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -114,21 +118,23 @@ export default function EditClientForm({ client }) {
 
       {/* Action Buttons */}
       <div className="flex flex-col sm:flex-row items-center gap-6 pt-8">
-        <button
+        <motion.button
+          whileHover={{ scale: 1.02 }}
+          whileTap={{ scale: 0.98 }}
           type="submit"
           disabled={loading}
-          className="bg-[#071f18] text-white w-full sm:w-auto px-10 py-4 rounded-full font-bold hover:bg-black transition-all disabled:opacity-50 shadow-lg shadow-[#071f18]/10"
+          className="cursor-pointer bg-[#071f18] dark:bg-black text-white w-full sm:w-auto px-10 py-4 rounded-full font-bold dark:hover:bg-blue-800 hover:bg-black transition-all disabled:opacity-50 shadow-lg shadow-[#071f18]/10"
         >
           {loading ? "Updating..." : "Save Changes"}
-        </button>
+        </motion.button>
         <button
           type="button"
           onClick={() => router.back()}
-          className="text-sm font-bold uppercase tracking-widest text-black/30 hover:text-black transition-colors w-full sm:w-auto"
+          className="text-sm font-bold uppercase tracking-widest text-black/30 dark:text-white dark:hover:text-red-800 hover:text-black transition-colors w-full sm:w-auto cursor-pointer "
         >
           Cancel
         </button>
       </div>
-    </form>
+    </motion.form>
   );
 }

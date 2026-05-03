@@ -21,7 +21,7 @@ export default async function EditClientPage({ params }) {
   return (
     <section className="max-w-2xl">
       <header className="mb-10">
-        <h2 className="text-3xl font-bold text-[#071f18]">Edit Client</h2>
+        <h2 className="text-3xl font-bold text-[#071f18] dark:text-white ">Edit Client</h2>
         <p className="text-black/50 mt-1">
           Update information for {client.name}.
         </p>

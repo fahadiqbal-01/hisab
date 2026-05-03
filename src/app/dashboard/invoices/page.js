@@ -64,7 +64,7 @@ export default async function InvoicesPage() {
               const clientName = inv.clients?.name || "Unknown Client";
               const rawPhone = inv.clients?.phone || "";
 
-              // --- ROBUST WHATSAPP SANITIZATION ---
+              // --- WHATSAPP SANITIZATION ---
               let cleanNumber = rawPhone.replace(/\D/g, ""); // Remove +, spaces, dashes
               
               if (cleanNumber.startsWith("01")) {
@@ -85,7 +85,7 @@ export default async function InvoicesPage() {
                   <td className="px-6 py-4 font-bold text-[#071f18] dark:text-white text-sm">
                     {inv.invoice_number_full}
                   </td>
-                  <td className="px-6 py-4 text-black/60 dark:text-white/60 text-sm">
+                  <td className="px-6 py-4 text-black/60 dark:text-orange-700 text-sm">
                     {clientName}
                   </td>
                   <td className="px-6 py-4 font-bold text-[#071f18] dark:text-white text-sm">

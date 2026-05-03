@@ -39,7 +39,7 @@ export default function DeleteButton({ id, label = "Delete" }) {
   return (
     <button
       onClick={() => setIsConfirming(true)}
-      className="text-black/30 hover:text-red-500 transition-colors"
+      className="text-black/30 dark:text-white/70 hover:text-red-500 transition-colors"
     >
       <svg
         xmlns="http://www.w3.org/2000/svg"

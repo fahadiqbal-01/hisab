@@ -81,10 +81,10 @@ export default function InvoiceEditor({ initialInvoice, user }) {
       {/* Action Bar */}
       <div className="max-w-4xl mx-auto flex flex-col md:flex-row justify-between items-center gap-6 mb-8 px-6 print:hidden">
         <div>
-          <h2 className="text-[10px] font-bold uppercase tracking-[0.2em] text-black/30">
+          <h2 className="text-[10px] font-bold uppercase tracking-[0.2em] text-black/30 dark:text-white ">
             {isEditing ? "Editing Mode" : "Invoice Preview"}
           </h2>
-          <p className="text-[10px] text-black/20 font-mono mt-1">
+          <p className="text-[10px] text-black/20 dark:text-white/70 font-mono mt-1">
             ID: {invoice.id}
           </p>
         </div>
@@ -93,7 +93,7 @@ export default function InvoiceEditor({ initialInvoice, user }) {
             <>
               <button
                 onClick={() => setIsEditing(false)}
-                className="select-none cursor-pointer text-[10px] font-bold uppercase tracking-widest text-black/40"
+                className="select-none cursor-pointer text-[10px] font-bold uppercase tracking-widest text-black/40 dark:text-red-700 "
               >
                 Cancel
               </button>
@@ -108,7 +108,7 @@ export default function InvoiceEditor({ initialInvoice, user }) {
             <>
               <button
                 onClick={() => setIsEditing(true)}
-                className="select-none cursor-pointer text-[10px] font-bold uppercase tracking-widest text-black/40 hover:text-[#071f18]"
+                className="select-none cursor-pointer text-[10px] font-bold uppercase tracking-widest text-black/40 dark:text-white dark:hover:text-orange-700 hover:text-[#071f18]"
               >
                 Edit Invoice
               </button>

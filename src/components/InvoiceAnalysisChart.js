@@ -21,9 +21,9 @@ const CustomPill = (props) => {
       y={cy - height / 2}
       width={width}
       height={height}
-      fill="#000000"
+      fill="#ffffff"
       rx={width / 2}
-      className="transition-all duration-300 hover:fill-[#a855f7] cursor-pointer"
+      className="transition-all duration-300 hover:fill-blue-700 dark:hover:fill-[#008235] cursor-pointer"
       style={{ filter: "drop-shadow(0px 4px 6px rgba(0,0,0,0.1))" }}
       onMouseEnter={onMouseEnter}
       onMouseLeave={onMouseLeave}
@@ -67,8 +67,8 @@ export default function InvoiceAnalysisChart({ data }) {
   };
 
   return (
-    <div className="w-full h-[500px] bg-[#fdfaf1] rounded-[2.5rem] p-8 border border-black/5 shadow-sm">
-      <h3 className="text-[10px] font-bold uppercase tracking-[0.3em] text-black/30 mb-8 ml-8">
+    <div className="w-full h-[500px] bg-[#061e18] dark:bg-[#0d0d0d] rounded-[2.5rem] p-8 border border-black/5 shadow-sm">
+      <h3 className="text-[10px] font-bold uppercase tracking-[0.3em] text-white/30 dark:text-white mb-8 ml-8">
         Individual Paid Invoice Analysis
       </h3>
 
@@ -84,7 +84,7 @@ export default function InvoiceAnalysisChart({ data }) {
             axisLine={true}
             tickLine={true}
             tick={{
-              fill: "#000000",
+              fill: "#ffffff",
               opacity: 0.5,
               fontSize: 11,
               fontWeight: "500",
@@ -97,7 +97,7 @@ export default function InvoiceAnalysisChart({ data }) {
             tickLine={false}
             tickFormatter={formatYAxis}
             tick={{
-              fill: "#000000",
+              fill: "#ffffff",
               opacity: 0.5,
               fontSize: 11,
               fontWeight: "500",

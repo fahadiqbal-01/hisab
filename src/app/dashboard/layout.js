@@ -7,6 +7,7 @@ import SidebarLink from "@/components/SidebarLink";
 import { MdOutlineAnalytics } from "react-icons/md";
 import { FaFileInvoice, FaUsers } from "react-icons/fa";
 import { SlSettings } from "react-icons/sl";
+import DasboardLogo from "@/components/DasboardLogo";
 
 export default async function DashboardLayout({ children }) {
   // 1. Fetch the session on the server
@@ -24,9 +25,7 @@ export default async function DashboardLayout({ children }) {
       {/* Mobile Header */}
       <header className="md:hidden bg-[#071f18] text-white p-4 flex justify-between items-center z-50">
         <div className="flex items-center gap-2">
-          <span className="font-bold text-sm tracking-widest uppercase">
-            Hisab
-          </span>
+          <DasboardLogo />
         </div>
         <label htmlFor="mobile-menu-toggle" className="cursor-pointer p-2">
           <svg
@@ -47,23 +46,20 @@ export default async function DashboardLayout({ children }) {
         </label>
       </header>
 
-      {/* Hidden checkbox for mobile menu toggle logic */}
       <input type="checkbox" id="mobile-menu-toggle" className="hidden peer" />
 
       {/* Sidebar */}
       <aside
         className="
-        fixed inset-y-0 left-0 z-40 w-45 bg-[#071f18] dark:bg-[#000000] text-white flex flex-col border-r border-white/10
+        fixed inset-y-0 left-0 z-40 w-45 bg-[#071f18] dark:bg-[#0d0d0d] text-white flex flex-col border-r border-white/10
         transition-transform -translate-x-full peer-checked:translate-x-0
         md:relative md:translate-x-0
       "
       >
         <div className="flex flex-col h-full">
           <div className="p-6">
-            <span className="font-bold text-4xl tracking-widest uppercase ml-2 ">
-              Hisab
-            </span>
-            <p className="text-[18px] uppercase tracking-[0.2em] text-white/30 font-bold px-2 mt-5 ">
+            <DasboardLogo />
+            <p className="text-[18px] uppercase tracking-[0.2em] text-white/30 dark:text-orange-700 line-through font-bold px-2 mt-5 ">
               {session?.user?.name || "Studio"}
             </p>
           </div>
@@ -93,7 +89,7 @@ export default async function DashboardLayout({ children }) {
       />
 
       {/* Main Content Area */}
-      <main className="flex-1 overflow-y-auto p-6 md:p-10">
+      <main className=" bg-[#fcfbf2] dark:bg-black flex-1 overflow-y-auto p-6 md:p-10">
         {/* We pass the session to children if needed, but Page.js usually handles its own session */}
         {children}
       </main>
