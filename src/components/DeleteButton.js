@@ -22,13 +22,13 @@ export default function DeleteButton({ id, label = "Delete" }) {
         <button
           onClick={handleDelete}
           disabled={isDeleting}
-          className="text-[10px] font-bold uppercase underline text-red-600 hover:text-red-700"
+          className="text-[10px] font-bold uppercase underline text-red-600 hover:text-red-700 cursor-pointer "
         >
           {isDeleting ? "..." : "Yes"}
         </button>
         <button
           onClick={() => setIsConfirming(false)}
-          className="text-[10px] font-bold uppercase underline text-black/40"
+          className="text-[10px] font-bold uppercase underline text-black/40 dark:text-white cursor-pointer"
         >
           No
         </button>

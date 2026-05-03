@@ -36,7 +36,7 @@ const CustomTooltip = ({ active, payload }) => {
   if (active && payload && payload.length) {
     const data = payload[0].payload;
     return (
-      <div className="bg-white p-4 rounded-2xl border border-black/10 shadow-xl min-w-[200px]">
+      <div className="bg-white p-4 rounded-2xl border border-black/10 shadow-xl min-w-50">
         <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-black/40 mb-1">
           {data.date}
         </p>
@@ -67,13 +67,13 @@ export default function InvoiceAnalysisChart({ data }) {
   };
 
   return (
-    <div className="w-full h-[500px] bg-[#061e18] dark:bg-[#0d0d0d] rounded-[2.5rem] p-8 border border-black/5 shadow-sm">
-      <h3 className="text-[10px] font-bold uppercase tracking-[0.3em] text-white/30 dark:text-white mb-8 ml-8">
+    <div className="w-full h-125 bg-[#061e18] dark:bg-[#0d0d0d] rounded-[2.5rem] p-8 border border-black/5 shadow-sm">
+      <h3 className="text-[10px] font-bold uppercase tracking-[0.3em] text-white/30 dark:text-white mb-8 ml-2">
         Individual Paid Invoice Analysis
       </h3>
 
       <ResponsiveContainer width="100%" height="85%">
-        <ScatterChart margin={{ top: 20, right: 30, bottom: 20, left: 10 }}>
+        <ScatterChart margin={{ top: 20, right: 10, bottom: 20, left: -30 }}>
           <CartesianGrid
             vertical={false}
             stroke="#000000"
