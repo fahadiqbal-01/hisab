@@ -1,36 +1,36 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# Hisab
 
-## Getting Started
+Professional invoice management, stripped down to the essentials.
 
-First, run the development server:
+Built for modern agencies and independent creators, Hisab handles client tracking, financial overviews, and invoice generation without the cognitive load of traditional accounting software. Designed with a strict focus on typography, fluid responsiveness, and native dark mode architecture.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+## Philosophy
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Tools should get out of the way. Hisab is built on the premise that financial management can be both beautiful and invisible. It requires zero configuration to start and provides exactly what you need to bill clients and track revenue, nothing more.
 
-You can start editing the page by modifying `app/page.js`. The page auto-updates as you edit the file.
+## Architecture
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+A modern, edge-ready stack optimized for speed and developer experience.
 
-## Learn More
+- **Framework:** Next.js (App Router)
+- **Database & Auth:** Supabase (PostgreSQL)
+- **Styling:** Tailwind CSS v4
+- **Theming:** `next-themes` (System/Light/Dark)
 
-To learn more about Next.js, take a look at the following resources:
+## Core Mechanics
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+- **Fluid Dashboard:** Real-time financial metrics with intelligent, editorial-style empty states.
+- **Smart Invoicing:** Generate, track, and manage invoices with absolute precision.
+- **Frictionless Communication:** One-click WhatsApp integration with robust, automated country-code sanitization.
+- **Adaptive UI:** Fully responsive layouts that feel native on mobile and expansive on desktop.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## The Workflow
 
-## Deploy on Vercel
+Hisab is designed around a linear, frictionless workflow:
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+1. **Client Onboarding:** Add client details once. The system handles formatting and data sanitization autonomously.
+2. **Drafting:** Create invoices in a distraction-free editor. Real-time calculations handle the math.
+3. **Delivery:** Dispatch invoices directly via secure, sanitized WhatsApp deep links.
+4. **Tracking:** Monitor paid vs. pending revenue through a minimalist, data-dense financial overview.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+
