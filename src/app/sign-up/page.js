@@ -16,7 +16,6 @@ export default function SignUp() {
     setSuccess("");
   };
 
-  // --- SIGN UP LOGIC ---
   const [formDataSignUp, setFormDataSignUp] = useState({
     firstName: "",
     lastName: "",
@@ -35,7 +34,6 @@ export default function SignUp() {
     setError("");
 
     try {
-      // Send data to our custom registration API
       const res = await fetch("/api/auth/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -62,7 +60,6 @@ export default function SignUp() {
     }
   };
 
-  // --- SIGN IN LOGIC ---
   const [formDataSignIn, setFormDataSignIn] = useState({
     email: "",
     password: "",
@@ -88,7 +85,6 @@ export default function SignUp() {
       setError("Invalid email or password");
       setLoading(false);
     } else {
-      // Force a full page reload to the dashboard to sync the session perfectly
       window.location.replace("/dashboard");
     }
   };

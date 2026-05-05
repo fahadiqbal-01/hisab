@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { updateClient } from "@/app/actions/clients";
 import { motion } from "framer-motion";
@@ -14,6 +14,10 @@ export default function EditClientForm({ client }) {
     preferred_payment_method: client.preferred_payment_method || "bKash",
     payment_number: client.payment_number || "",
   });
+
+  useEffect(() => {
+    router.prefetch("/dashboard/clients");
+  }, [router]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -118,14 +122,14 @@ export default function EditClientForm({ client }) {
           whileTap={{ scale: 0.98 }}
           type="submit"
           disabled={loading}
-          className="cursor-pointer bg-[#071f18] dark:bg-black text-white w-full sm:w-auto px-10 py-4 rounded-full font-bold dark:hover:bg-blue-800 hover:bg-black transition-all disabled:opacity-50 shadow-lg shadow-[#071f18]/10"
+          className="cursor-pointer bg-[#071f18] dark:bg-white text-white dark:text-black w-full sm:w-auto px-10 py-4 rounded-full font-bold dark:hover:bg-orange-700 dark:hover:text-whites hover:bg-green-900 transition-all disabled:opacity-50 shadow-lg shadow-[#071f18]/10"
         >
           {loading ? "Updating..." : "Save Changes"}
         </motion.button>
         <button
           type="button"
           onClick={() => router.back()}
-          className="text-sm font-bold uppercase tracking-widest text-black/30 dark:text-white dark:hover:text-red-800 hover:text-black transition-colors w-full sm:w-auto cursor-pointer "
+          className="text-sm font-bold uppercase tracking-widest text-black/30 dark:text-white hover:text-red-800 transition-colors w-full sm:w-auto cursor-pointer "
         >
           Cancel
         </button>

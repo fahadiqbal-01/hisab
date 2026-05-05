@@ -1,8 +1,8 @@
 import InvoiceAnalysisChart from "@/components/InvoiceAnalysisChart";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
 import { supabaseAdmin } from "@/lib/supabase";
 import EmptyFinanceState from "@/components/EmptyFinanceState";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
 
 export default async function DashboardPage() {
   return <DashboardContent />;
@@ -37,7 +37,6 @@ async function DashboardContent() {
   if (clientCount === 0) {
     return <EmptyFinanceState />;
   }
-
 
   const revenue = invoices?.reduce(
     (acc, inv) => {
@@ -124,7 +123,6 @@ async function DashboardContent() {
         </div>
       </header>
 
-      {/* Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <div className="bg-[#071f18] dark:bg-green-700  p-8 rounded-3xl shadow-sm">
           <p className="text-white dark:text-white opacity-50 text-xs uppercase tracking-widest font-bold text-[10px]">

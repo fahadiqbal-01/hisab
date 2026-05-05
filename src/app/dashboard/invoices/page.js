@@ -64,7 +64,6 @@ export default async function InvoicesPage() {
               const clientName = inv.clients?.name || "Unknown Client";
               const rawPhone = inv.clients?.phone || "";
 
-              // --- WHATSAPP SANITIZATION ---
               let cleanNumber = rawPhone.replace(/\D/g, ""); // Remove +, spaces, dashes
               
               if (cleanNumber.startsWith("01")) {

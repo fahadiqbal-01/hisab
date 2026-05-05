@@ -1,11 +1,15 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import PrintButton from "./PrintButton";
 import { updateInvoice } from "@/app/actions/invoices";
 
 export default function InvoiceEditor({ initialInvoice, user }) {
   const router = useRouter();
+
+  useEffect(() => {
+    router.prefetch("/dashboard/invoices");
+  }, [router]);
 
   if (!initialInvoice) return null;
 
@@ -16,7 +20,8 @@ export default function InvoiceEditor({ initialInvoice, user }) {
     ...initialInvoice,
     sender_name: initialInvoice.sender_name || user?.name || "",
     sender_email: initialInvoice.sender_email || user?.email || "",
-    invoice_items: initialInvoice.invoice_items || [],
+    invoice_items:
+      initialInvoice.invoice_items?.map((item) => ({ ...item })) || [],
   });
 
   const calculateTotal = () => {
@@ -36,6 +41,7 @@ export default function InvoiceEditor({ initialInvoice, user }) {
         sender_email: invoice.sender_email,
         total: calculateTotal(),
         invoice_items: invoice.invoice_items,
+        notes: invoice.notes,
       });
       if (result.error) throw new Error(result.error);
       setIsEditing(false);
@@ -48,8 +54,9 @@ export default function InvoiceEditor({ initialInvoice, user }) {
   };
 
   const updateItem = (index, field, value) => {
-    const newItems = [...invoice.invoice_items];
-    newItems[index][field] = value;
+    const newItems = invoice.invoice_items.map((item, i) =>
+      i === index ? { ...item, [field]: value } : item,
+    );
     setInvoice({ ...invoice, invoice_items: newItems });
   };
 
@@ -92,14 +99,28 @@ export default function InvoiceEditor({ initialInvoice, user }) {
           {isEditing ? (
             <>
               <button
-                onClick={() => setIsEditing(false)}
+                onClick={() => {
+                  setInvoice({
+                    id: initialInvoice.id || "new-invoice",
+                    ...initialInvoice,
+                    sender_name: initialInvoice.sender_name || user?.name || "",
+                    sender_email:
+                      initialInvoice.sender_email || user?.email || "",
+                    notes: initialInvoice.notes || "",
+                    invoice_items:
+                      initialInvoice.invoice_items?.map((item) => ({
+                        ...item,
+                      })) || [],
+                  });
+                  setIsEditing(false);
+                }}
                 className="select-none cursor-pointer text-[10px] font-bold uppercase tracking-widest text-black/40 dark:text-red-700 "
               >
                 Cancel
               </button>
               <button
                 onClick={handleSave}
-                className="bg-[#071f18] text-white px-8 py-3 rounded-full text-[10px] font-bold uppercase tracking-widest shadow-lg"
+                className="bg-[#071f18] dark:bg-white text-white dark:text-black px-8 py-3 rounded-full text-[10px] font-bold uppercase tracking-widest shadow-lg select-none cursor-pointer"
               >
                 {loading ? "Saving..." : "Save Changes"}
               </button>
@@ -324,6 +345,26 @@ export default function InvoiceEditor({ initialInvoice, user }) {
               </p>
             </div>
           </footer>
+          <div className="mt-24">
+            <h3 className="text-[10px] font-bold uppercase tracking-[0.2em] text-black/30 mb-2">
+              Note
+            </h3>
+            {isEditing ? (
+              <textarea
+                className={`${inputClasses} w-full text-sm py-2 resize-none h-20`}
+                placeholder="e.g. Please process the payment using the method mentioned above."
+                value={invoice.notes || ""}
+                onChange={(e) =>
+                  setInvoice({ ...invoice, notes: e.target.value })
+                }
+              />
+            ) : (
+              <p className="text-sm text-black/50 italic leading-relaxed  ">
+                {invoice.notes ||
+                  "Please process the payment using the method mentioned above. Thank you!"}
+              </p>
+            )}
+          </div>
         </div>
       </div>
     </div>

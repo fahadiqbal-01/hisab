@@ -12,11 +12,7 @@ export default function SidebarLink({ href, icon, name, className }) {
   };
 
   return (
-    <motion.div
-      whileHover={{ x: 5 }}
-      whileTap={{ scale: 0.97 }}
-      transition={{ type: "spring", stiffness: 400, damping: 17 }}
-    >
+    <motion.div whileTap={{ scale: 0.97 }} transition={{ duration: 0.1 }}>
       <Link
         href={href}
         onClick={handleClick}

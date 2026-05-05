@@ -1,4 +1,3 @@
-import { Suspense } from "react";
 import Link from "next/link";
 import * as motion from "framer-motion/client";
 import { supabaseAdmin } from "@/lib/supabase";
@@ -6,12 +5,8 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import DeleteClientButton from "@/components/DeleteClientButton";
 
-export default function ClientsPage() {
-  return (
-    <Suspense fallback={<ClientsSkeleton />}>
-      <ClientsContent />
-    </Suspense>
-  );
+export default async function ClientsPage() {
+  return <ClientsContent />;
 }
 
 async function ClientsContent() {
@@ -86,24 +81,5 @@ async function ClientsContent() {
         ))}
       </div>
     </motion.section>
-  );
-}
-
-function ClientsSkeleton() {
-  return (
-    <section className="animate-pulse">
-      <header className="flex justify-between items-center mb-10">
-        <div className="h-10 w-32 bg-black/5 dark:bg-white/5 rounded-xl" />
-        <div className="h-10 w-32 bg-black/5 dark:bg-white/5 rounded-full" />
-      </header>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {[1, 2, 3, 4, 5, 6].map((i) => (
-          <div
-            key={i}
-            className="bg-black/5 dark:bg-white/5 h-40 rounded-3xl border border-black/5"
-          />
-        ))}
-      </div>
-    </section>
   );
 }

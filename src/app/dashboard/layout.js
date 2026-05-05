@@ -59,9 +59,6 @@ export default async function DashboardLayout({ children }) {
         <div className="flex flex-col h-full">
           <div className="p-6">
             <DasboardLogo className=" md:block hidden " />
-            <p className="text-[18px] uppercase tracking-[0.2em] text-white/30 dark:text-orange-700 line-through font-bold px-2 mt-5 ">
-              {session?.user?.name || "Studio"}
-            </p>
           </div>
 
           <nav className="flex-1 px-4 space-y-2 overflow-y-auto">
@@ -91,9 +88,9 @@ export default async function DashboardLayout({ children }) {
       {/* Main Content Area */}
       <main className=" bg-[#fcfbf2] dark:bg-black flex-1 overflow-y-auto p-6 md:p-10">
         <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.4, ease: "easeOut" }}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.2, ease: "linear" }}
         >
           {children}
         </motion.div>
