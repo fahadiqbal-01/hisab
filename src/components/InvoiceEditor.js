@@ -44,7 +44,7 @@ export default function InvoiceEditor({ initialInvoice, user }) {
         notes: invoice.notes,
       });
       if (result.error) throw new Error(result.error);
-      setIsEditing(false);
+      router.push("/dashboard/invoices");
       router.refresh();
     } catch (error) {
       alert(`Failed to save: ${error.message}`);
