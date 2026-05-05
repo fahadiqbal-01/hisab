@@ -1,0 +1,22 @@
+{
+  "name": "Hisab Dashboard",
+  "short_name": "Hisab",
+  "description": "https://hisab-dash.vercel.app/dashboard",
+  "start_url": ".",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#2196f3",
+  "icons": [
+    {
+      "src": "icons/logo.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    },
+    {
+      "src": "icons/logosec.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    }
+  ]
+}
+s

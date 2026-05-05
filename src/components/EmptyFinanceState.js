@@ -32,7 +32,7 @@ export default function EmptyFinanceState() {
       <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
         <Link
           href="/dashboard/clients"
-          className="bg-[#071f18] dark:bg-white text-white dark:text-[#071f18] px-12 py-5 rounded-full text-[10px] font-bold uppercase tracking-[0.25em] hover:opacity-90 transition-all shadow-xl active:scale-95"
+          className="bg-[#071f18] dark:bg-white text-white dark:text-[#071f18] md:px-12 px-7 py-5 rounded-full text-[10px] font-bold uppercase tracking-[0.25em] hover:opacity-90 transition-all shadow-xl active:scale-95"
         >
           Add your first client
         </Link>

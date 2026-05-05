@@ -144,7 +144,7 @@ export default function SettingsClient({ initialProfile, user }) {
                 </div>
 
                 {isPaymentDropdownOpen && (
-                  <div className="absolute z-50 w-full mt-2 bg-[#fcfaf0] dark:bg-[#0d0d0d] rounded-xl shadow-xl border border-black/5 overflow-hidden">
+                  <div className="absolute z-50 w-full mt-2 bg-[#fcfaf0] dark:bg-white/20 dark:text-white rounded-xl shadow-xl border border-black/5 overflow-hidden">
                     {[
                       { id: "BKASH", label: "bKash" },
                       { id: "NAGAD", label: "Nagad" },
@@ -156,7 +156,7 @@ export default function SettingsClient({ initialProfile, user }) {
                           setProfile({ ...profile, payment_method: method.id });
                           setIsPaymentDropdownOpen(false);
                         }}
-                        className={`px-5 py-3 cursor-pointer ${profile.payment_method === method.id ? "bg-[#061e18] dark:bg-orange-700 text-white" : "hover:bg-black/5"}`}
+                        className={`px-5 py-3 cursor-pointer ${profile.payment_method === method.id ? "bg-[#061e18] dark:bg-orange-700 text-white dark:text-white" : "hover:bg-white/20 "}`}
                       >
                         {method.label}
                       </div>
