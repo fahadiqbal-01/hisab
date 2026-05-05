@@ -34,7 +34,6 @@ export default function SettingsPageClient() {
     init();
   }, [userId, status]);
 
-  // Close payment dropdown when clicking outside
   useEffect(() => {
     function handleClickOutside(event) {
       if (
@@ -83,7 +82,7 @@ export default function SettingsPageClient() {
 
   if (loading)
     return (
-      <div className="p-10 text-[#071f18]/20 uppercase font-bold tracking-[0.3em] text-xs animate-pulse">
+      <div className="p-10 text-[#071f18]/20 dark:text-white uppercase font-bold tracking-[0.3em] text-xs animate-pulse">
         Initializing Settings...
       </div>
     );
@@ -111,7 +110,6 @@ export default function SettingsPageClient() {
         </div>
 
         <div className="space-y-12">
-          {/* Section 1: Business Branding */}
           <motion.section
             initial={{ opacity: 0 }}
             whileInView={{ opacity: 1 }}
@@ -161,7 +159,6 @@ export default function SettingsPageClient() {
 
           <hr className="border-black/5" />
 
-          {/* Section 2: Payment Defaults */}
           <motion.section
             initial={{ opacity: 0 }}
             whileInView={{ opacity: 1 }}
@@ -270,7 +267,6 @@ export default function SettingsPageClient() {
             </div>
           </motion.section>
 
-          {/* Footer Save Bar */}
           <motion.footer
             layout
             className="flex flex-col sm:flex-row justify-between items-center bg-[#071f18] dark:bg-[#0d0d0d] p-6 rounded-3xl shadow-xl mt-20 gap-4"

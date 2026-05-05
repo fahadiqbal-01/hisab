@@ -8,13 +8,11 @@ export const dynamic = "force-dynamic";
 export default async function Home() {
   const session = await getServerSession(authOptions);
 
-  // If the middleware didn't catch it, do a final server-side check
   if (session) {
     redirect("/dashboard");
   } else {
     redirect("/sign-up");
   }
 
-  // Next.js build requires a default export that returns a component
   return null;
 }

@@ -55,15 +55,12 @@ export const authOptions = {
   },
   secret: process.env.NEXTAUTH_SECRET,
 
-  // 1. MUST BE TRUE for Vercel deployments
   trustHost: true,
 
   pages: {
     signIn: "/sign-up",
   },
 
-  // 2. Simplified Cookie Config
-  // Removing the manual 'domain' allows Vercel to handle the routing properly
   useSecureCookies: isProduction,
   cookies: {
     sessionToken: {

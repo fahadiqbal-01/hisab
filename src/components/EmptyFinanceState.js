@@ -9,9 +9,8 @@ export default function EmptyFinanceState() {
       initial={{ opacity: 0, scale: 0.95 }}
       animate={{ opacity: 1, scale: 1 }}
       transition={{ duration: 0.6, ease: "easeOut" }}
-      className="w-full min-h-[500px] flex flex-col items-center justify-center rounded-[40px] bg-[#fcfaf0] dark:bg-white/5 p-10 text-center"
+      className="w-full min-h-125 flex flex-col items-center justify-center rounded-[40px] bg-[#fcfaf0] dark:bg-white/5 p-10 text-center"
     >
-      {/* Decorative Icon */}
       <motion.div
         animate={{ rotate: [0, 90, 0] }}
         transition={{ duration: 10, repeat: Infinity, ease: "linear" }}
@@ -20,7 +19,6 @@ export default function EmptyFinanceState() {
         <Plus className="text-white dark:text-[#071f18] w-12 h-12" />
       </motion.div>
 
-      {/* Typography matches your luxury aesthetic */}
       <h2 className="text-4xl font-serif italic text-[#071f18] dark:text-white mb-4 tracking-tight">
         A new chapter in finance
       </h2>
@@ -31,7 +29,6 @@ export default function EmptyFinanceState() {
         space once your first client is added.
       </p>
 
-      {/* Primary CTA */}
       <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
         <Link
           href="/dashboard/clients"

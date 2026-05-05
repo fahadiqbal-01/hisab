@@ -43,7 +43,6 @@ export default function EditClientForm({ client }) {
       onSubmit={handleSubmit}
       className="space-y-8 bg-white dark:bg-[#0d0d0d] p-6 sm:p-10 rounded-4xl sm:rounded-[2.5rem] border border-black/5 shadow-sm"
     >
-      {/* Basic Information */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
         <div>
           <label className={labelClass}>Client Name</label>
@@ -68,7 +67,6 @@ export default function EditClientForm({ client }) {
         </div>
       </div>
 
-      {/* Contact Details */}
       <div>
         <label className={labelClass}>Phone Number (for WhatsApp)</label>
         <input
@@ -79,7 +77,6 @@ export default function EditClientForm({ client }) {
         />
       </div>
 
-      {/* Payment Information */}
       <div className="pt-6 border-t border-black/5">
         <h3 className="text-xs font-bold uppercase tracking-widest text-[#071f18] dark:text-white mb-6">
           Payment Settings
@@ -97,7 +94,6 @@ export default function EditClientForm({ client }) {
                 })
               }
             >
-              {/* The 'value' must match your Supabase ENUM exactly (usually lowercase) */}
               <option value="bkash">bKash</option>
               <option value="nagad">Nagad</option>
               <option value="bank">Bank Transfer</option>
@@ -116,7 +112,6 @@ export default function EditClientForm({ client }) {
         </div>
       </div>
 
-      {/* Action Buttons */}
       <div className="flex flex-col sm:flex-row items-center gap-6 pt-8">
         <motion.button
           whileHover={{ scale: 1.02 }}

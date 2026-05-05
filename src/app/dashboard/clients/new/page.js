@@ -39,71 +39,71 @@ export default async function NewClientPage() {
   return (
     <div className="max-w-2xl px-4 sm:px-0 pb-10">
       <header className="mb-8 md:mb-10">
-        <h2 className="text-2xl md:text-3xl font-bold text-[#071f18]">New Client</h2>
+        <h2 className="text-2xl md:text-3xl font-bold text-[#071f18]">
+          New Client
+        </h2>
         <p className="text-black/50 mt-1 text-sm md:text-base">
           Fill in the details to register a new client.
         </p>
       </header>
 
       <form action={createClientAction} className="space-y-6">
-        {/* Changed to grid-cols-1 by default, md:grid-cols-2 for tablet/desktop */}
-        <div className="bg-white p-5 md:p-8 rounded-2xl shadow-sm border border-black/5 grid grid-cols-1 md:grid-cols-2 gap-5 md:gap-6">
-          
+        <div className="bg-white dark:bg-[#0d0d0d] p-5 md:p-8 rounded-2xl shadow-sm border border-black/5 grid grid-cols-1 md:grid-cols-2 gap-5 md:gap-6">
           <div className="md:col-span-2">
-            <label className="block text-sm font-semibold text-black/60 mb-2">
+            <label className="block text-sm font-semibold text-black/60 dark:text-white mb-2">
               Full Name
             </label>
             <input
               name="name"
               required
-              className="w-full p-3 bg-[#fdfaf1] rounded-xl outline-none focus:ring-2 ring-[#071f18]/10"
+              className="w-full p-3 bg-[#fdfaf1] dark:bg-white/20 rounded-xl outline-none focus:ring-2 ring-[#071f18]/10"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-semibold text-black/60 mb-2">
+            <label className="block text-sm font-semibold text-black/60 dark:text-white mb-2">
               Email Address
             </label>
             <input
               name="email"
               type="email"
-              className="w-full p-3 bg-[#fdfaf1] rounded-xl outline-none focus:ring-2 ring-[#071f18]/10"
+              className="w-full p-3 bg-[#fdfaf1] dark:bg-white/20 rounded-xl outline-none focus:ring-2 ring-[#071f18]/10"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-semibold text-black/60 mb-2">
+            <label className="block text-sm font-semibold text-black/60 dark:text-white mb-2">
               Phone Number
             </label>
             <input
               name="phone"
-              className="w-full p-3 bg-[#fdfaf1] rounded-xl outline-none focus:ring-2 ring-[#071f18]/10"
+              className="w-full p-3 bg-[#fdfaf1] dark:bg-white/20 rounded-xl outline-none focus:ring-2 ring-[#071f18]/10"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-semibold text-black/60 mb-2">
+            <label className="block text-sm font-semibold text-black/60 dark:text-white mb-2">
               Payment Method
             </label>
             <select
               name="method"
-              className="w-full p-3 bg-[#fdfaf1] rounded-xl outline-none focus:ring-2 ring-[#071f18]/10 appearance-none"
+              className="w-full p-3 bg-[#fdfaf1] dark:bg-white/20 dark:text-white/50 rounded-xl outline-none focus:ring-2 ring-[#071f18]/10 appearance-none"
             >
-              <option value="bkash">bKash</option>
-              <option value="nagad">Nagad</option>
-              <option value="bank">Bank Transfer</option>
-              <option value="cash">Cash</option>
+              <option className=" dark:bg-black dark:text-white " value="bkash">bKash</option>
+              <option className=" dark:bg-black dark:text-white " value="nagad">Nagad</option>
+              <option className=" dark:bg-black dark:text-white " value="bank">Bank Transfer</option>
+              <option className=" dark:bg-black dark:text-white " value="cash">Cash</option>
             </select>
           </div>
 
           <div>
-            <label className="block text-sm font-semibold text-black/60 mb-2">
+            <label className="block text-sm font-semibold text-black/60 dark:text-white mb-2">
               Payment Number
             </label>
             <input
               name="payment_number"
               placeholder="e.g. 017XXXXXXXX"
-              className="w-full p-3 bg-[#fdfaf1] rounded-xl outline-none focus:ring-2 ring-[#071f18]/10"
+              className="w-full p-3 bg-[#fdfaf1] dark:bg-white/20 rounded-xl outline-none focus:ring-2 dark:placeholder:text-white/50 ring-[#071f18]/10"
             />
           </div>
         </div>

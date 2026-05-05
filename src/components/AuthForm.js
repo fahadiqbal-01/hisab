@@ -117,7 +117,6 @@ export default function AuthForm() {
         )}
       </AnimatePresence>
 
-      {/* SIGN IN FORM */}
       {!toggleSign && (
         <motion.div
           initial={{ opacity: 0, x: -20 }}
@@ -176,7 +175,6 @@ export default function AuthForm() {
         </motion.div>
       )}
 
-      {/* SIGN UP FORM */}
       {toggleSign && (
         <motion.div
           initial={{ opacity: 0, x: 20 }}

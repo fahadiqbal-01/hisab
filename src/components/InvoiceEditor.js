@@ -121,7 +121,6 @@ export default function InvoiceEditor({ initialInvoice, user }) {
         </div>
       </div>
 
-      {/* Scroll Wrapper */}
       <div className="w-full overflow-x-auto pb-10 cursor-grab active:cursor-grabbing px-4 sm:px-6">
         <div
           id="invoice-capture-area"
@@ -131,7 +130,6 @@ export default function InvoiceEditor({ initialInvoice, user }) {
               : "print:shadow-none print:m-0 print:p-0"
           }`}
         >
-          {/* Header */}
           <header className="flex justify-between items-start mb-24">
             <div>
               {isEditing ? (
@@ -172,7 +170,6 @@ export default function InvoiceEditor({ initialInvoice, user }) {
             </div>
           </header>
 
-          {/* Info Section */}
           <section className="grid grid-cols-2 gap-20 mb-24">
             <div>
               <h3 className="text-[10px] font-bold uppercase tracking-[0.2em] text-black/30 mb-4">
@@ -200,7 +197,6 @@ export default function InvoiceEditor({ initialInvoice, user }) {
             </div>
           </section>
 
-          {/* Table */}
           <table className="w-full mb-8">
             <thead>
               <tr className="border-b border-black/5">

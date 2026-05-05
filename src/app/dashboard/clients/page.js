@@ -1,16 +1,23 @@
+import { Suspense } from "react";
 import Link from "next/link";
-import { createClient } from "@supabase/supabase-js";
+import * as motion from "framer-motion/client";
+import { supabaseAdmin } from "@/lib/supabase";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import DeleteClientButton from "@/components/DeleteClientButton";
 
-const supabaseAdmin = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL,
-  process.env.SUPABASE_SERVICE_ROLE_KEY,
-);
+export default function ClientsPage() {
+  return (
+    <Suspense fallback={<ClientsSkeleton />}>
+      <ClientsContent />
+    </Suspense>
+  );
+}
 
-export default async function ClientsPage() {
+async function ClientsContent() {
   const session = await getServerSession(authOptions);
+
+  if (!session?.user?.id) return null;
 
   const { data: clients } = await supabaseAdmin
     .from("clients")
@@ -19,24 +26,24 @@ export default async function ClientsPage() {
     .order("name");
 
   return (
-    <section>
+    <motion.section
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.4 }}
+    >
       <header className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6 mb-10">
         <h2 className="text-3xl font-bold text-[#071f18] dark:text-white ">
           Clients
         </h2>
         <Link
           href="/dashboard/clients/new"
-          className="select-none cursor-pointer bg-[#071f18] text-white px-6 py-2 rounded-full font-medium shadow-sm"
+          className="select-none cursor-pointer bg-[#071f18] dark:bg-white text-white dark:text-black px-6 py-2 rounded-full font-medium shadow-sm"
         >
           + Add Client
         </Link>
       </header>
 
-      <div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
-      >
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {clients?.map((client) => (
           <div
             key={client.id}
@@ -76,6 +83,25 @@ export default async function ClientsPage() {
               <DeleteClientButton id={client.id} />
             </div>
           </div>
+        ))}
+      </div>
+    </motion.section>
+  );
+}
+
+function ClientsSkeleton() {
+  return (
+    <section className="animate-pulse">
+      <header className="flex justify-between items-center mb-10">
+        <div className="h-10 w-32 bg-black/5 dark:bg-white/5 rounded-xl" />
+        <div className="h-10 w-32 bg-black/5 dark:bg-white/5 rounded-full" />
+      </header>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {[1, 2, 3, 4, 5, 6].map((i) => (
+          <div
+            key={i}
+            className="bg-black/5 dark:bg-white/5 h-40 rounded-3xl border border-black/5"
+          />
         ))}
       </div>
     </section>

@@ -8,7 +8,6 @@ export default function DasboardLogo({ className }) {
   const { resolvedTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
 
-  // Avoid hydration mismatch by waiting for mount
   useEffect(() => {
     setMounted(true);
   }, []);

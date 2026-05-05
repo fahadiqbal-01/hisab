@@ -58,7 +58,7 @@ const CustomTooltip = ({ active, payload }) => {
 };
 
 export default function InvoiceAnalysisChart({ data }) {
-  // Defensive filter to double-check we only show paid items
+
   const paidOnlyData = data?.filter((item) => item.status === "paid") || [];
 
   const formatYAxis = (tickItem) => {

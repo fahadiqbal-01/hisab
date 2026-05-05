@@ -7,7 +7,6 @@ export default function AppearanceSettings() {
   const { theme, setTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
 
-  // Prevention of hydration mismatch
   useEffect(() => setMounted(true), []);
   if (!mounted) return null;
 
@@ -28,7 +27,6 @@ export default function AppearanceSettings() {
       </header>
 
       <div className="space-y-3">
-        {/* Theme */}
         {[
           { id: "light", label: "Light Mode" },
           { id: "dark", label: "Dark Mode" },

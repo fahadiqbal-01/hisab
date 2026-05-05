@@ -39,23 +39,19 @@ export default function PrintButton({ invoiceId, initialStatus }) {
         scale: 2,
         useCORS: true,
         backgroundColor: "#ffffff",
-        // AGGRESSIVE FIX: Clean modern CSS colors from the entire cloned document
         onclone: (clonedDoc) => {
           const allElements = clonedDoc.getElementsByTagName("*");
           for (let el of allElements) {
             const style = window.getComputedStyle(el);
 
-            // Check for modern color functions in text color
             if (style.color.includes("okl") || style.color.includes("lab")) {
               el.style.setProperty("color", "#000000", "important");
             }
 
-            // Check for modern color functions in backgrounds
             if (
               style.backgroundColor.includes("okl") ||
               style.backgroundColor.includes("lab")
             ) {
-              // If it's a background, usually safer to force white or transparent
               el.style.setProperty(
                 "background-color",
                 "transparent",
@@ -63,7 +59,6 @@ export default function PrintButton({ invoiceId, initialStatus }) {
               );
             }
 
-            // Check for border colors
             if (
               style.borderColor.includes("okl") ||
               style.borderColor.includes("lab")
@@ -72,7 +67,6 @@ export default function PrintButton({ invoiceId, initialStatus }) {
             }
           }
 
-          // Force the main container to be visible and white
           const target = clonedDoc.getElementById("invoice-capture-area");
           if (target) {
             target.style.setProperty(
