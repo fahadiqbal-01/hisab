@@ -32,6 +32,7 @@ export default async function NewClientPage() {
 
     if (!error) {
       revalidatePath("/dashboard/clients");
+      revalidatePath("/dashboard");
       redirect("/dashboard/clients");
     }
   }
@@ -39,7 +40,7 @@ export default async function NewClientPage() {
   return (
     <div className="max-w-2xl px-4 sm:px-0 pb-10">
       <header className="mb-8 md:mb-10">
-        <h2 className="text-2xl md:text-3xl font-bold text-[#071f18]">
+        <h2 className="text-2xl md:text-3xl font-bold text-[#071f18] dark:text-white ">
           New Client
         </h2>
         <p className="text-black/50 mt-1 text-sm md:text-base">
@@ -89,10 +90,18 @@ export default async function NewClientPage() {
               name="method"
               className="w-full p-3 bg-[#fdfaf1] dark:bg-white/20 dark:text-white/50 rounded-xl outline-none focus:ring-2 ring-[#071f18]/10 appearance-none"
             >
-              <option className=" dark:bg-black dark:text-white " value="bkash">bKash</option>
-              <option className=" dark:bg-black dark:text-white " value="nagad">Nagad</option>
-              <option className=" dark:bg-black dark:text-white " value="bank">Bank Transfer</option>
-              <option className=" dark:bg-black dark:text-white " value="cash">Cash</option>
+              <option className=" dark:bg-black dark:text-white " value="bkash">
+                bKash
+              </option>
+              <option className=" dark:bg-black dark:text-white " value="nagad">
+                Nagad
+              </option>
+              <option className=" dark:bg-black dark:text-white " value="bank">
+                Bank Transfer
+              </option>
+              <option className=" dark:bg-black dark:text-white " value="cash">
+                Cash
+              </option>
             </select>
           </div>
 
@@ -103,7 +112,7 @@ export default async function NewClientPage() {
             <input
               name="payment_number"
               placeholder="e.g. 017XXXXXXXX"
-              className="w-full p-3 bg-[#fdfaf1] dark:bg-white/20 rounded-xl outline-none focus:ring-2 dark:placeholder:text-white/50 ring-[#071f18]/10"
+              className="w-full p-3 bg-[#fdfaf1] dark:bg-white/20 rounded-xl outline-none focus:ring-2 placeholder:text-black dark:placeholder:text-white/50 ring-[#071f18]/10"
             />
           </div>
         </div>
@@ -111,13 +120,13 @@ export default async function NewClientPage() {
         <div className="flex flex-col gap-3 md:flex-row md:gap-4">
           <button
             type="submit"
-            className="select-none cursor-pointer bg-[#071f18] text-white px-10 py-4 rounded-full font-semibold hover:bg-[#0a2d23] transition-all w-full md:w-auto order-1 md:order-none"
+            className="select-none cursor-pointer bg-[#071f18] dark:bg-white text-white dark:text-black px-10 py-4 rounded-full font-semibold hover:bg-[#0a2d23] transition-all w-full md:w-auto order-1 md:order-none"
           >
             Save Client
           </button>
           <Link
             href="/dashboard/clients"
-            className="select-none cursor-pointer px-10 py-4 rounded-full font-semibold border border-black/10 hover:bg-black/5 transition-all text-center w-full md:w-auto"
+            className="select-none cursor-pointer text-[#0a2d23] dark:text-white px-10 py-4 rounded-full font-semibold border border-black/10 hover:bg-black/5 transition-all text-center w-full md:w-auto"
           >
             Cancel
           </Link>

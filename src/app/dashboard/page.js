@@ -4,6 +4,8 @@ import EmptyFinanceState from "@/components/EmptyFinanceState";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 
+export const revalidate = 0;
+
 export default async function DashboardPage() {
   return <DashboardContent />;
 }

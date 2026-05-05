@@ -144,7 +144,7 @@ export default function SettingsClient({ initialProfile, user }) {
                 </div>
 
                 {isPaymentDropdownOpen && (
-                  <div className="absolute z-50 w-full mt-2 bg-[#fcfaf0] dark:bg-white/20 dark:text-white rounded-xl shadow-xl border border-black/5 overflow-hidden">
+                  <div className="absolute z-50 w-full mt-2 bg-[#fcfaf0] dark:bg-white dark:text-black rounded-xl shadow-xl  overflow-hidden">
                     {[
                       { id: "BKASH", label: "bKash" },
                       { id: "NAGAD", label: "Nagad" },

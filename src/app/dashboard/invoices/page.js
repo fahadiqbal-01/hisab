@@ -15,6 +15,14 @@ const supabaseAdmin = createClient(
 export default async function InvoicesPage() {
   const session = await getServerSession(authOptions);
 
+  if (!session?.user?.id) {
+    return (
+      <div className="p-10 text-black/20 font-bold uppercase tracking-widest text-xs">
+        Session lost. Please refresh or re-login.
+      </div>
+    );
+  }
+
   const { data: invoices } = await supabaseAdmin
     .from("invoices")
     .select(`*, clients (name, phone)`)
@@ -25,14 +33,16 @@ export default async function InvoicesPage() {
     <section className="animate-in fade-in duration-500">
       <header className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-10">
         <div>
-          <h2 className="text-3xl font-bold text-[#071f18] dark:text-white">Invoices</h2>
+          <h2 className="text-3xl font-bold text-[#071f18] dark:text-white">
+            Invoices
+          </h2>
           <p className="text-black/50 dark:text-white/40 mt-1">
             Track your billings and payment statuses.
           </p>
         </div>
         <Link
           href="/dashboard/invoices/new"
-          className="select-none cursor-pointer bg-[#071f18] dark:bg-white dark:text-[#071f18] text-white px-6 py-2 rounded-full font-medium hover:opacity-90 transition-all text-sm uppercase tracking-widest font-bold"
+          className="select-none cursor-pointer bg-[#071f18] dark:bg-white dark:text-[#071f18] text-white px-6 py-2 rounded-full font-medium hover:opacity-90 transition-all text-sm uppercase tracking-widest "
         >
           + Create Invoice
         </Link>
@@ -43,7 +53,7 @@ export default async function InvoicesPage() {
           <thead className="bg-[#fdfaf1] dark:bg-white/5 border-b border-black/5 dark:border-white/10">
             <tr>
               <th className="px-6 py-4 text-[10px] uppercase tracking-widest font-bold text-black/40 dark:text-white/40">
-                Invoice #
+                Invoice#
               </th>
               <th className="px-6 py-4 text-[10px] uppercase tracking-widest font-bold text-black/40 dark:text-white/40">
                 Client
@@ -64,23 +74,29 @@ export default async function InvoicesPage() {
               const clientName = inv.clients?.name || "Unknown Client";
               const rawPhone = inv.clients?.phone || "";
 
-              let cleanNumber = rawPhone.replace(/\D/g, ""); // Remove +, spaces, dashes
-              
+              let cleanNumber = rawPhone.replace(/\D/g, "");
+
               if (cleanNumber.startsWith("01")) {
-                cleanNumber = `88${cleanNumber}`; // Fix for BD local numbers
-              } else if (cleanNumber.startsWith("1") && cleanNumber.length === 10) {
+                cleanNumber = `88${cleanNumber}`;
+              } else if (
+                cleanNumber.startsWith("1") &&
+                cleanNumber.length === 10
+              ) {
                 cleanNumber = `880${cleanNumber}`;
               }
 
               const message = `Hello ${clientName}, your invoice ${inv.invoice_number_full} for ৳${inv.total.toLocaleString()} is ready. Please check it here.`;
 
-              const whatsappUrl = cleanNumber.length >= 10
-                ? `https://api.whatsapp.com/send?phone=${cleanNumber}&text=${encodeURIComponent(message)}`
-                : null;
-              // ------------------------------------
+              const whatsappUrl =
+                cleanNumber.length >= 10
+                  ? `https://api.whatsapp.com/send?phone=${cleanNumber}&text=${encodeURIComponent(message)}`
+                  : null;
 
               return (
-                <tr key={inv.id} className="hover:bg-gray-50 dark:hover:bg-white/5 transition-colors group">
+                <tr
+                  key={inv.id}
+                  className="hover:bg-gray-50 dark:hover:bg-white/5 transition-colors group"
+                >
                   <td className="px-6 py-4 font-bold text-[#071f18] dark:text-white text-sm">
                     {inv.invoice_number_full}
                   </td>
