@@ -11,19 +11,31 @@ export default function PrintButton({ invoiceId, initialStatus }) {
   const [isDownloading, setIsDownloading] = useState(false);
 
   const markAsPaid = async () => {
-    // Optimistic Update: Change UI immediately
+    setLoading(true);
     const previousStatus = status;
     setStatus("paid");
 
-    const res = await fetch(`/dashboard/invoices/${invoiceId}/status`, {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ status: "paid" }),
-    });
+    try {
+      const res = await fetch(`/dashboard/invoices/${invoiceId}/status`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status: "paid" }),
+      });
 
-    if (!res.ok) {
+      if (!res.ok) {
+        setStatus(previousStatus);
+        alert("Failed to update status");
+      } else {
+        // Tell Next.js to refresh the current route, which updates all
+        // components (charts, lists, etc.) with the latest server data.
+        router.refresh();
+      }
+    } catch (error) {
+      console.error("Update failed:", error);
       setStatus(previousStatus);
-      alert("Failed to update status");
+      alert("An unexpected error occurred.");
+    } finally {
+      setLoading(false);
     }
   };
 
