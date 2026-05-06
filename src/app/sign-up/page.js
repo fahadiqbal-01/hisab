@@ -88,12 +88,11 @@ export default function SignUp() {
         redirect: false,
       });
 
-      if (res?.error) {
+      if (res?.ok) {
+        window.location.href = "/dashboard";
+      } else {
         setError("Invalid email or password");
         setLoading(false);
-      } else {
-        // Use replace instead of push for a cleaner transition and immediate navigation
-        router.replace("/dashboard");
       }
     } catch (err) {
       setError("An unexpected error occurred. Please try again.");

@@ -3,6 +3,7 @@ import React, { useState, useEffect } from "react";
 import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
+import Image from "next/image";
 
 export default function AuthForm() {
   const router = useRouter();
@@ -88,11 +89,13 @@ export default function AuthForm() {
         redirect: false,
       });
 
-      if (res?.error) {
+      if (res?.ok) {
+        // Using window.location.href for the transition ensures that the production
+        // session cookie is correctly synchronized before the dashboard loads.
+        window.location.href = "/dashboard";
+      } else {
         setError("Invalid email or password");
         setLoading(false);
-      } else {
-        router.replace("/dashboard");
       }
     } catch (err) {
       setError("Sign in failed. Please check your connection.");
@@ -133,10 +136,12 @@ export default function AuthForm() {
           exit={{ opacity: 0, x: 20 }}
           className="bg-[#071f18]/90 backdrop-blur-xl flex flex-col items-center py-8 px-6 sm:px-10 rounded-4xl sm:rounded-[3rem] shadow-2xl border border-white/10 w-[90%] sm:w-auto"
         >
-          <img
+          <Image
             src="/images/logo.png"
             alt="Logo"
-            className="w-20 h-20 rounded-full mb-6 shadow-lg"
+            width={80}
+            height={80}
+            className="rounded-full mb-6 shadow-lg"
           />
           <h2 className="text-2xl font-bold text-white mb-6">Welcome Back</h2>
           <form
@@ -191,10 +196,12 @@ export default function AuthForm() {
           exit={{ opacity: 0, x: -20 }}
           className="bg-[#071f18]/90 backdrop-blur-xl flex flex-col items-center py-8 px-6 sm:px-10 rounded-4xl sm:rounded-[3rem] shadow-2xl border border-white/10 w-[90%] sm:w-auto"
         >
-          <img
+          <Image
             src="/images/logo.png"
             alt="Logo"
-            className="w-20 h-20 rounded-full mb-6 shadow-lg"
+            width={80}
+            height={80}
+            className="rounded-full mb-6 shadow-lg"
           />
           <h2 className="text-2xl font-bold text-white mb-6">Create Account</h2>
           <form
