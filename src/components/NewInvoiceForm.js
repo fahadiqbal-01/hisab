@@ -96,6 +96,7 @@ export default function NewInvoiceForm({
     });
 
     if (res.ok) {
+      router.refresh();
       router.push("/dashboard/invoices");
     } else {
       setLoading(false);
