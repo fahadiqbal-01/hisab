@@ -266,7 +266,7 @@ export default function InvoiceEditor({ initialInvoice, user }) {
                 {isEditing && <th className="w-10"></th>}
               </tr>
             </thead>
-            <tbody className="divide-y divide-black/[0.03]">
+            <tbody className="divide-y divide-black/3">
               {invoice.invoice_items?.map((item, idx) => (
                 <tr key={item.id}>
                   <td className="py-6 pr-4">

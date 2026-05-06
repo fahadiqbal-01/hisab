@@ -13,6 +13,11 @@ export async function middleware(req) {
   const isAuthPage =
     pathname === "/sign-up" || pathname === "/login" || pathname === "/";
 
+  // Handle unauthenticated root access immediately to avoid flicker via Home component
+  if (pathname === "/" && !token) {
+    return NextResponse.redirect(new URL("/sign-up", req.url));
+  }
+
   if (isAuthPage && token) {
     return NextResponse.redirect(new URL("/dashboard", req.url));
   }

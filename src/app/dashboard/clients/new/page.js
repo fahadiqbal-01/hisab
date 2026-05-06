@@ -149,7 +149,7 @@ export default async function NewClientPage() {
         <div className="flex flex-col gap-3 md:flex-row md:gap-4">
           <button
             type="submit"
-            className="select-none cursor-pointer bg-[#071f18] dark:bg-white text-white dark:text-black px-10 py-4 rounded-full font-semibold hover:bg-[#0a2d23] dark:hover:bg-orange-700 dark:hover:text-white transition-all w-full md:w-auto order-1 md:order-none"
+            className="select-none cursor-pointer bg-[#071f18] dark:bg-white text-white dark:text-black px-10 py-4 rounded-full font-semibold hover:bg-[#0a2d23] dark:hover:bg-orange-700 dark:hover:text-white transition-all w-full md:w-auto order-1 md:order-0"
           >
             Save Client
           </button>

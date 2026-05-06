@@ -96,7 +96,7 @@ export default function AuthForm() {
   };
 
   return (
-    <main className="w-full h-screen flex justify-center items-center relative">
+    <main className="w-full h-screen flex justify-center items-center relative bg-black">
       <AnimatePresence mode="wait">
         {error && (
           <motion.div
@@ -126,7 +126,7 @@ export default function AuthForm() {
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
           exit={{ opacity: 0, x: 20 }}
-          className="bg-[#071f18]/90 backdrop-blur-xl flex flex-col items-center py-8 px-6 sm:px-10 rounded-[2rem] sm:rounded-[3rem] shadow-2xl border border-white/10 w-[90%] sm:w-auto"
+          className="bg-[#071f18]/90 backdrop-blur-xl flex flex-col items-center py-8 px-6 sm:px-10 rounded-4xl sm:rounded-[3rem] shadow-2xl border border-white/10 w-[90%] sm:w-auto"
         >
           <img
             src="/images/logo.png"
@@ -184,7 +184,7 @@ export default function AuthForm() {
           initial={{ opacity: 0, x: 20 }}
           animate={{ opacity: 1, x: 0 }}
           exit={{ opacity: 0, x: -20 }}
-          className="bg-[#071f18]/90 backdrop-blur-xl flex flex-col items-center py-8 px-6 sm:px-10 rounded-[2rem] sm:rounded-[3rem] shadow-2xl border border-white/10 w-[90%] sm:w-auto"
+          className="bg-[#071f18]/90 backdrop-blur-xl flex flex-col items-center py-8 px-6 sm:px-10 rounded-4xl sm:rounded-[3rem] shadow-2xl border border-white/10 w-[90%] sm:w-auto"
         >
           <img
             src="/images/logo.png"
@@ -204,7 +204,7 @@ export default function AuthForm() {
                 onChange={handleChangeSignUp}
                 value={formDataSignUp.firstName}
                 required
-                className="bg-white/5 w-full sm:w-[9.5rem] h-12 rounded-full border border-white/10 p-4 outline-none focus:border-white/40 text-white transition-all"
+                className="bg-white/5 w-full sm:w-38 h-12 rounded-full border border-white/10 p-4 outline-none focus:border-white/40 text-white transition-all"
               />
               <input
                 type="text"
@@ -213,7 +213,7 @@ export default function AuthForm() {
                 onChange={handleChangeSignUp}
                 value={formDataSignUp.lastName}
                 required
-                className="bg-white/5 w-full sm:w-[9.5rem] h-12 rounded-full border border-white/10 p-4 outline-none focus:border-white/40 text-white transition-all"
+                className="bg-white/5 w-full sm:w-38 h-12 rounded-full border border-white/10 p-4 outline-none focus:border-white/40 text-white transition-all"
               />
             </div>
             <input
@@ -263,7 +263,8 @@ export default function AuthForm() {
         loop
         muted
         playsInline
-        className="absolute left-0 top-0 background-video w-full h-screen object-cover -z-20 brightness-[0.4]"
+        className="absolute left-0 top-0 background-video w-full h-screen object-cover -z-20 brightness-[0.4] bg-black"
+        preload="auto"
       />
     </main>
   );

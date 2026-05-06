@@ -90,7 +90,10 @@ export default function SignUp() {
   };
 
   return (
-    <main className="w-full h-screen flex justify-center items-center select-none relative">
+    <main
+      id="banner"
+      className="w-full h-screen flex justify-center items-center select-none relative"
+    >
       {error && (
         <div className="absolute top-10 bg-red-500/80 text-white px-6 py-2 rounded-full z-50">
           {error}
@@ -102,9 +105,9 @@ export default function SignUp() {
           {success}
         </div>
       )}
-
+      {/* SIGN IN FORM */}
       <div
-        className={`${toggleSign ? "hidden" : "bg-[#071f18] dark:bg-[#0d0d0d] flex flex-col justify-center items-center py-8 px-4 h-screen md:h-auto w-full sm:w-auto"}`}
+        className={`${toggleSign ? "hidden" : "bg-[#071f18] dark:bg-[#0d0d0d] flex flex-col justify-center items-center py-8 px-4 h-screen md:h-auto w-full sm:w-auto"} z-50 `}
       >
         <img
           src="images/logothird.png"
@@ -155,7 +158,7 @@ export default function SignUp() {
 
       {/* SIGN UP FORM */}
       <div
-        className={`${toggleSign ? "bg-[#071f18] dark:bg-[#0d0d0d] flex flex-col items-center py-8 px-4 w-full sm:w-auto" : "hidden"}`}
+        className={`${toggleSign ? "bg-[#071f18] dark:bg-[#0d0d0d] flex flex-col items-center py-8 px-4 w-full sm:w-auto" : "hidden"} z-50 `}
       >
         <img
           src="images/logothird.png"
@@ -226,14 +229,9 @@ export default function SignUp() {
         </p>
       </div>
 
-      <video
-        src="video/loginBG.mp4"
-        preload="none"
-        autoPlay
-        loop
-        muted
-        playsInline
-        className="absolute left-0 top-0 background-video w-full h-screen object-cover -z-20"
+      <img
+        src="images/banner.jpg"
+        className=" absolute left-0 top-0 bg-cover -z-20 opacity-60 "
       />
     </main>
   );
