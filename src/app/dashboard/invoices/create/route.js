@@ -4,8 +4,6 @@ import { authOptions } from "@/lib/auth";
 import { createClient } from "@supabase/supabase-js";
 
 export async function POST(req) {
-  console.log("POST request received at /api/invoices/create"); // Debug log
-
   try {
     const session = await getServerSession(authOptions);
     if (!session)
@@ -47,7 +45,7 @@ export async function POST(req) {
           status: "sent",
         },
       ])
-      .select()
+      .select("id")
       .single();
 
     if (invError) throw invError;

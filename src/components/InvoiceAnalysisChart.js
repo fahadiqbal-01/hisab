@@ -1,5 +1,5 @@
 "use client";
-import React from "react";
+import React, { useState, useEffect } from "react";
 import {
   ScatterChart,
   Scatter,
@@ -11,12 +11,25 @@ import {
 } from "recharts";
 
 const CustomPill = (props) => {
-  const { cx, cy, payload, onMouseEnter, onMouseLeave, onMouseMove } = props;
+  const {
+    cx,
+    cy,
+    payload,
+    isActive,
+    tooltipPayload,
+    tooltipPosition,
+    xAxis,
+    yAxis,
+    active,
+    index,
+    ...rest
+  } = props;
   const height = Math.max(40, (payload.amount / 50000) * 20);
   const width = 12;
 
   return (
     <rect
+      {...rest}
       x={cx - width / 2}
       y={cy - height / 2}
       width={width}
@@ -24,10 +37,10 @@ const CustomPill = (props) => {
       fill="#ffffff"
       rx={width / 2}
       className="transition-all duration-300 hover:fill-blue-700 dark:hover:fill-[#008235] cursor-pointer"
-      style={{ filter: "drop-shadow(0px 4px 6px rgba(0,0,0,0.1))" }}
-      onMouseEnter={onMouseEnter}
-      onMouseLeave={onMouseLeave}
-      onMouseMove={onMouseMove}
+      style={{
+        filter: "drop-shadow(0px 4px 6px rgba(0,0,0,0.1))",
+        ...rest.style,
+      }}
     />
   );
 };
@@ -58,6 +71,11 @@ const CustomTooltip = ({ active, payload }) => {
 };
 
 export default function InvoiceAnalysisChart({ data }) {
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const paidOnlyData = data?.filter((item) => item.status === "paid") || [];
 
@@ -72,47 +90,54 @@ export default function InvoiceAnalysisChart({ data }) {
         Individual Paid Invoice Analysis
       </h3>
 
-      <ResponsiveContainer width="100%" height="85%">
-        <ScatterChart margin={{ top: 20, right: 10, bottom: 20, left: -30 }}>
-          <CartesianGrid
-            vertical={false}
-            stroke="#000000"
-            strokeOpacity={0.05}
-          />
-          <XAxis
-            dataKey="date"
-            axisLine={true}
-            tickLine={true}
-            tick={{
-              fill: "#ffffff",
-              opacity: 0.5,
-              fontSize: 11,
-              fontWeight: "500",
-            }}
-            tickMargin={15}
-          />
-          <YAxis
-            dataKey="amount"
-            axisLine={false}
-            tickLine={false}
-            tickFormatter={formatYAxis}
-            tick={{
-              fill: "#ffffff",
-              opacity: 0.5,
-              fontSize: 11,
-              fontWeight: "500",
-            }}
-            domain={["auto", "auto"]}
-          />
-          <Tooltip content={<CustomTooltip />} cursor={false} />
-          <Scatter
-            name="Invoices"
-            data={paidOnlyData}
-            shape={<CustomPill />}
-            animationDuration={1500}
-          />
-        </ScatterChart>
-      </ResponsiveContainer>
+      {mounted && (
+        <ResponsiveContainer
+          width="100%"
+          height="85%"
+          minWidth={0}
+          minHeight={0}
+        >
+          <ScatterChart margin={{ top: 20, right: 10, bottom: 20, left: -30 }}>
+            <CartesianGrid
+              vertical={false}
+              stroke="#000000"
+              strokeOpacity={0.05}
+            />
+            <XAxis
+              dataKey="date"
+              axisLine={true}
+              tickLine={true}
+              tick={{
+                fill: "#ffffff",
+                opacity: 0.5,
+                fontSize: 11,
+                fontWeight: "500",
+              }}
+              tickMargin={15}
+            />
+            <YAxis
+              dataKey="amount"
+              axisLine={false}
+              tickLine={false}
+              tickFormatter={formatYAxis}
+              tick={{
+                fill: "#ffffff",
+                opacity: 0.5,
+                fontSize: 11,
+                fontWeight: "500",
+              }}
+              domain={["auto", "auto"]}
+            />
+            <Tooltip content={<CustomTooltip />} cursor={false} />
+            <Scatter
+              name="Invoices"
+              data={paidOnlyData}
+              shape={<CustomPill />}
+              animationDuration={1500}
+            />
+          </ScatterChart>
+        </ResponsiveContainer>
+      )}
     </div>
   );
 }
