@@ -81,19 +81,23 @@ export default function SignUp() {
     setLoading(true);
     setError("");
 
-    const res = await signIn("credentials", {
-      email: formDataSignIn.email,
-      password: formDataSignIn.password,
-      redirect: false,
-    });
+    try {
+      const res = await signIn("credentials", {
+        email: formDataSignIn.email,
+        password: formDataSignIn.password,
+        redirect: false,
+      });
 
-    if (res?.error) {
-      setError("Invalid email or password");
+      if (res?.error) {
+        setError("Invalid email or password");
+        setLoading(false);
+      } else {
+        // Use replace instead of push for a cleaner transition and immediate navigation
+        router.replace("/dashboard");
+      }
+    } catch (err) {
+      setError("An unexpected error occurred. Please try again.");
       setLoading(false);
-    } else {
-      // Direct push for the fastest transition
-      router.push("/dashboard");
-      // refresh() removed here as it can block the UI thread on slow connections
     }
   };
 

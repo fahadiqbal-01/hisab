@@ -81,17 +81,22 @@ export default function AuthForm() {
     setError("");
     setSuccess("");
 
-    const res = await signIn("credentials", {
-      email: formDataSignIn.email,
-      password: formDataSignIn.password,
-      redirect: false,
-    });
+    try {
+      const res = await signIn("credentials", {
+        email: formDataSignIn.email,
+        password: formDataSignIn.password,
+        redirect: false,
+      });
 
-    if (res?.error) {
-      setError("Invalid email or password");
+      if (res?.error) {
+        setError("Invalid email or password");
+        setLoading(false);
+      } else {
+        router.replace("/dashboard");
+      }
+    } catch (err) {
+      setError("Sign in failed. Please check your connection.");
       setLoading(false);
-    } else {
-      router.push("/dashboard");
     }
   };
 
