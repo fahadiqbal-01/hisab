@@ -11,7 +11,6 @@ export default function SignUp() {
   const [success, setSuccess] = useState("");
   const [loading, setLoading] = useState(false);
 
-  // Prefetch the dashboard route to speed up the transition after login
   useEffect(() => {
     router.prefetch("/dashboard");
   }, [router]);
@@ -171,7 +170,7 @@ export default function SignUp() {
 
       {/* SIGN UP FORM */}
       <div
-        className={`${toggleSign ? "bg-[#071f18] dark:bg-[#0d0d0d] flex flex-col items-center py-8 px-4 w-full sm:w-auto" : "hidden"} z-50 `}
+        className={`${toggleSign ? "bg-[#071f18] dark:bg-[#0d0d0d] flex flex-col items-center py-8 px-4 h-screen md:h-auto w-full sm:w-auto" : "hidden"} z-50 `}
       >
         <Image
           src="/images/logothird.png"

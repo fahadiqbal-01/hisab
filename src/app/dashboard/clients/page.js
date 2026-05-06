@@ -9,7 +9,6 @@ async function ClientsList() {
   const session = await getServerSession(authOptions);
   if (!session?.user?.id) return null;
 
-  // Optimization: Select only necessary columns to reduce database and network latency
   const { data: clients } = await supabaseAdmin
     .from("clients")
     .select("id, name, email")
@@ -65,11 +64,6 @@ export default async function ClientsPage() {
 
   return (
     <section>
-      {session?.user?.name && (
-        <p className="text-[22px] font-bold uppercase text-orange-700 mb-4">
-          {session.user.name}
-        </p>
-      )}
       <header className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6 mb-10">
         <h2 className="text-3xl font-bold text-[#071f18] dark:text-white ">
           Clients
