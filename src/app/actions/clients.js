@@ -33,9 +33,11 @@ export async function updateClient(id, formData) {
       name: formData.name,
       email: formData.email,
       phone: formData.phone,
-      // Force lowercase here to match the Database ENUM
-      preferred_payment_method: formData.preferred_payment_method.toLowerCase(),
-      payment_number: formData.payment_number,
+      company: formData.company,
+      address: formData.address,
+      city_state: formData.city_state,
+      zip_code: formData.zip_code,
+      country: formData.country,
     })
     .eq("id", id);
 

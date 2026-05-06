@@ -49,9 +49,6 @@ export default function SettingsClient({ initialProfile, user }) {
         className="max-w-4xl pb-20 select-none"
       >
         <header className="mb-12">
-          <p className="text-[28px] uppercase tracking-[0.2em] text-black dark:text-orange-700 font-bold my-5 ">
-            {user?.name || "Studio"}
-          </p>
           <h2 className="text-3xl font-bold text-[#071f18] dark:text-white">
             Settings
           </h2>
@@ -127,7 +124,7 @@ export default function SettingsClient({ initialProfile, user }) {
                   }
                   className="w-full flex justify-between items-center px-5 py-3 bg-[#fcfaf0] dark:bg-white/30 rounded-xl border border-black/5 cursor-pointer"
                 >
-                  <span className="text-black dark:text-white/70 font-medium">
+                  <span className="text-black dark:text-white/70 font-medium capitalize">
                     {profile.payment_method || "Select..."}
                   </span>
                   <svg
@@ -146,9 +143,12 @@ export default function SettingsClient({ initialProfile, user }) {
                 {isPaymentDropdownOpen && (
                   <div className="absolute z-50 w-full mt-2 bg-[#fcfaf0] dark:bg-white dark:text-black rounded-xl shadow-xl  overflow-hidden">
                     {[
-                      { id: "BKASH", label: "bKash" },
-                      { id: "NAGAD", label: "Nagad" },
-                      { id: "BANK", label: "Bank Transfer" },
+                      { id: "bkash", label: "bKash" },
+                      { id: "nagad", label: "Nagad" },
+                      { id: "bank", label: "Bank Transfer" },
+                      { id: "paypal", label: "PayPal" },
+                      { id: "wise", label: "Wise" },
+                      { id: "rocket", label: "Rocket" },
                     ].map((method) => (
                       <div
                         key={method.id}

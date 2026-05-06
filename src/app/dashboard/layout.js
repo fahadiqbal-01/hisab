@@ -1,4 +1,3 @@
-import * as motion from "framer-motion/client";
 import React from "react";
 import Link from "next/link";
 import { getServerSession } from "next-auth";
@@ -87,13 +86,7 @@ export default async function DashboardLayout({ children }) {
 
       {/* Main Content Area */}
       <main className=" bg-[#fcfbf2] dark:bg-black flex-1 overflow-y-auto p-6 md:p-10">
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.2, ease: "linear" }}
-        >
-          {children}
-        </motion.div>
+        <div className="animate-in fade-in duration-200">{children}</div>
       </main>
     </div>
   );

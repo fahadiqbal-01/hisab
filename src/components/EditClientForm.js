@@ -11,8 +11,11 @@ export default function EditClientForm({ client }) {
     name: client.name || "",
     email: client.email || "",
     phone: client.phone || "",
-    preferred_payment_method: client.preferred_payment_method || "bKash",
-    payment_number: client.payment_number || "",
+    company: client.company || "",
+    address: client.address || "",
+    city_state: client.city_state || "",
+    zip_code: client.zip_code || "",
+    country: client.country || "Bangladesh",
   });
 
   useEffect(() => {
@@ -58,6 +61,16 @@ export default function EditClientForm({ client }) {
           />
         </div>
         <div>
+          <label className={labelClass}>Company (Optional)</label>
+          <input
+            className={inputClass}
+            value={formData.company}
+            onChange={(e) =>
+              setFormData({ ...formData, company: e.target.value })
+            }
+          />
+        </div>
+        <div>
           <label className={labelClass}>Email Address</label>
           <input
             type="email"
@@ -69,47 +82,59 @@ export default function EditClientForm({ client }) {
             }
           />
         </div>
+        <div>
+          <label className={labelClass}>Phone Number</label>
+          <input
+            required
+            className={inputClass}
+            value={formData.phone}
+            onChange={(e) =>
+              setFormData({ ...formData, phone: e.target.value })
+            }
+          />
+        </div>
       </div>
 
-      <div>
-        <label className={labelClass}>Phone Number (for WhatsApp)</label>
-        <input
-          required
-          className={inputClass}
-          value={formData.phone}
-          onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-        />
-      </div>
-
-      <div className="pt-6 border-t border-black/5">
-        <h3 className="text-xs font-bold uppercase tracking-widest text-[#071f18] dark:text-white mb-6">
-          Payment Settings
-        </h3>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+      <div className="pt-6 border-t border-black/5 space-y-8">
+        <div>
+          <label className={labelClass}>Address (Optional)</label>
+          <input
+            className={inputClass}
+            value={formData.address}
+            onChange={(e) =>
+              setFormData({ ...formData, address: e.target.value })
+            }
+          />
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           <div>
-            <label className={labelClass}>Preferred Method</label>
-            <select
-              className={inputClass}
-              value={formData.preferred_payment_method}
-              onChange={(e) =>
-                setFormData({
-                  ...formData,
-                  preferred_payment_method: e.target.value,
-                })
-              }
-            >
-              <option value="bkash">bKash</option>
-              <option value="nagad">Nagad</option>
-              <option value="bank">Bank Transfer</option>
-            </select>
-          </div>
-          <div>
-            <label className={labelClass}>Account / Wallet Number</label>
+            <label className={labelClass}>City / State</label>
             <input
               className={inputClass}
-              value={formData.payment_number}
+              value={formData.city_state}
               onChange={(e) =>
-                setFormData({ ...formData, payment_number: e.target.value })
+                setFormData({ ...formData, city_state: e.target.value })
+              }
+            />
+          </div>
+          <div>
+            <label className={labelClass}>Zip Code</label>
+            <input
+              className={inputClass}
+              value={formData.zip_code}
+              onChange={(e) =>
+                setFormData({ ...formData, zip_code: e.target.value })
+              }
+            />
+          </div>
+          <div>
+            <label className={labelClass}>Country</label>
+            <input
+              required
+              className={inputClass}
+              value={formData.country}
+              onChange={(e) =>
+                setFormData({ ...formData, country: e.target.value })
               }
             />
           </div>
@@ -122,7 +147,7 @@ export default function EditClientForm({ client }) {
           whileTap={{ scale: 0.98 }}
           type="submit"
           disabled={loading}
-          className="cursor-pointer bg-[#071f18] dark:bg-white text-white dark:text-black w-full sm:w-auto px-10 py-4 rounded-full font-bold dark:hover:bg-orange-700 dark:hover:text-whites hover:bg-green-900 transition-all disabled:opacity-50 shadow-lg shadow-[#071f18]/10"
+          className="cursor-pointer bg-[#071f18] dark:bg-white text-white dark:text-black w-full sm:w-auto px-10 py-4 rounded-full font-bold dark:hover:bg-orange-700 dark:hover:text-white hover:bg-green-900 transition-all disabled:opacity-50 shadow-lg shadow-[#071f18]/10"
         >
           {loading ? "Updating..." : "Save Changes"}
         </motion.button>

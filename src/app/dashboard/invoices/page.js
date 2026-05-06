@@ -114,7 +114,7 @@ export default async function InvoicesPage() {
                           : "bg-orange-100 text-orange-700 dark:bg-orange-500/20 dark:text-orange-400"
                       }`}
                     >
-                      {inv.status}
+                      {inv.status === "paid" ? "Paid" : "Due"}
                     </span>
                   </td>
                   <td className="px-6 py-4">

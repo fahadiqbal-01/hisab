@@ -26,7 +26,16 @@ export async function updateInvoice(invoiceData) {
   }
 
   try {
-    const { id, sender_name, sender_email, total, invoice_items } = invoiceData;
+    const {
+      id,
+      sender_name,
+      sender_email,
+      total,
+      invoice_items,
+      vat,
+      tax,
+      notes,
+    } = invoiceData;
 
     // 1. Update main invoice total and sender details
     const { error: invError } = await supabaseAdmin
@@ -35,6 +44,9 @@ export async function updateInvoice(invoiceData) {
         total: total,
         sender_name: sender_name,
         sender_email: sender_email,
+        vat: Number(vat) || 0,
+        tax: Number(tax) || 0,
+        notes: notes || "",
       })
       .eq("id", id)
       .eq("user_id", session.user.id); // Crucial security check: only allow updating own invoices
@@ -52,8 +64,13 @@ export async function updateInvoice(invoiceData) {
       .eq("invoice_id", id);
 
     if (deleteItemsError) {
-      console.error("Supabase Delete Invoice Items Error:", deleteItemsError.message);
-      throw new Error(`Failed to delete old invoice items: ${deleteItemsError.message}`);
+      console.error(
+        "Supabase Delete Invoice Items Error:",
+        deleteItemsError.message,
+      );
+      throw new Error(
+        `Failed to delete old invoice items: ${deleteItemsError.message}`,
+      );
     }
 
     // Prepare items for insertion
@@ -65,11 +82,18 @@ export async function updateInvoice(invoiceData) {
       total_price: Number(item.quantity || 0) * Number(item.unit_price || 0),
     }));
 
-    const { error: insertItemsError } = await supabaseAdmin.from("invoice_items").insert(itemsToInsert);
+    const { error: insertItemsError } = await supabaseAdmin
+      .from("invoice_items")
+      .insert(itemsToInsert);
 
     if (insertItemsError) {
-      console.error("Supabase Insert Invoice Items Error:", insertItemsError.message);
-      throw new Error(`Failed to insert new invoice items: ${insertItemsError.message}`);
+      console.error(
+        "Supabase Insert Invoice Items Error:",
+        insertItemsError.message,
+      );
+      throw new Error(
+        `Failed to insert new invoice items: ${insertItemsError.message}`,
+      );
     }
 
     // Revalidate paths to reflect changes

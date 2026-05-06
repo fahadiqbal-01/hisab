@@ -228,6 +228,7 @@ export default function SignUp() {
 
       <video
         src="video/loginBG.mp4"
+        preload="none"
         autoPlay
         loop
         muted

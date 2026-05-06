@@ -37,7 +37,7 @@ async function DashboardContent() {
   const clientCount = clientsResponse.count || 0;
 
   if (clientCount === 0) {
-    return <EmptyFinanceState />;
+    return <EmptyFinanceState user={session.user} />;
   }
 
   const revenue = invoices?.reduce(
@@ -105,7 +105,13 @@ async function DashboardContent() {
     }) || [];
 
   return (
-    <div className="space-y-10 pb-20 animate-in fade-in duration-700 ">
+    <div className="space-y-10 pb-20 animate-in fade-in duration-700">
+      {session?.user?.name && (
+        <p className="text-[22px] font-bold uppercase text-orange-700 mb-4">
+          {session.user.name}
+        </p>
+      )}
+
       <header className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6">
         <div>
           <h2 className="text-3xl font-bold text-[#071f18] dark:text-white">

@@ -7,6 +7,26 @@ import { updateInvoice } from "@/app/actions/invoices";
 export default function InvoiceEditor({ initialInvoice, user }) {
   const router = useRouter();
 
+  const normalizeInvoice = (sourceInvoice) => ({
+    id: sourceInvoice?.id || "new-invoice",
+    ...sourceInvoice,
+    sender_name: sourceInvoice?.sender_name || user?.name || "",
+    sender_email: sourceInvoice?.sender_email || user?.email || "",
+    vat: sourceInvoice?.vat ?? 0,
+    tax: sourceInvoice?.tax ?? 0,
+    notes: sourceInvoice?.notes ?? "",
+    payment_method: sourceInvoice?.payment_method ?? "",
+    payment_number: sourceInvoice?.payment_number ?? "",
+    currency: sourceInvoice?.currency || "৳",
+    invoice_items:
+      sourceInvoice?.invoice_items?.map((item) => ({
+        ...item,
+        description: item?.description ?? "",
+        quantity: item?.quantity ?? 0,
+        unit_price: item?.unit_price ?? 0,
+      })) || [],
+  });
+
   useEffect(() => {
     router.prefetch("/dashboard/invoices");
   }, [router]);
@@ -15,16 +35,11 @@ export default function InvoiceEditor({ initialInvoice, user }) {
 
   const [isEditing, setIsEditing] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [invoice, setInvoice] = useState({
-    id: initialInvoice.id || "new-invoice",
-    ...initialInvoice,
-    sender_name: initialInvoice.sender_name || user?.name || "",
-    sender_email: initialInvoice.sender_email || user?.email || "",
-    invoice_items:
-      initialInvoice.invoice_items?.map((item) => ({ ...item })) || [],
-  });
+  const [invoice, setInvoice] = useState(() =>
+    normalizeInvoice(initialInvoice),
+  );
 
-  const calculateTotal = () => {
+  const calculateSubtotal = () => {
     return invoice.invoice_items.reduce(
       (sum, item) =>
         sum + Number(item.quantity || 0) * Number(item.unit_price || 0),
@@ -32,6 +47,14 @@ export default function InvoiceEditor({ initialInvoice, user }) {
     );
   };
 
+  const calculateTotal = () => {
+    const subtotal = calculateSubtotal();
+    const vatVal = parseFloat(invoice.vat) || 0;
+    const taxVal = parseFloat(invoice.tax) || 0;
+    const vatAmount = (subtotal * vatVal) / 100;
+    const taxAmount = (subtotal * taxVal) / 100;
+    return subtotal + vatAmount + taxAmount;
+  };
   const handleSave = async () => {
     setLoading(true);
     try {
@@ -39,6 +62,8 @@ export default function InvoiceEditor({ initialInvoice, user }) {
         id: invoice.id,
         sender_name: invoice.sender_name,
         sender_email: invoice.sender_email,
+        vat: Number(invoice.vat) || 0,
+        tax: Number(invoice.tax) || 0,
         total: calculateTotal(),
         invoice_items: invoice.invoice_items,
         notes: invoice.notes,
@@ -101,16 +126,7 @@ export default function InvoiceEditor({ initialInvoice, user }) {
               <button
                 onClick={() => {
                   setInvoice({
-                    id: initialInvoice.id || "new-invoice",
-                    ...initialInvoice,
-                    sender_name: initialInvoice.sender_name || user?.name || "",
-                    sender_email:
-                      initialInvoice.sender_email || user?.email || "",
-                    notes: initialInvoice.notes || "",
-                    invoice_items:
-                      initialInvoice.invoice_items?.map((item) => ({
-                        ...item,
-                      })) || [],
+                    ...normalizeInvoice(initialInvoice),
                   });
                   setIsEditing(false);
                 }}
@@ -199,18 +215,32 @@ export default function InvoiceEditor({ initialInvoice, user }) {
               <p className="font-bold text-xl text-[#071f18]">
                 {invoice.clients?.name}
               </p>
-              <p className="text-sm text-black/50 mt-1">
-                {invoice.clients?.email}
-              </p>
+              <p className="pt-2">{invoice.clients?.email}</p>
+              {invoice.clients?.company && (
+                <p className="text-sm font-medium text-black/60 mt-1">
+                  {invoice.clients.company}
+                </p>
+              )}
+              <div className="text-sm text-black/50 mt-0.5 space-y-0.5">
+                {invoice.clients?.address && <p>{invoice.clients.address}</p>}
+                {(invoice.clients?.city_state || invoice.clients?.zip_code) && (
+                  <p>
+                    {[invoice.clients?.city_state, invoice.clients?.zip_code]
+                      .filter(Boolean)
+                      .join(", ")}
+                  </p>
+                )}
+                {invoice.clients?.country && <p>{invoice.clients.country}</p>}
+              </div>
             </div>
             <div>
               <h3 className="text-[10px] font-bold uppercase tracking-[0.2em] text-black/30 mb-4">
                 Payment Method
               </h3>
-              <p className="text-sm font-bold uppercase">
+              <p className="text-sm font-bold capitalize">
                 {invoice.payment_method ||
                   invoice.clients?.preferred_payment_method ||
-                  "BKASH"}
+                  "bkash"}
               </p>
               <p className="text-sm text-black/50 mt-1">
                 {invoice.payment_number || invoice.clients?.payment_number}
@@ -323,6 +353,39 @@ export default function InvoiceEditor({ initialInvoice, user }) {
             </button>
           )}
 
+          {isEditing && (
+            <div className="grid grid-cols-2 gap-20 mb-12 border-t border-black/5 pt-8">
+              <div>
+                <label className="text-[10px] font-bold uppercase tracking-[0.2em] text-black/30 mb-2 block">
+                  VAT (%)
+                </label>
+                <input
+                  type="number"
+                  step="any"
+                  className={`${inputClasses} w-full text-sm font-medium`}
+                  value={invoice.vat}
+                  onChange={(e) =>
+                    setInvoice({ ...invoice, vat: e.target.value })
+                  }
+                />
+              </div>
+              <div>
+                <label className="text-[10px] font-bold uppercase tracking-[0.2em] text-black/30 mb-2 block">
+                  Tax (%)
+                </label>
+                <input
+                  type="number"
+                  step="any"
+                  className={`${inputClasses} w-full text-sm font-medium`}
+                  value={invoice.tax}
+                  onChange={(e) =>
+                    setInvoice({ ...invoice, tax: e.target.value })
+                  }
+                />
+              </div>
+            </div>
+          )}
+
           {/* Footer */}
           <footer className="mt-auto pt-10 border-t-2 border-[#071f18] flex justify-between items-end">
             <div>
@@ -332,10 +395,45 @@ export default function InvoiceEditor({ initialInvoice, user }) {
               <p
                 className={`text-xl font-black italic uppercase tracking-tighter ${invoice.status === "paid" ? "text-green-600" : "text-orange-500"}`}
               >
-                {invoice.status || "UNPAID"}
+                {invoice.status === "paid" ? "Paid" : "Due"}
               </p>
             </div>
             <div className="text-right">
+              {(Number(invoice.vat) > 0 || Number(invoice.tax) > 0) && (
+                <div className="mb-4 space-y-1">
+                  <div className="flex justify-end gap-4 text-[10px] font-bold uppercase tracking-widest text-black/30">
+                    <span>Subtotal:</span>
+                    <span className="text-[#071f18]">
+                      {invoice.currency || "৳"}{" "}
+                      {calculateSubtotal().toLocaleString()}
+                    </span>
+                  </div>
+                  {Number(invoice.vat) > 0 && (
+                    <div className="flex justify-end gap-4 text-[10px] font-bold uppercase tracking-widest text-orange-500">
+                      <span>VAT ({invoice.vat}%):</span>
+                      <span>
+                        + ৳{" "}
+                        {(
+                          (calculateSubtotal() * Number(invoice.vat)) /
+                          100
+                        ).toLocaleString()}
+                      </span>
+                    </div>
+                  )}
+                  {Number(invoice.tax) > 0 && (
+                    <div className="flex justify-end gap-4 text-[10px] font-bold uppercase tracking-widest text-orange-500">
+                      <span>Tax ({invoice.tax}%):</span>
+                      <span>
+                        + ৳{" "}
+                        {(
+                          (calculateSubtotal() * Number(invoice.tax)) /
+                          100
+                        ).toLocaleString()}
+                      </span>
+                    </div>
+                  )}
+                </div>
+              )}
               <h3 className="text-[10px] font-bold uppercase tracking-[0.2em] text-black/30 mb-2">
                 Total Due
               </h3>

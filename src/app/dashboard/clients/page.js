@@ -1,5 +1,4 @@
 import Link from "next/link";
-import * as motion from "framer-motion/client";
 import { supabaseAdmin } from "@/lib/supabase";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
@@ -21,11 +20,12 @@ async function ClientsContent() {
     .order("name");
 
   return (
-    <motion.section
-      initial={{ opacity: 0, y: 10 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.4 }}
-    >
+    <section className="animate-in fade-in slide-in-from-bottom-2 duration-300">
+      {session?.user?.name && (
+        <p className="text-[22px] font-bold uppercase text-orange-700 mb-4">
+          {session.user.name}
+        </p>
+      )}
       <header className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6 mb-10">
         <h2 className="text-3xl font-bold text-[#071f18] dark:text-white ">
           Clients
@@ -37,7 +37,6 @@ async function ClientsContent() {
           + Add Client
         </Link>
       </header>
-
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {clients?.map((client) => (
           <div
@@ -45,14 +44,11 @@ async function ClientsContent() {
             className="bg-white dark:bg-[#0d0d0d] p-6 rounded-3xl border border-black/5 flex justify-between items-start"
           >
             <div>
-              <h3 className="font-bold text-lg text-[#071f18 dark:text-orange-700 ">
+              <h3 className="font-bold text-lg text-[#071f18] dark:text-orange-700 ">
                 {client.name}
               </h3>
               <p className="text-sm text-black/40 dark:text-white ">
                 {client.email}
-              </p>
-              <p className="text-xs text-black/30 dark:text-white mt-2 font-mono uppercase tracking-tighter">
-                {client.preferred_payment_method}: {client.payment_number}
               </p>
             </div>
             <div className="flex flex-col items-end gap-4">
@@ -80,6 +76,6 @@ async function ClientsContent() {
           </div>
         ))}
       </div>
-    </motion.section>
+    </section>
   );
 }

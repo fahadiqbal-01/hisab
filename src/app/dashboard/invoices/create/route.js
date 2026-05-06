@@ -20,6 +20,8 @@ export async function POST(req) {
       clientId,
       items,
       total,
+      vat,
+      tax,
       sender_name,
       sender_email,
       payment_method,
@@ -40,6 +42,8 @@ export async function POST(req) {
           user_id: session.user.id,
           client_id: clientId,
           total: total,
+          vat: Number(vat) || 0,
+          tax: Number(tax) || 0,
           status: "sent",
         },
       ])
@@ -51,10 +55,12 @@ export async function POST(req) {
     // 2. Insert Items
     const lineItems = items.map((item) => ({
       invoice_id: invoice.id,
-      description: item.description,
-      quantity: parseInt(item.quantity),
-      unit_price: parseFloat(item.price),
-      total_price: parseInt(item.quantity) * parseFloat(item.price),
+      description: item.description || "Service",
+      quantity: Number.parseInt(item.quantity, 10) || 0,
+      unit_price: Number.parseFloat(item.unit_price) || 0,
+      total_price:
+        (Number.parseInt(item.quantity, 10) || 0) *
+        (Number.parseFloat(item.unit_price) || 0),
     }));
 
     const { error: itemError } = await supabaseAdmin

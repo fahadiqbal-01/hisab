@@ -23,10 +23,7 @@ export default function SignOutButton() {
       disabled={isLoggingOut}
       className=" select-none cursor-pointer flex items-center gap-3 px-4 py-3 w-full rounded-xl transition-all text-white/50 hover:bg-red-500/10 hover:text-red-400 font-medium group disabled:opacity-50"
     >
-      <span className="group-hover:scale-110 transition-transform">
-        <BiLogOutCircle size={20} />
-      </span>
-      <span>{isLoggingOut ? "Signing Out..." : "Sign Out"}</span>
+      {isLoggingOut ? "Signing Out" : "Sign Out"}
     </motion.button>
   );
 }

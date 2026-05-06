@@ -18,7 +18,7 @@ export default async function InvoicePage({ params }) {
     .select(
       `
       *,
-      clients (name, email, preferred_payment_method, payment_number),
+      clients (name, email, company, address, city_state, zip_code, country),
       invoice_items (*)
     `,
     )
