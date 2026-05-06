@@ -2,6 +2,7 @@
 import React, { useState } from "react";
 import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 
 export default function SignUp() {
   const router = useRouter();
@@ -229,9 +230,12 @@ export default function SignUp() {
         </p>
       </div>
 
-      <img
-        src="images/banner.jpg"
-        className=" absolute left-0 top-0 bg-cover -z-20 opacity-60 "
+      <Image
+        src="/images/banner.jpg"
+        alt="Background banner"
+        fill
+        priority
+        className="absolute left-0 top-0 -z-20 object-cover opacity-60"
       />
     </main>
   );
