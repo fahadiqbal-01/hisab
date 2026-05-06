@@ -9,7 +9,6 @@ export default function NewInvoiceForm({
 }) {
   const router = useRouter();
 
-  // State Management
   const [clients] = useState(initialClients || []);
   const [profile] = useState(initialProfile || null);
   const [selectedClientId, setSelectedClientId] = useState("");
@@ -25,7 +24,6 @@ export default function NewInvoiceForm({
   const [loading, setLoading] = useState(false);
   const dropdownRef = useRef(null);
 
-  // Close dropdown when clicking outside
   useEffect(() => {
     function handleClickOutside(event) {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
@@ -96,7 +94,8 @@ export default function NewInvoiceForm({
     });
 
     if (res.ok) {
-      router.replace("/dashboard/invoices");
+      router.refresh();
+      router.push("/dashboard/invoices");
     } else {
       setLoading(false);
       alert("Failed to create invoice");
