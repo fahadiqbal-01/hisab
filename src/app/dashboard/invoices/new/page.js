@@ -97,6 +97,7 @@ export default function NewInvoicePage() {
 
     if (res.ok) {
       router.push("/dashboard/invoices");
+      router.refresh();
     } else {
       setLoading(false);
       alert("Failed to create invoice");
