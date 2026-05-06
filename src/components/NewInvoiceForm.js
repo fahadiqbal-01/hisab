@@ -36,6 +36,10 @@ export default function NewInvoiceForm({
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
+  useEffect(() => {
+    router.prefetch("/dashboard/invoices");
+  }, [router]);
+
   const handleClientSelect = (id, name) => {
     setSelectedClientId(id);
     setSelectedClientName(name);
@@ -93,7 +97,6 @@ export default function NewInvoiceForm({
 
     if (res.ok) {
       router.push("/dashboard/invoices");
-      router.refresh();
     } else {
       setLoading(false);
       alert("Failed to create invoice");

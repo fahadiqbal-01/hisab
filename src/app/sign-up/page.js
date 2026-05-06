@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
@@ -10,6 +10,11 @@ export default function SignUp() {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [loading, setLoading] = useState(false);
+
+  // Prefetch the dashboard route to speed up the transition after login
+  useEffect(() => {
+    router.prefetch("/dashboard");
+  }, [router]);
 
   const handleToggleSign = () => {
     setToggleSign((prev) => !prev);
@@ -86,7 +91,9 @@ export default function SignUp() {
       setError("Invalid email or password");
       setLoading(false);
     } else {
-      window.location.replace("/dashboard");
+      // Direct push for the fastest transition
+      router.push("/dashboard");
+      // refresh() removed here as it can block the UI thread on slow connections
     }
   };
 
@@ -110,10 +117,12 @@ export default function SignUp() {
       <div
         className={`${toggleSign ? "hidden" : "bg-[#071f18] dark:bg-[#0d0d0d] flex flex-col justify-center items-center py-8 px-4 h-screen md:h-auto w-full sm:w-auto"} z-50 `}
       >
-        <img
-          src="images/logothird.png"
+        <Image
+          src="/images/logothird.png"
           alt="Logo"
-          className="w-20 my-5 mx-auto  "
+          width={80}
+          height={80}
+          className="my-5 mx-auto"
         />
         <form
           onSubmit={handleSignIn}
@@ -161,10 +170,12 @@ export default function SignUp() {
       <div
         className={`${toggleSign ? "bg-[#071f18] dark:bg-[#0d0d0d] flex flex-col items-center py-8 px-4 w-full sm:w-auto" : "hidden"} z-50 `}
       >
-        <img
-          src="images/logothird.png"
+        <Image
+          src="/images/logothird.png"
           alt="Logo"
-          className="w-20 my-5 mx-auto "
+          width={80}
+          height={80}
+          className="my-5 mx-auto"
         />
         <form
           onSubmit={handleSignUp}

@@ -9,10 +9,14 @@ export default function DeleteClientButton({ id }) {
 
   const handleDelete = async () => {
     setIsDeleting(true);
-    const res = await deleteClient(id);
-    if (res.error) alert(res.error);
-    setIsConfirming(false);
-    setIsDeleting(false);
+    try {
+      const res = await deleteClient(id);
+      if (res.error) alert(res.error);
+      setIsConfirming(false);
+    } finally {
+      // Allow UI to resolve state without blocking
+      setIsDeleting(false);
+    }
   };
 
   return (
@@ -50,7 +54,7 @@ export default function DeleteClientButton({ id }) {
             />
 
             <motion.div
-              initial={{ opacity: 0, scale: 0.95, y: 20 }}
+              initial={{ opacity: 0, scale: 0.98, y: 10 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 20 }}
               className="relative bg-white dark:bg-[#0d0d0d] p-8 rounded-[2.5rem] shadow-2xl border border-black/5 w-full max-w-[320px] text-center"

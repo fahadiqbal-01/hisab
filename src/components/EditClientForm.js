@@ -30,11 +30,10 @@ export default function EditClientForm({ client }) {
 
     if (res.success) {
       router.push("/dashboard/clients");
-      router.refresh();
     } else {
       alert(res.error);
+      setLoading(false);
     }
-    setLoading(false);
   };
 
   const inputClass =
@@ -46,7 +45,7 @@ export default function EditClientForm({ client }) {
     <motion.form
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5 }}
+      transition={{ duration: 0.2 }}
       onSubmit={handleSubmit}
       className="space-y-8 bg-white dark:bg-[#0d0d0d] p-6 sm:p-10 rounded-4xl sm:rounded-[2.5rem] border border-black/5 shadow-sm"
     >

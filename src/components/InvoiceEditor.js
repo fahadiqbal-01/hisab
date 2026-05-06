@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import PrintButton from "./PrintButton";
 import { updateInvoice } from "@/app/actions/invoices";
@@ -39,22 +39,22 @@ export default function InvoiceEditor({ initialInvoice, user }) {
     normalizeInvoice(initialInvoice),
   );
 
-  const calculateSubtotal = () => {
+  const subtotal = useMemo(() => {
     return invoice.invoice_items.reduce(
       (sum, item) =>
-        sum + Number(item.quantity || 0) * Number(item.unit_price || 0),
+        sum + (Number(item.quantity) || 0) * (Number(item.unit_price) || 0),
       0,
     );
-  };
+  }, [invoice.invoice_items]);
 
-  const calculateTotal = () => {
-    const subtotal = calculateSubtotal();
+  const total = useMemo(() => {
     const vatVal = parseFloat(invoice.vat) || 0;
     const taxVal = parseFloat(invoice.tax) || 0;
-    const vatAmount = (subtotal * vatVal) / 100;
-    const taxAmount = (subtotal * taxVal) / 100;
+    const vatAmount = (subtotal * (Number(vatVal) || 0)) / 100;
+    const taxAmount = (subtotal * (Number(taxVal) || 0)) / 100;
     return subtotal + vatAmount + taxAmount;
-  };
+  }, [subtotal, invoice.vat, invoice.tax]);
+
   const handleSave = async () => {
     setLoading(true);
     try {
@@ -64,13 +64,12 @@ export default function InvoiceEditor({ initialInvoice, user }) {
         sender_email: invoice.sender_email,
         vat: Number(invoice.vat) || 0,
         tax: Number(invoice.tax) || 0,
-        total: calculateTotal(),
+        total: total,
         invoice_items: invoice.invoice_items,
         notes: invoice.notes,
       });
       if (result.error) throw new Error(result.error);
       router.push("/dashboard/invoices");
-      router.refresh();
     } catch (error) {
       alert(`Failed to save: ${error.message}`);
     } finally {
@@ -404,8 +403,7 @@ export default function InvoiceEditor({ initialInvoice, user }) {
                   <div className="flex justify-end gap-4 text-[10px] font-bold uppercase tracking-widest text-black/30">
                     <span>Subtotal:</span>
                     <span className="text-[#071f18]">
-                      {invoice.currency || "৳"}{" "}
-                      {calculateSubtotal().toLocaleString()}
+                      {invoice.currency || "৳"} {subtotal.toLocaleString()}
                     </span>
                   </div>
                   {Number(invoice.vat) > 0 && (
@@ -414,7 +412,7 @@ export default function InvoiceEditor({ initialInvoice, user }) {
                       <span>
                         + ৳{" "}
                         {(
-                          (calculateSubtotal() * Number(invoice.vat)) /
+                          (subtotal * Number(invoice.vat)) /
                           100
                         ).toLocaleString()}
                       </span>
@@ -426,7 +424,7 @@ export default function InvoiceEditor({ initialInvoice, user }) {
                       <span>
                         + ৳{" "}
                         {(
-                          (calculateSubtotal() * Number(invoice.tax)) /
+                          (subtotal * Number(invoice.tax)) /
                           100
                         ).toLocaleString()}
                       </span>
@@ -439,7 +437,7 @@ export default function InvoiceEditor({ initialInvoice, user }) {
               </h3>
               <p className="text-6xl font-serif font-bold text-[#071f18] leading-tight">
                 <span className="text-2xl mr-1">{invoice.currency || "৳"}</span>
-                {calculateTotal().toLocaleString()}
+                {total.toLocaleString()}
               </p>
             </div>
           </footer>

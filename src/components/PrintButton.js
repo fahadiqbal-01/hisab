@@ -11,18 +11,20 @@ export default function PrintButton({ invoiceId, initialStatus }) {
   const [isDownloading, setIsDownloading] = useState(false);
 
   const markAsPaid = async () => {
-    setLoading(true);
+    // Optimistic Update: Change UI immediately
+    const previousStatus = status;
+    setStatus("paid");
+
     const res = await fetch(`/dashboard/invoices/${invoiceId}/status`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ status: "paid" }),
     });
 
-    if (res.ok) {
-      setStatus("paid");
-      router.refresh();
+    if (!res.ok) {
+      setStatus(previousStatus);
+      alert("Failed to update status");
     }
-    setLoading(false);
   };
 
   const handleDownloadPDF = async () => {
