@@ -218,7 +218,7 @@ export default function SettingsClient({ initialProfile, user }) {
             </motion.button>
           </motion.footer>
 
-          <section className="mt-8 rounded-3xl p-6">
+          <section className="mt-8 rounded-3xl py-6">
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
               <div>
                 <h3 className="text-xs font-bold uppercase tracking-widest text-red-700 ">
