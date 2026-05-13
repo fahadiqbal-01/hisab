@@ -1,8 +1,7 @@
 import InvoiceAnalysisChart from "@/components/InvoiceAnalysisChart";
 import { supabaseAdmin } from "@/lib/supabase";
 import EmptyFinanceState from "@/components/EmptyFinanceState";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
+import { getCachedServerSession } from "@/lib/session";
 
 export const revalidate = 0;
 
@@ -11,7 +10,7 @@ export default async function DashboardPage() {
 }
 
 async function DashboardContent() {
-  const session = await getServerSession(authOptions);
+  const session = await getCachedServerSession();
 
   if (!session?.user?.id) {
     return (

@@ -94,8 +94,7 @@ export default function NewInvoiceForm({
     });
 
     if (res.ok) {
-      router.refresh();
-      router.push("/dashboard/invoices");
+      router.replace("/dashboard/invoices");
     } else {
       setLoading(false);
       alert("Failed to create invoice");

@@ -1,10 +1,9 @@
 import React from "react";
 import Link from "next/link";
 import { createClient } from "@supabase/supabase-js";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
 import DeleteButton from "@/components/DeleteButton";
 import { Suspense } from "react";
+import { getCachedServerSession } from "@/lib/session";
 
 export const revalidate = 0;
 
@@ -13,14 +12,13 @@ const supabaseAdmin = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY,
 );
 
-async function InvoicesList() {
-  const session = await getServerSession(authOptions);
+async function InvoicesList({ userId }) {
   const { data: invoices } = await supabaseAdmin
     .from("invoices")
     .select(
       `id, invoice_number_full, total, status, created_at, clients (name, phone)`,
     )
-    .eq("user_id", session.user.id)
+    .eq("user_id", userId)
     .order("created_at", { ascending: false });
 
   return (
@@ -130,7 +128,7 @@ async function InvoicesList() {
 }
 
 export default async function InvoicesPage() {
-  const session = await getServerSession(authOptions);
+  const session = await getCachedServerSession();
 
   if (!session?.user?.id) {
     return (
@@ -160,7 +158,7 @@ export default async function InvoicesPage() {
       </header>
 
       <Suspense fallback={null}>
-        <InvoicesList />
+        <InvoicesList userId={session.user.id} />
       </Suspense>
     </section>
   );

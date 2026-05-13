@@ -1,7 +1,6 @@
 import React from "react";
 import Link from "next/link";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
+import { getCachedServerSession } from "@/lib/session";
 import SignOutButton from "@/components/SignOutButton";
 import SidebarLink from "@/components/SidebarLink";
 import { MdOutlineAnalytics } from "react-icons/md";
@@ -10,7 +9,7 @@ import { SlSettings } from "react-icons/sl";
 import DasboardLogo from "@/components/DasboardLogo";
 
 export default async function DashboardLayout({ children }) {
-  const session = await getServerSession(authOptions);
+  const session = await getCachedServerSession();
 
   const menuItems = [
     { name: "Overview", href: "/dashboard", icon: <MdOutlineAnalytics /> },

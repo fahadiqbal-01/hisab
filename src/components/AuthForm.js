@@ -90,9 +90,8 @@ export default function AuthForm() {
       });
 
       if (res?.ok) {
-        // Using window.location.href for the transition ensures that the production
-        // session cookie is correctly synchronized before the dashboard loads.
-        window.location.href = "/dashboard";
+        router.replace("/dashboard");
+        router.refresh();
       } else {
         setError("Invalid email or password");
         setLoading(false);

@@ -1,12 +1,10 @@
 import React from "react";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
-import { fetchClients } from "@/app/actions/clients";
-import { getProfile } from "@/app/actions/profiles";
+import { supabaseAdmin } from "@/lib/supabase";
 import NewInvoiceForm from "@/components/NewInvoiceForm";
+import { getCachedServerSession } from "@/lib/session";
 
 export default async function NewInvoicePage() {
-  const session = await getServerSession(authOptions);
+  const session = await getCachedServerSession();
 
   if (!session?.user?.id) {
     return (
@@ -16,15 +14,23 @@ export default async function NewInvoicePage() {
     );
   }
 
-  const [clientsData, profileResult] = await Promise.all([
-    fetchClients(),
-    getProfile(),
+  const [clientsResponse, profileResponse] = await Promise.all([
+    supabaseAdmin
+      .from("clients")
+      .select("id, name")
+      .eq("user_id", session.user.id)
+      .order("name"),
+    supabaseAdmin
+      .from("profiles")
+      .select("*")
+      .eq("id", session.user.id)
+      .maybeSingle(),
   ]);
 
   return (
     <NewInvoiceForm
-      initialClients={clientsData}
-      initialProfile={profileResult?.data || null}
+      initialClients={clientsResponse.data || []}
+      initialProfile={profileResponse.data || null}
       user={session.user}
     />
   );
