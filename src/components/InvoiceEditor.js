@@ -14,7 +14,7 @@ export default function InvoiceEditor({ initialInvoice, user }) {
     sender_email: sourceInvoice?.sender_email || user?.email || "",
     vat: sourceInvoice?.vat ?? 0,
     tax: sourceInvoice?.tax ?? 0,
-    notes: sourceInvoice?.notes ?? "",
+    note_text: sourceInvoice?.note_text ?? "",
     payment_method: sourceInvoice?.payment_method ?? "",
     payment_number: sourceInvoice?.payment_number ?? "",
     currency: sourceInvoice?.currency || "৳",
@@ -24,6 +24,9 @@ export default function InvoiceEditor({ initialInvoice, user }) {
         description: item?.description ?? "",
         quantity: item?.quantity ?? 0,
         unit_price: item?.unit_price ?? 0,
+        price:
+          item?.price ??
+          (Number(item?.quantity) || 0) * (Number(item?.unit_price) || 0),
       })) || [],
   });
 
@@ -41,8 +44,7 @@ export default function InvoiceEditor({ initialInvoice, user }) {
 
   const subtotal = useMemo(() => {
     return invoice.invoice_items.reduce(
-      (sum, item) =>
-        sum + (Number(item.quantity) || 0) * (Number(item.unit_price) || 0),
+      (sum, item) => sum + (Number(item.price) || 0),
       0,
     );
   }, [invoice.invoice_items]);
@@ -66,21 +68,45 @@ export default function InvoiceEditor({ initialInvoice, user }) {
         tax: Number(invoice.tax) || 0,
         total: total,
         invoice_items: invoice.invoice_items,
-        notes: invoice.notes,
+        note_text: invoice.note_text,
       });
       if (result.error) throw new Error(result.error);
+      router.refresh();
       router.push("/dashboard/invoices");
     } catch (error) {
-      alert(`Failed to save: ${error.message}`);
+      let userMessage = "Failed to save invoice.";
+      if (
+        error.message.includes("Could not find the 'note_text' column") ||
+        error.message.includes('column "notes" does not exist')
+      ) {
+        userMessage =
+          "Failed to save invoice: The 'note_text' field is missing from the database schema. Please ensure the 'invoices' table has a 'note_text' column.";
+      } else if (error.message.includes("Failed to update invoice")) {
+        userMessage = error.message;
+      }
+      alert(userMessage);
     } finally {
       setLoading(false);
     }
   };
 
   const updateItem = (index, field, value) => {
-    const newItems = invoice.invoice_items.map((item, i) =>
-      i === index ? { ...item, [field]: value } : item,
-    );
+    const newItems = invoice.invoice_items.map((item, i) => {
+      if (i !== index) return item;
+      const updatedItem = { ...item, [field]: value };
+
+      if (field === "price") {
+        const qty = Number(updatedItem.quantity) || 0;
+        updatedItem.unit_price = qty > 0 ? (Number(value) || 0) / qty : 0;
+      }
+
+      if (field === "quantity") {
+        const qty = Number(value) || 0;
+        updatedItem.unit_price = qty > 0 ? (Number(updatedItem.price) || 0) / qty : 0;
+      }
+
+      return updatedItem;
+    });
     setInvoice({ ...invoice, invoice_items: newItems });
   };
 
@@ -92,6 +118,7 @@ export default function InvoiceEditor({ initialInvoice, user }) {
         {
           description: "New Service",
           quantity: 1,
+          price: 0,
           unit_price: 0,
           id: crypto.randomUUID(),
         },
@@ -160,7 +187,7 @@ export default function InvoiceEditor({ initialInvoice, user }) {
       <div className="w-full overflow-x-auto pb-10 cursor-grab active:cursor-grabbing px-4 sm:px-6">
         <div
           id="invoice-capture-area"
-          className={`w-[210mm] min-h-[297mm] mx-auto bg-white p-[20mm] shadow-2xl transition-all relative ${
+          className={`w-[210mm] min-h-[297mm] mx-auto bg-white p-[20mm] shadow-2xl border-y-4 border-[#061e18] transition-all relative ${
             isEditing
               ? "ring-2 ring-blue-400"
               : "print:shadow-none print:m-0 print:p-0"
@@ -171,7 +198,7 @@ export default function InvoiceEditor({ initialInvoice, user }) {
               {isEditing ? (
                 <div className="flex flex-col gap-2">
                   <input
-                    className={`${inputClasses} text-5xl font-serif italic w-full`}
+                    className={`${inputClasses} text-5xl font-serif w-full`}
                     value={invoice.sender_name}
                     onChange={(e) =>
                       setInvoice({ ...invoice, sender_name: e.target.value })
@@ -187,10 +214,10 @@ export default function InvoiceEditor({ initialInvoice, user }) {
                 </div>
               ) : (
                 <>
-                  <h1 className="text-5xl font-serif italic text-[#071f18] leading-tight">
+                  <h1 className="text-5xl font-extrabold text-[#061e18] leading-tight">
                     {invoice.sender_name}
                   </h1>
-                  <p className="text-sm text-black/40 mt-3">
+                  <p className="text-sm text-black/70 mt-1">
                     {invoice.sender_email}
                   </p>
                 </>
@@ -208,10 +235,10 @@ export default function InvoiceEditor({ initialInvoice, user }) {
 
           <section className="grid grid-cols-2 gap-20 mb-24">
             <div>
-              <h3 className="text-[10px] font-bold uppercase tracking-[0.2em] text-black/30 mb-4">
+              <h3 className="text-[10px] font-bold uppercase tracking-[0.2em] text-black/30 mb-2">
                 Billed To
               </h3>
-              <p className="font-bold text-xl text-[#071f18]">
+              <p className="font-bold text-xl text-[#061e18]">
                 {invoice.clients?.name}
               </p>
               <p className="pt-2">{invoice.clients?.email}</p>
@@ -233,10 +260,10 @@ export default function InvoiceEditor({ initialInvoice, user }) {
               </div>
             </div>
             <div>
-              <h3 className="text-[10px] font-bold uppercase tracking-[0.2em] text-black/30 mb-4">
+              <h3 className="text-[10px] font-bold uppercase tracking-[0.2em] text-black/30 mb-2">
                 Payment Method
               </h3>
-              <p className="text-sm font-bold capitalize">
+              <p className="text-sm font-bold text-[#061e18] capitalize">
                 {invoice.payment_method ||
                   invoice.clients?.preferred_payment_method ||
                   "bkash"}
@@ -250,17 +277,14 @@ export default function InvoiceEditor({ initialInvoice, user }) {
           <table className="w-full mb-8">
             <thead>
               <tr className="border-b border-black/5">
-                <th className="text-left py-4 text-[10px] font-bold uppercase tracking-widest text-black/30">
+                <th className="text-left py-4 text-[10px] font-bold uppercase tracking-widest text-black/50">
                   Description
                 </th>
-                <th className="text-right py-4 text-[10px] font-bold uppercase tracking-widest text-black/30">
+                <th className="text-right py-4 text-[10px] font-bold uppercase tracking-widest text-black/50">
                   Qty
                 </th>
-                <th className="text-right py-4 text-[10px] font-bold uppercase tracking-widest text-black/30">
-                  Unit Price
-                </th>
-                <th className="text-right py-4 text-[10px] font-bold uppercase tracking-widest text-black/30">
-                  Total
+                <th className="text-right py-4 text-[10px] font-bold uppercase tracking-widest text-black/50">
+                  Price
                 </th>
                 {isEditing && <th className="w-10"></th>}
               </tr>
@@ -268,7 +292,7 @@ export default function InvoiceEditor({ initialInvoice, user }) {
             <tbody className="divide-y divide-black/3">
               {invoice.invoice_items?.map((item, idx) => (
                 <tr key={item.id}>
-                  <td className="py-6 pr-4">
+                  <td className="py-1 pr-4">
                     {isEditing ? (
                       <input
                         className={`${inputClasses} w-full text-sm font-medium`}
@@ -283,18 +307,14 @@ export default function InvoiceEditor({ initialInvoice, user }) {
                       </span>
                     )}
                   </td>
-                  <td className="py-6 text-right w-16">
+                  <td className="py-1 text-right w-16">
                     {isEditing ? (
                       <input
                         type="number"
                         className={`${inputClasses} w-full text-right text-sm`}
                         value={item.quantity}
                         onChange={(e) =>
-                          updateItem(
-                            idx,
-                            "quantity",
-                            parseInt(e.target.value) || 0,
-                          )
+                          updateItem(idx, "quantity", e.target.value)
                         }
                       />
                     ) : (
@@ -303,33 +323,26 @@ export default function InvoiceEditor({ initialInvoice, user }) {
                       </span>
                     )}
                   </td>
-                  <td className="py-6 text-right w-32">
+                  <td className="py-1 text-right w-32">
                     {isEditing ? (
                       <input
                         type="number"
+                        step="any"
                         className={`${inputClasses} w-full text-right text-sm`}
-                        value={item.unit_price}
+                        value={item.price}
                         onChange={(e) =>
-                          updateItem(
-                            idx,
-                            "unit_price",
-                            parseFloat(e.target.value) || 0,
-                          )
+                          updateItem(idx, "price", e.target.value)
                         }
                       />
                     ) : (
                       <span className="text-sm text-[#071f18]">
                         {invoice.currency || "৳"}{" "}
-                        {item.unit_price?.toLocaleString()}
+                        {(Number(item.price) || 0).toLocaleString()}
                       </span>
                     )}
                   </td>
-                  <td className="py-6 text-right text-sm font-bold text-[#071f18] w-32">
-                    {invoice.currency || "৳"}{" "}
-                    {(item.quantity * (item.unit_price || 0)).toLocaleString()}
-                  </td>
                   {isEditing && (
-                    <td className="py-6 text-right">
+                    <td className="py-1 text-right">
                       <button
                         onClick={() => removeItem(idx)}
                         className="text-red-400 hover:text-red-600 transition-colors"
@@ -388,11 +401,11 @@ export default function InvoiceEditor({ initialInvoice, user }) {
           {/* Footer */}
           <footer className="mt-auto pt-10 border-t-2 border-[#071f18] flex justify-between items-end">
             <div>
-              <h3 className="text-[10px] font-bold uppercase tracking-[0.2em] text-black/30 mb-3">
+              <h3 className="text-[10px] font-bold uppercase tracking-[0.2em] text-black/30 mb-1">
                 Status
               </h3>
               <p
-                className={`text-xl font-black italic uppercase tracking-tighter ${invoice.status === "paid" ? "text-green-600" : "text-orange-500"}`}
+                className={`text-xl font-black uppercase tracking-tighter ${invoice.status === "paid" ? "text-green-600" : "text-orange-500"}`}
               >
                 {invoice.status === "paid" ? "Paid" : "Due"}
               </p>
@@ -432,10 +445,10 @@ export default function InvoiceEditor({ initialInvoice, user }) {
                   )}
                 </div>
               )}
-              <h3 className="text-[10px] font-bold uppercase tracking-[0.2em] text-black/30 mb-2">
+              <h3 className="text-[10px] font-bold uppercase tracking-[0.2em] text-black/30 mb-1">
                 Total Due
               </h3>
-              <p className="text-6xl font-serif font-bold text-[#071f18] leading-tight">
+              <p className="text-6xl font-mono font-extrabold text-[#071f18] leading-tight">
                 <span className="text-2xl mr-1">{invoice.currency || "৳"}</span>
                 {total.toLocaleString()}
               </p>
@@ -449,14 +462,14 @@ export default function InvoiceEditor({ initialInvoice, user }) {
               <textarea
                 className={`${inputClasses} w-full text-sm py-2 resize-none h-20`}
                 placeholder="e.g. Please process the payment using the method mentioned above."
-                value={invoice.notes || ""}
+                value={invoice.note_text || ""}
                 onChange={(e) =>
-                  setInvoice({ ...invoice, notes: e.target.value })
+                  setInvoice({ ...invoice, note_text: e.target.value })
                 }
               />
             ) : (
-              <p className="text-sm text-black/50 italic leading-relaxed  ">
-                {invoice.notes ||
+              <p className="text-sm text-black/50 leading-relaxed  ">
+                {invoice.note_text ||
                   "Please process the payment using the method mentioned above. Thank you!"}
               </p>
             )}

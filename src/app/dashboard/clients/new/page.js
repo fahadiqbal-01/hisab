@@ -5,9 +5,12 @@ import { authOptions } from "@/lib/auth";
 import { createClient } from "@supabase/supabase-js";
 import Link from "next/link";
 import { revalidatePath } from "next/cache";
+import ClientAlreadyAddedAlert from "@/components/ClientAlreadyAddedAlert";
 
-export default async function NewClientPage() {
+export default async function NewClientPage({ searchParams }) {
   const session = await getServerSession(authOptions);
+  const resolvedSearchParams = await searchParams;
+  const isDuplicateClient = resolvedSearchParams?.error === "exists";
 
   async function createClientAction(formData) {
     "use server";
@@ -18,12 +21,31 @@ export default async function NewClientPage() {
     );
 
     if (!session?.user?.id) return;
+    const rawName = formData.get("name")?.toString().trim() || "";
+    const rawEmail = formData.get("email")?.toString().trim() || "";
+
+    let duplicateQuery = supabaseAdmin
+      .from("clients")
+      .select("id")
+      .eq("user_id", session.user.id)
+      .limit(1);
+
+    if (rawEmail) {
+      duplicateQuery = duplicateQuery.ilike("email", rawEmail);
+    } else {
+      duplicateQuery = duplicateQuery.ilike("name", rawName);
+    }
+
+    const { data: existingClient } = await duplicateQuery.maybeSingle();
+    if (existingClient) {
+      redirect("/dashboard/clients/new?error=exists");
+    }
 
     const { error } = await supabaseAdmin.from("clients").insert([
       {
         user_id: session.user.id,
-        name: formData.get("name"),
-        email: formData.get("email"),
+        name: rawName,
+        email: rawEmail,
         phone: formData.get("phone"),
         company: formData.get("company"),
         address: formData.get("address"),
@@ -42,6 +64,7 @@ export default async function NewClientPage() {
 
   return (
     <div className="max-w-2xl px-4 sm:px-0 pb-10">
+      <ClientAlreadyAddedAlert show={isDuplicateClient} />
       <header className="mb-8 md:mb-10">
         <h2 className="text-2xl md:text-3xl font-bold text-[#071f18] dark:text-white ">
           New Client

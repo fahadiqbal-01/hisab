@@ -21,6 +21,7 @@ export default function NewInvoiceForm({
   ]);
   const [vat, setVat] = useState("");
   const [tax, setTax] = useState("");
+  const [noteText, setNoteText] = useState("");
   const [loading, setLoading] = useState(false);
   const dropdownRef = useRef(null);
 
@@ -90,6 +91,7 @@ export default function NewInvoiceForm({
         payment_method: profile?.payment_method,
         payment_number: profile?.payment_number,
         currency: profile?.currency || "৳",
+        note_text: noteText,
       }),
     });
 
@@ -195,6 +197,7 @@ export default function NewInvoiceForm({
                 <div className="w-full md:w-32">
                   <input
                     type="number"
+                    step="any"
                     placeholder="Quantity"
                     value={item.quantity}
                     onChange={(e) =>
@@ -207,6 +210,7 @@ export default function NewInvoiceForm({
                 <div className="w-full md:w-40">
                   <input
                     type="number"
+                    step="any"
                     placeholder="Price"
                     value={item.unit_price}
                     onChange={(e) =>
@@ -261,6 +265,20 @@ export default function NewInvoiceForm({
                 className="w-full p-3 bg-[#fdfaf1] dark:bg-white/20 text-black/60 dark:text-white dark:placeholder:text-white/50 rounded-xl outline-none"
               />
             </div>
+          </div>
+
+          {/* Note Field */}
+          <div className="pt-6 border-t border-black/5">
+            <label className="block text-sm font-semibold text-black/60 dark:text-white mb-2">
+              Invoice Note{" "}
+              <span className="text-xs font-normal opacity-50">(Optional)</span>
+            </label>
+            <textarea
+              placeholder="e.g. Please process the payment using the method mentioned above."
+              value={noteText}
+              onChange={(e) => setNoteText(e.target.value)}
+              className="w-full p-3 bg-[#fdfaf1] dark:bg-white/20 text-black/60 dark:text-white dark:placeholder:text-white/50 rounded-xl outline-none resize-none h-24"
+            />
           </div>
         </div>
 

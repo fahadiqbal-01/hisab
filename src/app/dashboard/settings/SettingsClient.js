@@ -2,11 +2,15 @@
 import { useState, useEffect, useRef } from "react";
 import { toast, Toaster } from "react-hot-toast";
 import { updateProfile } from "@/app/actions/profiles";
+import { deleteAccount } from "@/app/actions/account";
 import AppearanceSettings from "@/components/AppearanceSettings";
 import { motion } from "framer-motion";
+import { signOut } from "next-auth/react";
 
 export default function SettingsClient({ initialProfile, user }) {
   const [saving, setSaving] = useState(false);
+  const [deletingAccount, setDeletingAccount] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [profile, setProfile] = useState(initialProfile);
   const [isPaymentDropdownOpen, setIsPaymentDropdownOpen] = useState(false);
   const paymentDropdownRef = useRef(null);
@@ -37,6 +41,23 @@ export default function SettingsClient({ initialProfile, user }) {
       toast.error("An unexpected error occurred.");
     } finally {
       setSaving(false);
+    }
+  }
+
+  async function handleDeleteAccount() {
+    setDeletingAccount(true);
+    try {
+      const res = await deleteAccount();
+      if (res?.success) {
+        await signOut({ callbackUrl: "/sign-up" });
+        return;
+      }
+      toast.error(res?.error || "Failed to delete account.");
+    } catch (err) {
+      toast.error("An unexpected error occurred while deleting your account.");
+    } finally {
+      setDeletingAccount(false);
+      setShowDeleteConfirm(false);
     }
   }
 
@@ -196,8 +217,57 @@ export default function SettingsClient({ initialProfile, user }) {
               Save
             </motion.button>
           </motion.footer>
+
+          <section className="mt-8 rounded-3xl p-6">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+              <div>
+                <h3 className="text-xs font-bold uppercase tracking-widest text-red-700 ">
+                  Danger Zone
+                </h3>
+                <p className="text-sm text-red-300/50  mt-1">
+                  Delete your account and all related records permanently.
+                </p>
+              </div>
+              <button
+                onClick={() => setShowDeleteConfirm(true)}
+                disabled={deletingAccount}
+                className="bg-red-800 hover:bg-red-700 duration-300 ease-out text-white px-6 py-3 rounded-full font-bold uppercase tracking-widest disabled:opacity-50 cursor-pointer"
+              >
+                {deletingAccount ? "Deleting..." : "Delete Account"}
+              </button>
+            </div>
+          </section>
         </div>
       </motion.div>
+
+      {showDeleteConfirm && (
+        <div className="fixed inset-0 z-100 flex items-center justify-center bg-black/50 backdrop-blur-sm px-4">
+          <div className="w-full max-w-md rounded-3xl bg-white dark:bg-[#0d0d0d] border border-black/10 p-6 shadow-2xl">
+            <h3 className="text-lg font-bold text-[#071f18] dark:text-white">
+              Delete Account?
+            </h3>
+            <p className="mt-2 text-sm text-black/60 dark:text-white/70">
+              This action is permanent and will remove your account and all related records.
+            </p>
+            <div className="mt-6 flex gap-3 justify-end">
+              <button
+                onClick={() => setShowDeleteConfirm(false)}
+                disabled={deletingAccount}
+                className="px-5 py-2 rounded-full border border-black/10 text-black dark:text-white hover:bg-black/5 dark:hover:bg-white/10 disabled:opacity-50 cursor-pointer "
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleDeleteAccount}
+                disabled={deletingAccount}
+                className="px-5 py-2 rounded-full bg-red-600 text-white font-semibold hover:bg-red-700 disabled:opacity-50 cursor-pointer "
+              >
+                {deletingAccount ? "Deleting..." : "Yes, Delete"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 }

@@ -16,6 +16,7 @@ export default function EditClientForm({ client }) {
     city_state: client.city_state || "",
     zip_code: client.zip_code || "",
     country: client.country || "Bangladesh",
+    notes: client.notes || "",
   });
 
   useEffect(() => {
@@ -102,6 +103,16 @@ export default function EditClientForm({ client }) {
             value={formData.address}
             onChange={(e) =>
               setFormData({ ...formData, address: e.target.value })
+            }
+          />
+        </div>
+        <div>
+          <label className={labelClass}>Internal Notes (Optional)</label>
+          <textarea
+            className={`${inputClass} resize-none h-32`}
+            value={formData.notes}
+            onChange={(e) =>
+              setFormData({ ...formData, notes: e.target.value })
             }
           />
         </div>

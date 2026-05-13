@@ -111,7 +111,7 @@ export default function SignUp() {
       )}
 
       {success && (
-        <div className="absolute top-10 bg-green-500/80 text-white px-6 py-2 rounded-full z-50">
+        <div className="absolute top-10 bg-[#ffffff] text-green-800 font-bold px-6 py-2 rounded-full z-50">
           {success}
         </div>
       )}
