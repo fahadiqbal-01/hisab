@@ -3,6 +3,7 @@ import "./globals.css";
 import { Providers } from "./providers";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import { Analytics } from "@vercel/analytics/next";
+import { siteConfig } from "@/lib/site";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -15,8 +16,57 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata = {
-  title: "Hisab",
-  description: "Professional Invoice Management",
+  metadataBase: new URL(siteConfig.url),
+  applicationName: siteConfig.name,
+  title: {
+    default: siteConfig.title,
+    template: `%s | ${siteConfig.name}`,
+  },
+  description: siteConfig.description,
+  keywords: [
+    "invoice management",
+    "invoice generator",
+    "client management",
+    "freelance invoicing",
+    "small business finance",
+    "Bangladesh invoicing",
+  ],
+  authors: [{ name: "Hisab" }],
+  creator: "Hisab",
+  publisher: "Hisab",
+  alternates: {
+    canonical: "/",
+  },
+  openGraph: {
+    type: "website",
+    url: "/",
+    siteName: siteConfig.name,
+    title: siteConfig.title,
+    description: siteConfig.description,
+    images: [
+      {
+        url: "/images/banner.jpg",
+        width: 1525,
+        height: 747,
+        alt: "Hisab invoice management dashboard",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: siteConfig.title,
+    description: siteConfig.description,
+    images: ["/images/banner.jpg"],
+  },
+  icons: {
+    icon: [
+      { url: "/favicon.ico" },
+      { url: "/images/favicon_io/favicon-16x16.png", sizes: "16x16" },
+      { url: "/images/favicon_io/favicon-32x32.png", sizes: "32x32" },
+    ],
+    apple: "/images/favicon_io/apple-touch-icon.png",
+  },
+  manifest: "/manifest.json",
 };
 
 export default function RootLayout({ children }) {

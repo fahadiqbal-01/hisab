@@ -8,6 +8,14 @@ import { FaFileInvoice, FaUsers } from "react-icons/fa";
 import { SlSettings } from "react-icons/sl";
 import DasboardLogo from "@/components/DasboardLogo";
 
+export const metadata = {
+  title: "Dashboard",
+  robots: {
+    index: false,
+    follow: false,
+  },
+};
+
 export default async function DashboardLayout({ children }) {
   const session = await getCachedServerSession();
 
