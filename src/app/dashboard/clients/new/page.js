@@ -9,6 +9,10 @@ import ClientAlreadyAddedAlert from "@/components/ClientAlreadyAddedAlert";
 
 export default async function NewClientPage({ searchParams }) {
   const session = await getServerSession(authOptions);
+  if (!session?.user?.id) {
+    redirect("/sign-up");
+  }
+
   const resolvedSearchParams = await searchParams;
   const isDuplicateClient = resolvedSearchParams?.error === "exists";
 
@@ -20,14 +24,15 @@ export default async function NewClientPage({ searchParams }) {
       process.env.SUPABASE_SERVICE_ROLE_KEY,
     );
 
-    if (!session?.user?.id) return;
+    const actionSession = await getServerSession(authOptions);
+    if (!actionSession?.user?.id) return;
     const rawName = formData.get("name")?.toString().trim() || "";
     const rawEmail = formData.get("email")?.toString().trim() || "";
 
     let duplicateQuery = supabaseAdmin
       .from("clients")
       .select("id")
-      .eq("user_id", session.user.id)
+      .eq("user_id", actionSession.user.id)
       .limit(1);
 
     if (rawEmail) {
@@ -43,7 +48,7 @@ export default async function NewClientPage({ searchParams }) {
 
     const { error } = await supabaseAdmin.from("clients").insert([
       {
-        user_id: session.user.id,
+        user_id: actionSession.user.id,
         name: rawName,
         email: rawEmail,
         phone: formData.get("phone"),
@@ -57,7 +62,6 @@ export default async function NewClientPage({ searchParams }) {
 
     if (!error) {
       revalidatePath("/dashboard/clients");
-      revalidatePath("/dashboard");
       redirect("/dashboard/clients");
     }
   }

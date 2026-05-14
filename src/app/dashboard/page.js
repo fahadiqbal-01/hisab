@@ -34,8 +34,10 @@ async function DashboardContent() {
 
   const invoices = invoicesResponse.data;
   const clientCount = clientsResponse.count || 0;
+  const hasPaidInvoices =
+    invoices?.some((invoice) => invoice.status === "paid") || false;
 
-  if (clientCount === 0) {
+  if (clientCount === 0 && !hasPaidInvoices) {
     return <EmptyFinanceState user={session.user} />;
   }
 

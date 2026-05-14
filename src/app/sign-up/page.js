@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
@@ -10,10 +10,6 @@ export default function SignUp() {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [loading, setLoading] = useState(false);
-
-  useEffect(() => {
-    router.prefetch("/dashboard");
-  }, [router]);
 
   const handleToggleSign = () => {
     setToggleSign((prev) => !prev);
@@ -88,7 +84,7 @@ export default function SignUp() {
       });
 
       if (res?.ok) {
-        window.location.href = "/dashboard";
+        router.replace("/dashboard");
       } else {
         setError("Invalid email or password");
         setLoading(false);
@@ -158,7 +154,7 @@ export default function SignUp() {
         </form>
 
         <p className="text-sm select-none text-white/70">
-          Don't have an account?ㅤ
+          Do not have an account?ㅤ
           <span
             className="font-bold underline cursor-pointer text-white"
             onClick={handleToggleSign}

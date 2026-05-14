@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { updateClient } from "@/app/actions/clients";
 import { motion } from "framer-motion";
@@ -18,10 +18,6 @@ export default function EditClientForm({ client }) {
     country: client.country || "Bangladesh",
     notes: client.notes || "",
   });
-
-  useEffect(() => {
-    router.prefetch("/dashboard/clients");
-  }, [router]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();

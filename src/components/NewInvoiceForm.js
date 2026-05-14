@@ -35,10 +35,6 @@ export default function NewInvoiceForm({
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  useEffect(() => {
-    router.prefetch("/dashboard/invoices");
-  }, [router]);
-
   const handleClientSelect = (id, name) => {
     setSelectedClientId(id);
     setSelectedClientName(name);
@@ -96,10 +92,17 @@ export default function NewInvoiceForm({
     });
 
     if (res.ok) {
-      router.replace("/dashboard/invoices");
+      router.replace(`/dashboard/invoices?created=${Date.now()}`);
     } else {
+      let message = "Failed to create invoice";
+      try {
+        const errorPayload = await res.json();
+        if (errorPayload?.error) message = errorPayload.error;
+      } catch {
+        // Ignore JSON parsing errors and keep fallback message.
+      }
       setLoading(false);
-      alert("Failed to create invoice");
+      alert(message);
     }
   };
 

@@ -1,18 +1,16 @@
 import Link from "next/link";
 import { supabaseAdmin } from "@/lib/supabase";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
 import DeleteClientButton from "@/components/DeleteClientButton";
 import { Suspense } from "react";
+import { getCachedServerSession } from "@/lib/session";
 
-async function ClientsList() {
-  const session = await getServerSession(authOptions);
-  if (!session?.user?.id) return null;
+export const revalidate = 0;
 
+async function ClientsList({ userId }) {
   const { data: clients } = await supabaseAdmin
     .from("clients")
     .select("id, name, email")
-    .eq("user_id", session.user.id)
+    .eq("user_id", userId)
     .order("name");
 
   return (
@@ -60,7 +58,15 @@ async function ClientsList() {
 }
 
 export default async function ClientsPage() {
-  const session = await getServerSession(authOptions);
+  const session = await getCachedServerSession();
+
+  if (!session?.user?.id) {
+    return (
+      <div className="p-10 text-black/20 font-bold uppercase tracking-widest text-xs">
+        Session lost. Please refresh or re-login.
+      </div>
+    );
+  }
 
   return (
     <section>
@@ -82,7 +88,7 @@ export default async function ClientsPage() {
           INSTANTLY. The list below pops in once Supabase responds.
       */}
       <Suspense fallback={null}>
-        <ClientsList />
+        <ClientsList userId={session.user.id} />
       </Suspense>
     </section>
   );

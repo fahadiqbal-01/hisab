@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect, useMemo } from "react";
+import { useState, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import PrintButton from "./PrintButton";
 import { updateInvoice } from "@/app/actions/invoices";
@@ -30,12 +30,6 @@ export default function InvoiceEditor({ initialInvoice, user }) {
       })) || [],
   });
 
-  useEffect(() => {
-    router.prefetch("/dashboard/invoices");
-  }, [router]);
-
-  if (!initialInvoice) return null;
-
   const [isEditing, setIsEditing] = useState(false);
   const [loading, setLoading] = useState(false);
   const [invoice, setInvoice] = useState(() =>
@@ -56,6 +50,8 @@ export default function InvoiceEditor({ initialInvoice, user }) {
     const taxAmount = (subtotal * (Number(taxVal) || 0)) / 100;
     return subtotal + vatAmount + taxAmount;
   }, [subtotal, invoice.vat, invoice.tax]);
+
+  if (!initialInvoice) return null;
 
   const handleSave = async () => {
     setLoading(true);
