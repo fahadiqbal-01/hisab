@@ -6,6 +6,7 @@ import { createClient } from "@supabase/supabase-js";
 import Link from "next/link";
 import { revalidatePath } from "next/cache";
 import ClientAlreadyAddedAlert from "@/components/ClientAlreadyAddedAlert";
+import SubmitButton from "@/components/SubmitButton";
 
 export default async function NewClientPage({ searchParams }) {
   const session = await getServerSession(authOptions);
@@ -174,12 +175,7 @@ export default async function NewClientPage({ searchParams }) {
         </div>
 
         <div className="flex flex-col gap-3 md:flex-row md:gap-4">
-          <button
-            type="submit"
-            className="select-none cursor-pointer bg-[#071f18] dark:bg-white text-white dark:text-black px-10 py-4 rounded-full font-semibold hover:bg-[#0a2d23] dark:hover:bg-orange-700 dark:hover:text-white transition-all w-full md:w-auto order-1 md:order-0"
-          >
-            Save Client
-          </button>
+          <SubmitButton label="Save Client" pendingLabel="Saving..." />
           <Link
             href="/dashboard/clients"
             className="select-none cursor-pointer text-[#0a2d23] dark:text-white px-10 py-4 rounded-full font-semibold border hover:text-red-700 border-black/10 hover:bg-black/5 transition-all text-center w-full md:w-auto"

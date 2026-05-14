@@ -2,11 +2,16 @@ import InvoiceAnalysisChart from "@/components/InvoiceAnalysisChart";
 import { supabaseAdmin } from "@/lib/supabase";
 import EmptyFinanceState from "@/components/EmptyFinanceState";
 import { getCachedServerSession } from "@/lib/session";
+import { Suspense } from "react";
 
 export const revalidate = 0;
 
 export default async function DashboardPage() {
-  return <DashboardContent />;
+  return (
+    <Suspense>
+      <DashboardContent />
+    </Suspense>
+  );
 }
 
 async function DashboardContent() {

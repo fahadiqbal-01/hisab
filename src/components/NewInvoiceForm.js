@@ -92,7 +92,8 @@ export default function NewInvoiceForm({
     });
 
     if (res.ok) {
-      router.replace(`/dashboard/invoices?created=${Date.now()}`);
+      router.refresh();
+      router.push("/dashboard/invoices");
     } else {
       let message = "Failed to create invoice";
       try {
@@ -339,9 +340,28 @@ export default function NewInvoiceForm({
             </button>
             <button
               disabled={loading}
-              className="bg-white text-[#071f18] px-12 py-4 rounded-full font-bold hover:bg-[#fdfaf1] transition-all disabled:opacity-50 w-full sm:w-auto order-1 sm:order-2 select-none cursor-pointer "
+              aria-disabled={loading}
+              className="bg-white text-[#071f18] px-12 py-4 rounded-full font-bold hover:bg-[#fdfaf1] transition-all disabled:opacity-50 disabled:cursor-not-allowed w-full sm:w-auto order-1 sm:order-2 select-none cursor-pointer"
             >
-              {loading ? "Generating..." : "Save Invoice"}
+              {loading ? (
+                <span className="flex items-center justify-center gap-2">
+                  <svg
+                    className="animate-spin h-4 w-4"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2.5"
+                  >
+                    <path
+                      d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"
+                      strokeLinecap="round"
+                    />
+                  </svg>
+                  Generating...
+                </span>
+              ) : (
+                "Save Invoice"
+              )}
             </button>
           </div>
         </div>

@@ -157,7 +157,32 @@ export default async function InvoicesPage() {
         </Link>
       </header>
 
-      <Suspense fallback={null}>
+      <Suspense
+        fallback={
+          <div className="bg-white dark:bg-white/5 rounded-2xl shadow-sm border border-black/5 dark:border-white/10 overflow-x-auto">
+            <table className="w-full text-left border-collapse">
+              <thead className="bg-[#fdfaf1] dark:bg-white/5 border-b border-black/5 dark:border-white/10">
+                <tr>
+                  {["Invoice#", "Client", "Amount", "Status", "Actions"].map((h) => (
+                    <th key={h} className="px-6 py-4 text-[10px] uppercase tracking-widest font-bold text-black/40 dark:text-white/40">{h}</th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-black/5 dark:divide-white/5">
+                {[...Array(4)].map((_, i) => (
+                  <tr key={i}>
+                    {[...Array(5)].map((__, j) => (
+                      <td key={j} className="px-6 py-4">
+                        <div className="h-4 rounded-full bg-black/5 dark:bg-white/5 animate-pulse" style={{ width: j === 4 ? "80px" : j === 0 ? "90px" : "120px" }} />
+                      </td>
+                    ))}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        }
+      >
         <InvoicesList userId={session.user.id} />
       </Suspense>
     </section>
