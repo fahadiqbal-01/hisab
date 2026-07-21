@@ -1,8 +1,10 @@
 "use client";
 import { useState, useMemo } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import PrintButton from "./PrintButton";
 import { updateInvoice } from "@/app/actions/invoices";
+import { ArrowLeft, Edit, Check, CheckCircle2, Clock } from "lucide-react";
 
 export default function InvoiceEditor({ initialInvoice, user }) {
   const router = useRouter();
@@ -131,20 +133,48 @@ export default function InvoiceEditor({ initialInvoice, user }) {
     "bg-transparent border-b border-transparent hover:border-blue-300 focus:border-blue-500 focus:outline-none transition-colors text-[#071f18]";
 
   return (
-    <div className="min-h-screen pb-20">
+    <div className="min-h-screen pb-20 space-y-6 max-w-5xl mx-auto">
       {/* Action Bar */}
-      <div className="max-w-4xl mx-auto flex flex-col md:flex-row justify-between items-center gap-6 mb-8 px-6 print:hidden">
-        <div>
-          <h2 className="text-[10px] font-bold uppercase tracking-[0.2em] text-black/30 dark:text-white ">
-            {isEditing ? "Editing Mode" : "Invoice Preview"}
-          </h2>
-          <p className="text-[10px] text-black/20 dark:text-white/70 font-mono mt-1">
-            ID: {invoice.id}
-          </p>
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white dark:bg-white/5 p-6 rounded-[2rem] border border-black/5 dark:border-white/5 shadow-sm transition-colors duration-300 print:hidden mb-8">
+        <div className="flex items-center gap-4">
+          <Link
+            href="/dashboard/invoices"
+            className="p-2.5 bg-[#fcfaf0] dark:bg-white/5 text-[#082019] dark:text-white rounded-xl hover:bg-black/5 dark:hover:bg-white/10 transition-colors cursor-pointer"
+            title="Back to Invoices"
+          >
+            <ArrowLeft className="w-5 h-5" />
+          </Link>
+          <div>
+            <span className="text-[10px] font-bold uppercase tracking-widest text-emerald-600 dark:text-emerald-400">
+              {isEditing ? "Editing Mode" : "Invoice Preview"}
+            </span>
+            <h2 className="text-xl font-bold text-[#082019] dark:text-white mt-0.5">
+              {invoice.invoice_number_full || `Invoice #${invoice.id.slice(0, 8)}`}
+            </h2>
+          </div>
         </div>
-        <div className="flex items-center gap-6">
+
+        <div className="flex flex-wrap items-center gap-4 w-full sm:w-auto sm:justify-end">
+          {/* Invoice Status Badge */}
+          <span
+            className={`px-3 py-1.5 rounded-xl text-[10px] font-bold uppercase tracking-wider flex items-center gap-1.5 border shrink-0 ${
+              invoice.status === "paid"
+                ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20"
+                : "bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20"
+            }`}
+          >
+            {invoice.status === "paid" ? (
+              <CheckCircle2 className="w-3.5 h-3.5" />
+            ) : (
+              <Clock className="w-3.5 h-3.5" />
+            )}
+            {invoice.status === "paid" ? "Paid" : "Due"}
+          </span>
+
+          <div className="h-6 w-[1px] bg-black/5 dark:bg-white/10 hidden sm:block" />
+
           {isEditing ? (
-            <>
+            <div className="flex items-center gap-3 w-full sm:w-auto justify-end">
               <button
                 onClick={() => {
                   setInvoice({
@@ -152,30 +182,30 @@ export default function InvoiceEditor({ initialInvoice, user }) {
                   });
                   setIsEditing(false);
                 }}
-                className="select-none cursor-pointer text-[10px] font-bold uppercase tracking-widest text-black/40 dark:text-red-700 "
+                className="px-5 py-2.5 rounded-full border border-red-500/20 hover:bg-red-500/5 dark:hover:bg-red-500/10 text-red-600 dark:text-red-400 font-bold uppercase tracking-wider text-[10px] transition-all cursor-pointer"
               >
                 Cancel
               </button>
               <button
                 onClick={handleSave}
-                className="bg-[#071f18] dark:bg-white text-white dark:text-black px-8 py-3 rounded-full text-[10px] font-bold uppercase tracking-widest shadow-lg select-none cursor-pointer"
+                className="bg-[#082019] dark:bg-white text-white dark:text-[#082019] px-6 py-2.5 rounded-full font-bold uppercase tracking-wider text-[10px] flex items-center gap-1.5 transition-all shadow-md active:scale-95 cursor-pointer"
               >
-                {loading ? "Saving..." : "Save Changes"}
+                <Check className="w-3.5 h-3.5" /> {loading ? "Saving..." : "Save Changes"}
               </button>
-            </>
+            </div>
           ) : (
-            <>
+            <div className="flex items-center gap-3 w-full sm:w-auto justify-end">
               <button
                 onClick={() => setIsEditing(true)}
-                className="select-none cursor-pointer text-[10px] font-bold uppercase tracking-widest text-black/40 dark:text-white dark:hover:text-orange-700 hover:text-[#071f18]"
+                className="px-5 py-2.5 rounded-full border border-black/5 dark:border-white/5 hover:bg-black/5 dark:hover:bg-white/5 text-[#082019] dark:text-white font-bold uppercase tracking-wider text-[10px] flex items-center gap-1.5 transition-all cursor-pointer"
               >
-                Edit Invoice
+                <Edit className="w-3.5 h-3.5" /> Edit Invoice
               </button>
               <PrintButton
                 invoiceId={invoice.id}
                 initialStatus={invoice.status}
               />
-            </>
+            </div>
           )}
         </div>
       </div>

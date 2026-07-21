@@ -3,6 +3,18 @@ import { supabaseAdmin } from "@/lib/supabase";
 import EmptyFinanceState from "@/components/EmptyFinanceState";
 import { getCachedServerSession } from "@/lib/session";
 import { Suspense } from "react";
+import Link from "next/link";
+import { 
+  DollarSign, 
+  Clock, 
+  FileText, 
+  TrendingUp, 
+  Plus, 
+  Users, 
+  Settings, 
+  ArrowDownRight,
+  ChevronRight
+} from "lucide-react";
 
 export const revalidate = 0;
 
@@ -28,7 +40,7 @@ async function DashboardContent() {
   const [invoicesResponse, clientsResponse] = await Promise.all([
     supabaseAdmin
       .from("invoices")
-      .select(`id, total, status, created_at, clients ( name )`)
+      .select(`id, invoice_number_full, total, status, created_at, clients ( name )`)
       .eq("user_id", session.user.id)
       .order("created_at", { ascending: true }),
     supabaseAdmin
@@ -97,6 +109,14 @@ async function DashboardContent() {
 
   const growthDisplay = calculateGrowth();
 
+  const getGreeting = () => {
+    const hour = new Date().getHours();
+    if (hour < 12) return "Good morning";
+    if (hour < 17) return "Good afternoon";
+    return "Good evening";
+  };
+  const greeting = getGreeting();
+
   const analysisData =
     invoices?.map((inv) => {
       const d = new Date(inv.created_at);
@@ -110,63 +130,244 @@ async function DashboardContent() {
       };
     }) || [];
 
-  return (
-    <div className="space-y-10 pb-20 animate-in fade-in duration-700">
-      {session?.user?.name && (
-        <p className="text-[22px] font-bold uppercase text-orange-700 mb-4">
-          {session.user.name}
-        </p>
-      )}
+  // Sort invoices to display recent items first
+  const recentInvoices = [...(invoices || [])]
+    .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
+    .slice(0, 4);
 
-      <header className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6">
+  return (
+    <div className="space-y-8 pb-16 animate-in fade-in duration-500">
+      
+      {/* Dynamic Header & Greeting */}
+      <header className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6 bg-white dark:bg-white/5 p-6 md:p-8 rounded-3xl border border-black/5 dark:border-white/5 shadow-sm transition-colors duration-300">
         <div>
-          <h2 className="text-3xl font-bold text-[#071f18] dark:text-white">
-            Finance Overview
+          <span className="text-xs font-bold uppercase tracking-widest text-emerald-600 dark:text-emerald-400">
+            {greeting},
+          </span>
+          <h2 className="text-3xl font-bold tracking-tight text-[#082019] dark:text-white mt-1">
+            {session.user.name || "User"}
           </h2>
-          <p className="text-black/50 dark:text-white/40 mt-1">
-            Real-time performance for {session?.user?.name || "your studio"}.
+          <p className="text-sm text-black/50 dark:text-white/40 mt-1.5">
+            Here is your studio performance overview.
           </p>
         </div>
-        <div className="md:text-right">
-          <p className="text-[10px] uppercase font-bold tracking-[0.2em] text-black/30 dark:text-white/30">
-            Total Growth
-          </p>
-          <p className="text-xl font-serif italic text-[#071f18] dark:text-white">
-            {growthDisplay} vs last month
-          </p>
+        
+        <div className="flex items-center gap-4 bg-[#fcfaf0] dark:bg-white/5 px-5 py-3.5 rounded-2xl border border-black/5 dark:border-white/5 sm:text-right">
+          <div>
+            <p className="text-[10px] uppercase font-bold tracking-[0.2em] text-black/40 dark:text-white/30">
+              Total Growth
+            </p>
+            <div className="flex items-center gap-2 mt-1 sm:justify-end">
+              <span className={`flex items-center text-xs font-bold px-2.5 py-0.5 rounded-full ${
+                growthDisplay.startsWith("-") 
+                  ? "bg-red-100 text-red-700 dark:bg-red-950/30 dark:text-red-400" 
+                  : "bg-emerald-100 text-emerald-700 dark:bg-emerald-950/30 dark:text-emerald-400"
+              }`}>
+                {growthDisplay.startsWith("-") ? <ArrowDownRight className="w-3.5 h-3.5 mr-0.5" /> : <TrendingUp className="w-3.5 h-3.5 mr-0.5" />}
+                {growthDisplay}
+              </span>
+            </div>
+          </div>
         </div>
       </header>
 
+      {/* KPI Cards Grid */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="bg-[#071f18] dark:bg-green-700  p-8 rounded-3xl shadow-sm">
-          <p className="text-white dark:text-white opacity-50 text-xs uppercase tracking-widest font-bold text-[10px]">
-            Revenue Collected
-          </p>
-          <h3 className=" text-white text-4xl font-bold mt-2">
+        
+        {/* Revenue Collected Card */}
+        <div className="bg-[#082019] dark:bg-[#0e2a20] p-6 rounded-3xl shadow-md border border-emerald-500/10 relative overflow-hidden group">
+          <div className="absolute right-[-20px] top-[-20px] w-24 h-24 rounded-full bg-emerald-500/5 group-hover:scale-125 transition-transform duration-500" />
+          <div className="flex justify-between items-start">
+            <p className="text-white/60 text-xs uppercase tracking-widest font-bold">
+              Revenue Collected
+            </p>
+            <div className="p-2.5 bg-white/10 text-emerald-400 rounded-2xl">
+              <DollarSign className="w-5 h-5" />
+            </div>
+          </div>
+          <h3 className="text-white text-4xl font-bold mt-4 tracking-tight">
             ৳ {revenue.collected.toLocaleString()}
           </h3>
+          <p className="text-[10px] text-white/40 mt-2 font-medium tracking-wide">
+            Paid and cleared transactions
+          </p>
         </div>
 
-        <div className="bg-white dark:bg-[#0d0d0d] p-8 rounded-3xl border border-black/5 dark:border-white/10 shadow-sm">
-          <p className="text-black/30 dark:text-white/70 text-xs uppercase tracking-widest font-bold text-[10px]">
-            Pending Payment
-          </p>
-          <h3 className="text-4xl font-bold mt-2 text-[#071f18] dark:text-white">
+        {/* Pending Payments Card */}
+        <div className="bg-white dark:bg-white/5 p-6 rounded-3xl border border-black/5 dark:border-white/5 shadow-sm relative overflow-hidden group">
+          <div className="absolute right-[-20px] top-[-20px] w-24 h-24 rounded-full bg-orange-500/5 group-hover:scale-125 transition-transform duration-500" />
+          <div className="flex justify-between items-start">
+            <p className="text-black/40 dark:text-white/40 text-xs uppercase tracking-widest font-bold">
+              Pending Payment
+            </p>
+            <div className="p-2.5 bg-orange-500/10 text-orange-600 dark:text-orange-400 rounded-2xl">
+              <Clock className="w-5 h-5" />
+            </div>
+          </div>
+          <h3 className="text-4xl font-bold mt-4 tracking-tight text-[#082019] dark:text-white">
             ৳ {revenue.pending.toLocaleString()}
           </h3>
+          <p className="text-[10px] text-black/40 dark:text-white/40 mt-2 font-medium tracking-wide">
+            Awaiting client clearance
+          </p>
         </div>
 
-        <div className="bg-white dark:bg-[#0d0d0d] p-8 rounded-3xl border border-black/5 dark:border-white/10 shadow-sm">
-          <p className="text-black/30 dark:text-white/70 text-xs uppercase tracking-widest font-bold text-[10px]">
-            Total Invoices
-          </p>
-          <h3 className="text-4xl font-bold mt-2 text-[#071f18] dark:text-white">
+        {/* Total Invoices Card */}
+        <div className="bg-white dark:bg-white/5 p-6 rounded-3xl border border-black/5 dark:border-white/5 shadow-sm relative overflow-hidden group">
+          <div className="absolute right-[-20px] top-[-20px] w-24 h-24 rounded-full bg-blue-500/5 group-hover:scale-125 transition-transform duration-500" />
+          <div className="flex justify-between items-start">
+            <p className="text-black/40 dark:text-white/40 text-xs uppercase tracking-widest font-bold">
+              Total Invoices
+            </p>
+            <div className="p-2.5 bg-blue-500/10 text-blue-600 dark:text-blue-400 rounded-2xl">
+              <FileText className="w-5 h-5" />
+            </div>
+          </div>
+          <h3 className="text-4xl font-bold mt-4 tracking-tight text-[#082019] dark:text-white">
             {invoices?.length || 0}
           </h3>
+          <p className="text-[10px] text-black/40 dark:text-white/40 mt-2 font-medium tracking-wide">
+            Invoiced billing entries
+          </p>
         </div>
       </div>
 
-      <InvoiceAnalysisChart data={analysisData} />
+      {/* Grid Layout: Chart & Recent Activity VS Side Actions */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        
+        {/* Left Side: Chart & Recent Activity */}
+        <div className="lg:col-span-2 space-y-6">
+          <InvoiceAnalysisChart data={analysisData} />
+          
+          {/* Recent Invoices Card */}
+          <div className="bg-white dark:bg-white/5 p-6 md:p-8 rounded-[2.5rem] border border-black/5 dark:border-white/5 shadow-sm transition-colors duration-300">
+            <div className="flex justify-between items-center mb-6">
+              <div>
+                <h3 className="text-lg font-bold text-[#082019] dark:text-white">
+                  Recent Invoices
+                </h3>
+                <p className="text-xs text-black/40 dark:text-white/40 mt-0.5">
+                  Your most recent billing transactions
+                </p>
+              </div>
+              <Link 
+                href="/dashboard/invoices" 
+                className="text-xs font-bold uppercase tracking-wider text-emerald-600 dark:text-emerald-400 hover:underline flex items-center gap-1"
+              >
+                View All <ChevronRight className="w-4 h-4" />
+              </Link>
+            </div>
+            
+            <div className="space-y-3">
+              {recentInvoices.map((inv) => (
+                <div 
+                  key={inv.id} 
+                  className="flex items-center justify-between p-4 rounded-2xl bg-[#fcfaf0] dark:bg-white/5 hover:bg-[#f8f5ea] dark:hover:bg-white/10 border border-black/5 dark:border-white/5 transition-all group"
+                >
+                  <div className="flex items-center gap-3">
+                    <div className="p-2 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 rounded-xl">
+                      <FileText className="w-4 h-4" />
+                    </div>
+                    <div>
+                      <p className="text-sm font-bold text-[#082019] dark:text-white group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors">
+                        {inv.invoice_number_full || `Invoice #${inv.id.slice(0, 6)}`}
+                      </p>
+                      <p className="text-xs text-black/40 dark:text-white/40 mt-0.5">
+                        {inv.clients?.name || "Unknown Client"}
+                      </p>
+                    </div>
+                  </div>
+                  
+                  <div className="flex items-center gap-4">
+                    <div className="text-right">
+                      <p className="text-sm font-bold text-[#082019] dark:text-white">
+                        ৳ {inv.total.toLocaleString()}
+                      </p>
+                      <p className="text-[10px] text-black/30 dark:text-white/30 mt-0.5">
+                        {new Date(inv.created_at).toLocaleDateString("en-GB", { day: "numeric", month: "short" })}
+                      </p>
+                    </div>
+                    <span className={`px-2.5 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-widest ${
+                      inv.status === "paid"
+                        ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-500/20 dark:text-emerald-400"
+                        : "bg-orange-100 text-orange-700 dark:bg-orange-500/20 dark:text-orange-400"
+                    }`}>
+                      {inv.status === "paid" ? "Paid" : "Due"}
+                    </span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* Right Side: Quick Actions & Details */}
+        <div className="space-y-6">
+          
+          {/* Quick Actions Panel */}
+          <div className="bg-white dark:bg-white/5 p-6 rounded-[2.5rem] border border-black/5 dark:border-white/5 shadow-sm transition-colors duration-300">
+            <h3 className="text-lg font-bold text-[#082019] dark:text-white mb-4">
+              Quick Actions
+            </h3>
+            
+            <div className="space-y-3">
+              <Link 
+                href="/dashboard/invoices/new" 
+                className="flex items-center gap-3.5 p-4 w-full rounded-2xl bg-[#082019] hover:bg-[#0c3127] text-white transition-all shadow-md active:scale-98 group"
+              >
+                <div className="p-2 bg-white/10 text-emerald-300 rounded-xl group-hover:scale-110 transition-transform">
+                  <Plus className="w-5 h-5" />
+                </div>
+                <div className="text-left">
+                  <p className="text-sm font-bold tracking-wide">Create Invoice</p>
+                  <p className="text-[10px] text-white/50">Draft and send new billings</p>
+                </div>
+              </Link>
+              
+              <Link 
+                href="/dashboard/clients" 
+                className="flex items-center gap-3.5 p-4 w-full rounded-2xl bg-[#fcfaf0] hover:bg-[#f8f5ea] dark:bg-white/5 dark:hover:bg-white/10 text-[#082019] dark:text-white border border-black/5 dark:border-white/5 transition-all active:scale-98 group"
+              >
+                <div className="p-2 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 rounded-xl group-hover:scale-110 transition-transform">
+                  <Users className="w-5 h-5" />
+                </div>
+                <div className="text-left">
+                  <p className="text-sm font-bold tracking-wide">Manage Clients</p>
+                  <p className="text-[10px] text-black/40 dark:text-white/40">Onboard and track clients</p>
+                </div>
+              </Link>
+              
+              <Link 
+                href="/dashboard/settings" 
+                className="flex items-center gap-3.5 p-4 w-full rounded-2xl bg-[#fcfaf0] hover:bg-[#f8f5ea] dark:bg-white/5 dark:hover:bg-white/10 text-[#082019] dark:text-white border border-black/5 dark:border-white/5 transition-all active:scale-98 group"
+              >
+                <div className="p-2 bg-neutral-500/10 text-neutral-600 dark:text-neutral-400 rounded-xl group-hover:scale-110 transition-transform">
+                  <Settings className="w-5 h-5" />
+                </div>
+                <div className="text-left">
+                  <p className="text-sm font-bold tracking-wide">Account Settings</p>
+                  <p className="text-[10px] text-black/40 dark:text-white/40">Configure defaults & profile</p>
+                </div>
+              </Link>
+            </div>
+          </div>
+
+          {/* Quick Metrics Helper / Visual Tip */}
+          <div className="bg-[#FAF9F5] dark:bg-white/2 p-6 rounded-[2.5rem] border-2 border-dashed border-black/5 dark:border-white/5 flex flex-col justify-center items-center text-center py-10 transition-colors duration-300">
+            <div className="w-12 h-12 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center mb-4">
+              <TrendingUp className="w-6 h-6" />
+            </div>
+            <h4 className="text-sm font-bold text-[#082019] dark:text-white mb-1">
+              Smart Invoice Delivery
+            </h4>
+            <p className="text-xs text-black/40 dark:text-white/40 max-w-[200px] leading-relaxed">
+              Use one-click WhatsApp links to deliver professional invoices instantly.
+            </p>
+          </div>
+        </div>
+
+      </div>
     </div>
   );
 }
+

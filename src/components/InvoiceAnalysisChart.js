@@ -1,5 +1,6 @@
 "use client";
 import React, { useState, useEffect } from "react";
+import { useTheme } from "next-themes";
 import {
   ScatterChart,
   Scatter,
@@ -22,6 +23,7 @@ const CustomPill = (props) => {
     yAxis,
     active,
     index,
+    isDark,
     ...rest
   } = props;
   const height = Math.max(40, (payload.amount / 50000) * 20);
@@ -34,11 +36,11 @@ const CustomPill = (props) => {
       y={cy - height / 2}
       width={width}
       height={height}
-      fill="#ffffff"
+      fill={isDark ? "#ffffff" : "#082019"}
       rx={width / 2}
-      className="transition-all duration-300 hover:fill-blue-700 dark:hover:fill-[#008235] cursor-pointer"
+      className="transition-all duration-300 hover:fill-emerald-500 dark:hover:fill-emerald-400 cursor-pointer"
       style={{
-        filter: "drop-shadow(0px 4px 6px rgba(0,0,0,0.1))",
+        filter: "drop-shadow(0px 4px 6px rgba(0,0,0,0.15))",
         ...rest.style,
       }}
     />
@@ -49,18 +51,22 @@ const CustomTooltip = ({ active, payload }) => {
   if (active && payload && payload.length) {
     const data = payload[0].payload;
     return (
-      <div className="bg-white p-4 rounded-2xl border border-black/10 shadow-xl min-w-50">
-        <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-black/40 mb-1">
+      <div className="bg-white dark:bg-[#111614] p-4 rounded-2xl border border-black/5 dark:border-white/10 shadow-xl min-w-[200px] transition-colors duration-300">
+        <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-black/40 dark:text-white/40 mb-1">
           {data.date}
         </p>
-        <p className="text-lg font-bold text-[#071f18] mb-1">{data.client}</p>
-        <div className="flex justify-between items-center mt-3 pt-3 border-t border-black/5">
-          <p className="text-sm font-medium text-black/60">Amount</p>
-          <p className="text-sm font-bold">৳ {data.amount.toLocaleString()}</p>
+        <p className="text-base font-bold text-[#082019] dark:text-white mb-1">
+          {data.client}
+        </p>
+        <div className="flex justify-between items-center mt-3 pt-3 border-t border-black/5 dark:border-white/5">
+          <p className="text-xs font-medium text-black/60 dark:text-white/60">Amount</p>
+          <p className="text-sm font-bold text-[#082019] dark:text-white">
+            ৳ {data.amount.toLocaleString()}
+          </p>
         </div>
         <div className="flex justify-between items-center mt-1">
-          <p className="text-sm font-medium text-black/60">Status</p>
-          <p className="text-xs font-bold uppercase tracking-widest text-green-500">
+          <p className="text-xs font-medium text-black/60 dark:text-white/60">Status</p>
+          <p className="text-xs font-bold uppercase tracking-widest text-emerald-600 dark:text-emerald-400">
             {data.status}
           </p>
         </div>
@@ -72,11 +78,13 @@ const CustomTooltip = ({ active, payload }) => {
 
 export default function InvoiceAnalysisChart({ data }) {
   const [mounted, setMounted] = useState(false);
+  const { resolvedTheme } = useTheme();
 
   useEffect(() => {
     setMounted(true);
   }, []);
 
+  const isDark = mounted && resolvedTheme === "dark";
   const paidOnlyData = data?.filter((item) => item.status === "paid") || [];
 
   const formatYAxis = (tickItem) => {
@@ -85,8 +93,8 @@ export default function InvoiceAnalysisChart({ data }) {
   };
 
   return (
-    <div className="w-full h-125 bg-[#061e18] dark:bg-[#0d0d0d] rounded-[2.5rem] p-8 border border-black/5 shadow-sm">
-      <h3 className="text-[10px] font-bold uppercase tracking-[0.3em] text-white/30 dark:text-white mb-8 ml-2">
+    <div className="w-full h-125 bg-white dark:bg-white/5 rounded-[2.5rem] p-6 md:p-8 border border-black/5 dark:border-white/5 shadow-sm transition-colors duration-300">
+      <h3 className="text-[10px] font-bold uppercase tracking-[0.3em] text-black/40 dark:text-white/30 mb-8 ml-2">
         Individual Paid Invoice Analysis
       </h3>
 
@@ -100,17 +108,18 @@ export default function InvoiceAnalysisChart({ data }) {
           <ScatterChart margin={{ top: 20, right: 10, bottom: 20, left: -30 }}>
             <CartesianGrid
               vertical={false}
-              stroke="#000000"
-              strokeOpacity={0.05}
+              stroke={isDark ? "#ffffff" : "#000000"}
+              strokeOpacity={0.04}
             />
             <XAxis
               dataKey="date"
               axisLine={true}
               tickLine={true}
+              stroke={isDark ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.05)"}
               tick={{
-                fill: "#ffffff",
+                fill: isDark ? "#ffffff" : "#082019",
                 opacity: 0.5,
-                fontSize: 11,
+                fontSize: 10,
                 fontWeight: "500",
               }}
               tickMargin={15}
@@ -121,9 +130,9 @@ export default function InvoiceAnalysisChart({ data }) {
               tickLine={false}
               tickFormatter={formatYAxis}
               tick={{
-                fill: "#ffffff",
+                fill: isDark ? "#ffffff" : "#082019",
                 opacity: 0.5,
-                fontSize: 11,
+                fontSize: 10,
                 fontWeight: "500",
               }}
               domain={["auto", "auto"]}
@@ -132,7 +141,7 @@ export default function InvoiceAnalysisChart({ data }) {
             <Scatter
               name="Invoices"
               data={paidOnlyData}
-              shape={<CustomPill />}
+              shape={<CustomPill isDark={isDark} />}
               animationDuration={1500}
             />
           </ScatterChart>
@@ -141,3 +150,4 @@ export default function InvoiceAnalysisChart({ data }) {
     </div>
   );
 }
+

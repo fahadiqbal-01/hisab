@@ -3,6 +3,7 @@ import { supabaseAdmin } from "@/lib/supabase";
 import DeleteClientButton from "@/components/DeleteClientButton";
 import { Suspense } from "react";
 import { getCachedServerSession } from "@/lib/session";
+import { Plus, Mail, Edit, User } from "lucide-react";
 
 export const revalidate = 0;
 
@@ -13,46 +14,66 @@ async function ClientsList({ userId }) {
     .eq("user_id", userId)
     .order("name");
 
+  if (!clients || clients.length === 0) {
+    return (
+      <div className="bg-white dark:bg-white/5 rounded-[2rem] border border-black/5 dark:border-white/5 p-12 text-center transition-colors duration-300">
+        <div className="w-12 h-12 rounded-full bg-black/5 dark:bg-white/5 flex items-center justify-center mx-auto mb-4">
+          <User className="w-6 h-6 text-black/30 dark:text-white/30" />
+        </div>
+        <h3 className="text-base font-bold text-[#082019] dark:text-white mb-1">
+          No Clients Onboarded
+        </h3>
+        <p className="text-xs text-black/40 dark:text-white/40 max-w-xs mx-auto leading-relaxed">
+          Your client directory is empty. Add your first client to start creating invoices.
+        </p>
+      </div>
+    );
+  }
+
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 animate-in fade-in duration-500">
-      {clients?.map((client) => (
-        <div
-          key={client.id}
-          className="bg-white dark:bg-[#0d0d0d] p-6 rounded-3xl border border-black/5 flex justify-between items-start"
-        >
-          <div>
-            <h3 className="font-bold text-lg text-[#071f18] dark:text-orange-700 ">
-              {client.name}
-            </h3>
-            <p className="text-sm text-black/40 dark:text-white ">
-              {client.email}
-            </p>
-          </div>
-          <div className="flex flex-col items-end gap-4">
-            <Link
-              href={`/dashboard/clients/${client.id}/edit`}
-              prefetch={true}
-              className="text-black/20 dark:text-blue-700 dark:hover:text-blue-400 hover:text-[#071f18] transition-colors"
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="16"
-                height="16"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
+      {clients.map((client) => {
+        const initials = client.name
+          ?.split(" ")
+          .map((n) => n[0])
+          .join("")
+          .slice(0, 2)
+          .toUpperCase() || "C";
+
+        return (
+          <div
+            key={client.id}
+            className="bg-white dark:bg-white/5 p-6 rounded-[2rem] border border-black/5 dark:border-white/5 flex justify-between items-start gap-4 transition-all duration-300 hover:shadow-sm hover:border-black/10 dark:hover:border-white/10"
+          >
+            <div className="flex items-center gap-4 min-w-0">
+              {/* Profile Avatar with Initials */}
+              <div className="w-12 h-12 rounded-2xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center font-bold text-sm tracking-wider uppercase border border-emerald-500/20 shrink-0 select-none">
+                {initials}
+              </div>
+              <div className="min-w-0">
+                <h3 className="font-bold text-base text-[#082019] dark:text-white truncate">
+                  {client.name}
+                </h3>
+                <p className="text-xs text-black/40 dark:text-white/40 truncate flex items-center gap-1.5 mt-1 font-medium">
+                  <Mail className="w-3.5 h-3.5 shrink-0 text-black/30 dark:text-white/30" />
+                  {client.email || "No email address"}
+                </p>
+              </div>
+            </div>
+            
+            <div className="flex items-center gap-2 shrink-0 self-center">
+              <Link
+                href={`/dashboard/clients/${client.id}/edit`}
+                prefetch={true}
+                className="p-2 bg-[#fcfaf0] dark:bg-white/5 text-black/40 hover:text-[#082019] dark:text-white/40 dark:hover:text-white rounded-xl transition-all cursor-pointer border border-transparent hover:border-black/5 dark:hover:border-white/5"
               >
-                <path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z" />
-                <path d="m15 5 4 4" />
-              </svg>
-            </Link>
-            <DeleteClientButton id={client.id} />
+                <Edit className="w-4 h-4" />
+              </Link>
+              <DeleteClientButton id={client.id} />
+            </div>
           </div>
-        </div>
-      ))}
+        );
+      })}
     </div>
   );
 }
@@ -69,24 +90,51 @@ export default async function ClientsPage() {
   }
 
   return (
-    <section>
-      <header className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6 mb-10">
-        <h2 className="text-3xl font-bold text-[#071f18] dark:text-white ">
-          Clients
-        </h2>
+    <section className="space-y-8">
+      
+      {/* Header Banner */}
+      <header className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6 bg-white dark:bg-white/5 p-6 md:p-8 rounded-3xl border border-black/5 dark:border-white/5 shadow-sm transition-colors duration-300">
+        <div>
+          <h2 className="text-3xl font-bold text-[#082019] dark:text-white">
+            Clients
+          </h2>
+          <p className="text-black/50 dark:text-white/40 mt-1.5 text-sm">
+            Onboard and manage your client directory.
+          </p>
+        </div>
         <Link
           href="/dashboard/clients/new"
           prefetch={true}
-          className="select-none cursor-pointer bg-[#071f18] dark:bg-white text-white dark:text-black px-6 py-2 rounded-full font-medium shadow-sm"
+          className="select-none cursor-pointer bg-[#082019] hover:bg-[#0c3127] dark:bg-white dark:text-[#082019] dark:hover:bg-neutral-100 text-white px-6 py-3 rounded-full font-bold text-xs uppercase tracking-widest flex items-center gap-2 shadow-md transition-all active:scale-95 shrink-0"
         >
-          + Add Client
+          <Plus className="w-4 h-4" /> Add Client
         </Link>
       </header>
 
-
-      <Suspense fallback={null}>
+      <Suspense
+        fallback={
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 animate-pulse">
+            {[...Array(6)].map((_, i) => (
+              <div key={i} className="bg-white dark:bg-white/5 p-6 rounded-[2rem] border border-black/5 dark:border-white/5 flex justify-between items-start gap-4">
+                <div className="flex items-center gap-4 flex-1">
+                  <div className="w-12 h-12 rounded-2xl bg-black/5 dark:bg-white/5 shrink-0" />
+                  <div className="space-y-2 flex-1">
+                    <div className="h-4 bg-black/5 dark:bg-white/5 rounded-full w-2/3" />
+                    <div className="h-3 bg-black/5 dark:bg-white/5 rounded-full w-1/2" />
+                  </div>
+                </div>
+                <div className="space-y-4">
+                  <div className="w-5 h-5 bg-black/5 dark:bg-white/5 rounded-lg" />
+                  <div className="w-5 h-5 bg-black/5 dark:bg-white/5 rounded-lg" />
+                </div>
+              </div>
+            ))}
+          </div>
+        }
+      >
         <ClientsList userId={session.user.id} />
       </Suspense>
     </section>
   );
 }
+

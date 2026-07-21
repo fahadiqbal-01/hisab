@@ -2,7 +2,6 @@
 import { useState } from "react";
 import { signOut } from "next-auth/react";
 import { BiLogOutCircle } from "react-icons/bi";
-import { motion } from "framer-motion";
 
 export default function SignOutButton() {
   const [isLoggingOut, setIsLoggingOut] = useState(false);
@@ -16,14 +15,14 @@ export default function SignOutButton() {
   };
 
   return (
-    <motion.button
-      whileHover={{ x: 5 }}
-      whileTap={{ scale: 0.97 }}
+    <button
       onClick={handleSignOut}
       disabled={isLoggingOut}
-      className=" select-none cursor-pointer flex items-center gap-3 px-4 py-3 w-full rounded-xl transition-all text-white/50 hover:bg-red-500/10 hover:text-red-400 font-medium group disabled:opacity-50"
+      className="select-none cursor-pointer flex items-center gap-3 px-4 py-2.5 w-full rounded-xl transition-all duration-150 text-white/50 hover:bg-red-500/10 hover:text-red-400 font-medium group disabled:opacity-50"
     >
-      {isLoggingOut ? "Signing Out" : "Sign Out"}
-    </motion.button>
+      <BiLogOutCircle className="text-lg transition-colors group-hover:text-red-400" />
+      <span className="text-sm">{isLoggingOut ? "Signing Out..." : "Sign Out"}</span>
+    </button>
   );
 }
+

@@ -2,6 +2,7 @@
 import { useState } from "react";
 import { deleteClient } from "@/app/actions/clients";
 import { motion, AnimatePresence } from "framer-motion";
+import { Trash2 } from "lucide-react";
 
 export default function DeleteClientButton({ id }) {
   const [isConfirming, setIsConfirming] = useState(false);
@@ -23,24 +24,11 @@ export default function DeleteClientButton({ id }) {
     <>
       <button
         onClick={() => setIsConfirming(true)}
-        className="text-black/20 dark:text-white/70 hover:text-red-500 transition-colors cursor-pointer"
+        className="p-2 bg-[#fcfaf0] dark:bg-white/5 text-black/40 hover:text-red-500 dark:text-white/40 dark:hover:text-red-500 rounded-xl transition-all cursor-pointer border border-transparent hover:border-black/5 dark:hover:border-white/5"
       >
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          width="16"
-          height="16"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="2"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        >
-          <path d="M3 6h18" />
-          <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6" />
-          <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" />
-        </svg>
+        <Trash2 className="w-4 h-4" />
       </button>
+
 
       <AnimatePresence>
         {isConfirming && (

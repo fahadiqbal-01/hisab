@@ -4,8 +4,9 @@ import { toast, Toaster } from "react-hot-toast";
 import { updateProfile } from "@/app/actions/profiles";
 import { deleteAccount } from "@/app/actions/account";
 import AppearanceSettings from "@/components/AppearanceSettings";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { signOut } from "next-auth/react";
+import { ChevronDown, AlertTriangle } from "lucide-react";
 
 export default function SettingsClient({ initialProfile, user }) {
   const [saving, setSaving] = useState(false);
@@ -64,53 +65,52 @@ export default function SettingsClient({ initialProfile, user }) {
   return (
     <>
       <Toaster position="top-right" reverseOrder={false} />
-      <motion.div
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="max-w-4xl pb-20 select-none"
-      >
-        <header className="mb-12">
-          <h2 className="text-3xl font-bold text-[#071f18] dark:text-white">
+      <div className="max-w-3xl mx-auto min-h-[100dvh] pb-20 select-none animate-in fade-in duration-500">
+        
+        {/* Header */}
+        <header className="mb-10">
+          <h2 className="text-3xl font-bold text-[#082019] dark:text-white">
             Settings
           </h2>
-          <p className="text-black/50 dark:text-white/50 mt-1">
+          <p className="text-black/50 dark:text-white/40 mt-1">
             Configure your professional identity and defaults.
           </p>
         </header>
 
-        <div className="mb-8 w-full md:w-[65%] ml-auto  ">
+        <div className="space-y-6">
+          
+          {/* Section 1: Theme Settings */}
           <AppearanceSettings />
-        </div>
 
-        <div className="space-y-12">
-          <section className="grid grid-cols-1 md:grid-cols-3 gap-10">
-            <div>
-              <h3 className="text-xs font-bold uppercase tracking-widest text-black/30 dark:text-white">
-                Branding
-              </h3>
-              <p className="text-xs text-black/40 mt-2 dark:text-white/50">
-                How you appear on invoices.
-              </p>
-            </div>
-            <div className="md:col-span-2 space-y-6 bg-white dark:bg-[#0d0d0d] p-8 rounded-3xl border border-black/5">
+          {/* Section 2: Branding Settings */}
+          <div className="bg-white dark:bg-white/5 p-6 md:p-8 rounded-[2rem] border border-black/5 dark:border-white/5 shadow-sm transition-colors duration-300">
+            <h3 className="text-xs font-bold uppercase tracking-[0.2em] text-emerald-600 dark:text-emerald-400 mb-6">
+              Branding Profile
+            </h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {/* Studio Name Input */}
               <div>
-                <label className="text-[10px] font-bold uppercase text-black/30 dark:text-white block mb-2">
+                <label className="text-[10px] font-bold uppercase tracking-wider text-black/40 dark:text-white/40 block mb-2 ml-1">
                   Studio Name
                 </label>
                 <input
-                  className="w-full bg-[#fcfaf0] dark:bg-white/30 text-black dark:text-white/70 border-none rounded-xl p-4 focus:ring-2 focus:ring-[#071f18] outline-none"
+                  type="text"
+                  className="w-full bg-[#f6f4ed] dark:bg-white/5 text-black dark:text-white border border-black/5 dark:border-white/5 rounded-xl px-4 py-3 focus:bg-white dark:focus:bg-black/20 focus:ring-2 focus:ring-emerald-500/20 outline-none transition-all text-sm"
                   value={profile.studio_name || ""}
                   onChange={(e) =>
                     setProfile({ ...profile, studio_name: e.target.value })
                   }
                 />
               </div>
+              
+              {/* Professional Title Input */}
               <div>
-                <label className="text-[10px] font-bold uppercase text-black/30 dark:text-white block mb-2">
-                  Title
+                <label className="text-[10px] font-bold uppercase tracking-wider text-black/40 dark:text-white/40 block mb-2 ml-1">
+                  Professional Title
                 </label>
                 <input
-                  className="w-full bg-[#fcfaf0] dark:bg-white/30 text-black dark:text-white/70 border-none rounded-xl p-4 focus:ring-2 focus:ring-[#071f18] outline-none"
+                  type="text"
+                  className="w-full bg-[#f6f4ed] dark:bg-white/5 text-black dark:text-white border border-black/5 dark:border-white/5 rounded-xl px-4 py-3 focus:bg-white dark:focus:bg-black/20 focus:ring-2 focus:ring-emerald-500/20 outline-none transition-all text-sm"
                   value={profile.professional_title || ""}
                   onChange={(e) =>
                     setProfile({
@@ -121,76 +121,82 @@ export default function SettingsClient({ initialProfile, user }) {
                 />
               </div>
             </div>
-          </section>
+          </div>
 
-          <hr className="border-black/5" />
-
-          <section className="grid grid-cols-1 md:grid-cols-3 gap-10">
-            <div>
-              <h3 className="text-xs font-bold uppercase tracking-widest text-black/30 dark:text-white">
-                Payment
-              </h3>
-              <p className="text-xs text-black/40 dark:text-white/50 mt-2">
-                Set your default account details.
-              </p>
-            </div>
-            <div className="md:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-6 bg-white dark:bg-[#0d0d0d] p-8 rounded-3xl border border-black/5">
+          {/* Section 3: Payment Settings */}
+          <div className="bg-white dark:bg-white/5 p-6 md:p-8 rounded-[2rem] border border-black/5 dark:border-white/5 shadow-sm transition-colors duration-300">
+            <h3 className="text-xs font-bold uppercase tracking-[0.2em] text-emerald-600 dark:text-emerald-400 mb-6">
+              Payment Defaults
+            </h3>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              
+              {/* Payment Method Selector Dropdown */}
               <div className="relative" ref={paymentDropdownRef}>
-                <label className="text-[10px] font-bold uppercase text-black/30 dark:text-white block mb-2 ml-1">
-                  Method
+                <label className="text-[10px] font-bold uppercase tracking-wider text-black/40 dark:text-white/40 block mb-2 ml-1">
+                  Preferred Method
                 </label>
                 <div
                   onClick={() =>
                     setIsPaymentDropdownOpen(!isPaymentDropdownOpen)
                   }
-                  className="w-full flex justify-between items-center px-5 py-3 bg-[#fcfaf0] dark:bg-white/30 rounded-xl border border-black/5 cursor-pointer"
+                  className="w-full flex justify-between items-center px-4 py-3 bg-[#f6f4ed] dark:bg-white/5 text-black dark:text-white border border-black/5 dark:border-white/5 rounded-xl cursor-pointer hover:bg-black/5 dark:hover:bg-white/10 transition-colors"
                 >
-                  <span className="text-black dark:text-white/70 font-medium capitalize">
+                  <span className="font-semibold capitalize text-sm">
                     {profile.payment_method || "Select..."}
                   </span>
-                  <svg
-                    className={`transition-transform duration-200 ${isPaymentDropdownOpen ? "rotate-180" : ""}`}
-                    width="18"
-                    height="18"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2.5"
-                  >
-                    <path d="m6 9 6 6 6-6" />
-                  </svg>
+                  <ChevronDown
+                    className={`w-4 h-4 text-black/40 dark:text-white/40 transition-transform duration-200 ${
+                      isPaymentDropdownOpen ? "rotate-180" : ""
+                    }`}
+                  />
                 </div>
 
-                {isPaymentDropdownOpen && (
-                  <div className="absolute z-50 w-full mt-2 bg-[#fcfaf0] dark:bg-white dark:text-black rounded-xl shadow-xl  overflow-hidden">
-                    {[
-                      { id: "bkash", label: "bKash" },
-                      { id: "nagad", label: "Nagad" },
-                      { id: "bank", label: "Bank Transfer" },
-                      { id: "paypal", label: "PayPal" },
-                      { id: "wise", label: "Wise" },
-                      { id: "rocket", label: "Rocket" },
-                    ].map((method) => (
-                      <div
-                        key={method.id}
-                        onClick={() => {
-                          setProfile({ ...profile, payment_method: method.id });
-                          setIsPaymentDropdownOpen(false);
-                        }}
-                        className={`px-5 py-3 cursor-pointer ${profile.payment_method === method.id ? "bg-[#061e18] dark:bg-orange-700 text-white dark:text-white" : "hover:bg-white/20 "}`}
-                      >
-                        {method.label}
-                      </div>
-                    ))}
-                  </div>
-                )}
+                <AnimatePresence>
+                  {isPaymentDropdownOpen && (
+                    <motion.div
+                      initial={{ opacity: 0, y: 5 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: 5 }}
+                      transition={{ duration: 0.15 }}
+                      className="absolute z-50 w-full mt-2 bg-white dark:bg-[#111614] rounded-2xl shadow-xl border border-black/5 dark:border-white/5 overflow-hidden"
+                    >
+                      {[
+                        { id: "bkash", label: "bKash" },
+                        { id: "nagad", label: "Nagad" },
+                        { id: "bank", label: "Bank Transfer" },
+                        { id: "paypal", label: "PayPal" },
+                        { id: "wise", label: "Wise" },
+                        { id: "rocket", label: "Rocket" },
+                      ].map((method) => (
+                        <div
+                          key={method.id}
+                          onClick={() => {
+                            setProfile({ ...profile, payment_method: method.id });
+                            setIsPaymentDropdownOpen(false);
+                          }}
+                          className={`px-4 py-3 text-sm cursor-pointer transition-colors ${
+                            profile.payment_method === method.id
+                              ? "bg-[#082019] text-white dark:bg-emerald-500/10 dark:text-emerald-400 font-semibold"
+                              : "hover:bg-black/5 dark:hover:bg-white/5 text-black/80 dark:text-white/80"
+                          }`}
+                        >
+                          {method.label}
+                        </div>
+                      ))}
+                    </motion.div>
+                  )}
+                </AnimatePresence>
               </div>
+              
+              {/* Account Number Input */}
               <div>
-                <label className="text-[10px] font-bold uppercase text-black/30 block mb-2">
-                  Account Number
+                <label className="text-[10px] font-bold uppercase tracking-wider text-black/40 dark:text-white/40 block mb-2 ml-1">
+                  Account / Wallet Number
                 </label>
                 <input
-                  className="w-full bg-[#fcfaf0] dark:bg-white/30 text-black dark:text-white/70 border-none rounded-xl p-4 focus:ring-2 focus:ring-[#071f18] outline-none"
+                  type="text"
+                  className="w-full bg-[#f6f4ed] dark:bg-white/5 text-black dark:text-white border border-black/5 dark:border-white/5 rounded-xl px-4 py-3 focus:bg-white dark:focus:bg-black/20 focus:ring-2 focus:ring-emerald-500/20 outline-none transition-all text-sm"
                   value={profile.payment_number || ""}
                   onChange={(e) =>
                     setProfile({ ...profile, payment_number: e.target.value })
@@ -198,76 +204,83 @@ export default function SettingsClient({ initialProfile, user }) {
                 />
               </div>
             </div>
-          </section>
+          </div>
 
-          <motion.footer
-            layout
-            className="flex flex-col sm:flex-row justify-between items-center bg-[#071f18] dark:bg-[#0d0d0d] p-6 rounded-3xl shadow-xl mt-20 gap-4"
-          >
-            <p className="text-white/40 text-[10px] font-bold uppercase tracking-widest sm:pl-4">
-              {saving ? "Updating..." : "Ready to save"}
-            </p>
-            <motion.button
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-              onClick={handleSave}
-              disabled={saving}
-              className="bg-white text-[#071f18] w-full sm:w-auto px-10 py-4 rounded-full font-bold uppercase tracking-widest hover:bg-[#e2e2e2] disabled:opacity-50"
-            >
-              Save
-            </motion.button>
-          </motion.footer>
-
-          <section className="mt-8 rounded-3xl py-6">
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          {/* Section 4: Danger Zone */}
+          <div className="bg-red-500/5 dark:bg-red-500/2 p-6 md:p-8 rounded-[2rem] border border-red-500/10 dark:border-red-950/20 shadow-sm transition-colors duration-300">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-6">
               <div>
-                <h3 className="text-xs font-bold uppercase tracking-widest text-red-700 ">
-                  Danger Zone
+                <h3 className="text-xs font-bold uppercase tracking-[0.2em] text-red-700 dark:text-red-400 flex items-center gap-1.5">
+                  <AlertTriangle className="w-4.5 h-4.5" /> Danger Zone
                 </h3>
-                <p className="text-sm text-red-300/50  mt-1">
-                  Delete your account and all related records permanently.
+                <p className="text-sm text-black/50 dark:text-white/40 mt-1">
+                  Permanently delete your account and all billing profiles. This action is irreversible.
                 </p>
               </div>
               <button
                 onClick={() => setShowDeleteConfirm(true)}
                 disabled={deletingAccount}
-                className="bg-red-800 hover:bg-red-700 duration-300 ease-out text-white px-6 py-3 rounded-full font-bold uppercase tracking-widest disabled:opacity-50 cursor-pointer"
+                className="w-full sm:w-auto bg-red-800 hover:bg-red-700 active:scale-95 duration-150 text-white px-8 py-3 rounded-full font-bold uppercase tracking-wider text-xs disabled:opacity-50 cursor-pointer shadow-md shrink-0"
               >
                 {deletingAccount ? "Deleting..." : "Delete Account"}
               </button>
             </div>
-          </section>
-        </div>
-      </motion.div>
-
-      {showDeleteConfirm && (
-        <div className="fixed inset-0 z-100 flex items-center justify-center bg-black/50 backdrop-blur-sm px-4">
-          <div className="w-full max-w-md rounded-3xl bg-white dark:bg-[#0d0d0d] border border-black/10 p-6 shadow-2xl">
-            <h3 className="text-lg font-bold text-[#071f18] dark:text-white">
-              Delete Account?
-            </h3>
-            <p className="mt-2 text-sm text-black/60 dark:text-white/70">
-              This action is permanent and will remove your account and all related records.
-            </p>
-            <div className="mt-6 flex gap-3 justify-end">
-              <button
-                onClick={() => setShowDeleteConfirm(false)}
-                disabled={deletingAccount}
-                className="px-5 py-2 rounded-full border border-black/10 text-black dark:text-white hover:bg-black/5 dark:hover:bg-white/10 disabled:opacity-50 cursor-pointer "
-              >
-                Cancel
-              </button>
-              <button
-                onClick={handleDeleteAccount}
-                disabled={deletingAccount}
-                className="px-5 py-2 rounded-full bg-red-600 text-white font-semibold hover:bg-red-700 disabled:opacity-50 cursor-pointer "
-              >
-                {deletingAccount ? "Deleting..." : "Yes, Delete"}
-              </button>
-            </div>
           </div>
+
+          {/* Save Bar Footer */}
+          <div className="flex flex-col sm:flex-row justify-between items-center bg-[#082019]/90 dark:bg-white/5 backdrop-blur p-5 rounded-3xl border border-white/5 shadow-lg mt-8 gap-4 transition-colors duration-300">
+            <p className="text-white/40 text-[10px] font-bold uppercase tracking-widest sm:pl-2">
+              {saving ? "Saving changes..." : "Settings fully configured"}
+            </p>
+            <button
+              onClick={handleSave}
+              disabled={saving}
+              className="w-full sm:w-auto bg-white text-[#082019] hover:bg-neutral-100 active:scale-95 duration-150 px-10 py-3 rounded-full font-bold uppercase tracking-wider text-xs disabled:opacity-50 cursor-pointer shadow-md"
+            >
+              Save Defaults
+            </button>
+          </div>
+
         </div>
-      )}
+      </div>
+
+      {/* Delete Confirmation Modal */}
+      <AnimatePresence>
+        {showDeleteConfirm && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm px-4">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              className="w-full max-w-md rounded-[2rem] bg-white dark:bg-[#111614] border border-black/5 dark:border-white/10 p-6 shadow-2xl"
+            >
+              <h3 className="text-lg font-bold text-[#082019] dark:text-white flex items-center gap-2">
+                <AlertTriangle className="text-red-500 w-5 h-5" /> Delete Account?
+              </h3>
+              <p className="mt-2 text-sm text-black/50 dark:text-white/40 leading-relaxed">
+                This action is permanent and cannot be undone. All invoices, client data, and billing settings will be destroyed.
+              </p>
+              <div className="mt-6 flex gap-3 justify-end">
+                <button
+                  onClick={() => setShowDeleteConfirm(false)}
+                  disabled={deletingAccount}
+                  className="px-5 py-2 rounded-full border border-black/10 dark:border-white/10 text-black dark:text-white hover:bg-black/5 dark:hover:bg-white/10 transition-colors text-xs font-semibold uppercase tracking-wider cursor-pointer"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleDeleteAccount}
+                  disabled={deletingAccount}
+                  className="px-5 py-2 rounded-full bg-red-600 text-white font-semibold hover:bg-red-700 active:scale-95 transition-colors text-xs font-bold uppercase tracking-wider cursor-pointer shadow-sm"
+                >
+                  {deletingAccount ? "Deleting..." : "Yes, Delete"}
+                </button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </>
   );
 }
+

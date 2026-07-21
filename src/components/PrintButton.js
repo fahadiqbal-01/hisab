@@ -119,10 +119,7 @@ export default function PrintButton({ invoiceId, initialStatus }) {
         <button
           onClick={markAsPaid}
           disabled={loading}
-          className="w-full sm:w-auto border-2 border-[#071f18] dark:border-orange-700 text-[#071f18] dark:text-orange-700 px-8 py-3.5 
-                 rounded-xl text-[11px] font-bold uppercase tracking-widest 
-                 hover:bg-[#071f18] dark:hover:bg-orange-700 hover:text-white transition-all 
-                 disabled:opacity-50 text-center whitespace-nowrap cursor-pointer "
+          className="w-full sm:w-auto border border-emerald-500/20 text-emerald-600 dark:text-emerald-400 bg-emerald-500/5 hover:bg-emerald-500/10 px-5 py-2.5 rounded-full text-[10px] font-bold uppercase tracking-wider flex items-center justify-center gap-1.5 transition-all cursor-pointer disabled:opacity-50 text-center whitespace-nowrap"
         >
           {loading ? "Updating..." : "Mark as Paid"}
         </button>
@@ -131,13 +128,11 @@ export default function PrintButton({ invoiceId, initialStatus }) {
       <button
         onClick={handleDownloadPDF}
         disabled={isDownloading}
-        className="select-none cursor-pointer w-full sm:w-auto bg-[#071f18] dark:bg-blue-700 text-white dark:text-white px-8 py-3.5 
-               rounded-xl text-[11px] font-bold uppercase tracking-widest 
-               hover:bg-black transition-all disabled:opacity-50 
-               shadow-lg shadow-black/5 text-center whitespace-nowrap"
+        className="select-none cursor-pointer w-full sm:w-auto bg-[#082019] hover:bg-[#0c3127] dark:bg-white dark:text-[#082019] dark:hover:bg-neutral-100 text-white px-5 py-2.5 rounded-full text-[10px] font-bold uppercase tracking-wider flex items-center justify-center gap-1.5 transition-all cursor-pointer shadow-md active:scale-95 disabled:opacity-50 text-center whitespace-nowrap"
       >
         {isDownloading ? "Generating..." : "Download PDF"}
       </button>
     </div>
   );
 }
+

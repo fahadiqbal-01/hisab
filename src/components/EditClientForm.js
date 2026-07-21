@@ -34,19 +34,19 @@ export default function EditClientForm({ client }) {
   };
 
   const inputClass =
-    "w-full p-4 rounded-2xl text-black/70 dark:text-white/70 border border-black/5 bg-[#fdfaf1] dark:bg-white/20 focus:outline-none focus:ring-1 focus:ring-[#071f18] transition-all text-[#071f18] font-medium";
+    "w-full bg-[#f6f4ed] dark:bg-white/5 text-black dark:text-white border border-black/5 dark:border-white/5 rounded-xl px-4 py-3 focus:bg-white dark:focus:bg-black/20 focus:ring-2 focus:ring-emerald-500/20 outline-none transition-all text-sm font-medium";
   const labelClass =
-    "text-[10px] font-bold uppercase tracking-[0.2em] text-black/30 dark:text-white/50 mb-2 block ml-1";
+    "text-[10px] font-bold uppercase tracking-wider text-black/40 dark:text-white/40 block mb-2 ml-1";
 
   return (
     <motion.form
-      initial={{ opacity: 0, y: 20 }}
+      initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.2 }}
+      transition={{ duration: 0.3 }}
       onSubmit={handleSubmit}
-      className="space-y-8 bg-white dark:bg-[#0d0d0d] p-6 sm:p-10 rounded-4xl sm:rounded-[2.5rem] border border-black/5 shadow-sm"
+      className="space-y-6 bg-white dark:bg-white/5 p-6 sm:p-8 rounded-[2rem] border border-black/5 dark:border-white/5 shadow-sm transition-colors duration-300"
     >
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div>
           <label className={labelClass}>Client Name</label>
           <input
@@ -91,7 +91,7 @@ export default function EditClientForm({ client }) {
         </div>
       </div>
 
-      <div className="pt-6 border-t border-black/5 space-y-8">
+      <div className="pt-6 border-t border-black/5 dark:border-white/5 space-y-6">
         <div>
           <label className={labelClass}>Address (Optional)</label>
           <input
@@ -105,14 +105,14 @@ export default function EditClientForm({ client }) {
         <div>
           <label className={labelClass}>Internal Notes (Optional)</label>
           <textarea
-            className={`${inputClass} resize-none h-32`}
+            className={`${inputClass} resize-none h-28`}
             value={formData.notes}
             onChange={(e) =>
               setFormData({ ...formData, notes: e.target.value })
             }
           />
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <div>
             <label className={labelClass}>City / State</label>
             <input
@@ -147,20 +147,19 @@ export default function EditClientForm({ client }) {
         </div>
       </div>
 
-      <div className="flex flex-col sm:flex-row items-center gap-6 pt-8">
+      <div className="flex flex-col sm:flex-row items-center gap-4 pt-4">
         <motion.button
-          whileHover={{ scale: 1.02 }}
           whileTap={{ scale: 0.98 }}
           type="submit"
           disabled={loading}
-          className="cursor-pointer bg-[#071f18] dark:bg-white text-white dark:text-black w-full sm:w-auto px-10 py-4 rounded-full font-bold dark:hover:bg-orange-700 dark:hover:text-white hover:bg-green-900 transition-all disabled:opacity-50 shadow-lg shadow-[#071f18]/10"
+          className="cursor-pointer bg-[#082019] hover:bg-[#0c3127] dark:bg-white dark:text-[#082019] dark:hover:bg-neutral-100 text-white px-10 py-3.5 rounded-full font-bold text-xs uppercase tracking-wider transition-all w-full sm:w-auto disabled:opacity-50 shadow-md active:scale-95 duration-150 text-center"
         >
           {loading ? "Updating..." : "Save Changes"}
         </motion.button>
         <button
           type="button"
           onClick={() => router.back()}
-          className="text-sm font-bold uppercase tracking-widest text-black/30 dark:text-white hover:text-red-800 transition-colors w-full sm:w-auto cursor-pointer "
+          className="select-none cursor-pointer text-[#082019] dark:text-white px-10 py-3.5 rounded-full font-bold text-xs uppercase tracking-wider border border-black/10 dark:border-white/10 hover:bg-black/5 dark:hover:bg-white/5 transition-all text-center w-full sm:w-auto"
         >
           Cancel
         </button>
@@ -168,3 +167,4 @@ export default function EditClientForm({ client }) {
     </motion.form>
   );
 }
+
