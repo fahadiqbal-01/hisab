@@ -84,7 +84,7 @@ export default function SignUp() {
       });
 
       if (res?.ok) {
-        router.replace("/dashboard");
+        window.location.href = "/dashboard";
       } else {
         setError("Invalid email or password");
         setLoading(false);

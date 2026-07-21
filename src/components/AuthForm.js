@@ -90,8 +90,7 @@ export default function AuthForm() {
       });
 
       if (res?.ok) {
-        router.replace("/dashboard");
-        router.refresh();
+        window.location.href = "/dashboard";
       } else {
         setError("Invalid email or password");
         setLoading(false);
