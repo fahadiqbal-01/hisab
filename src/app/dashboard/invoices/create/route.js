@@ -67,7 +67,7 @@ export async function POST(req) {
       note_text,
     } = await req.json();
 
-    // 1. Insert Invoice
+ 
     const invoiceBase = {
       sender_name,
       sender_email,
@@ -84,7 +84,7 @@ export async function POST(req) {
 
     const invoice = await insertInvoiceWithNoteFallback(invoiceBase, note_text);
 
-    // 2. Insert Items
+
     const lineItems = items.map((item) => ({
       invoice_id: invoice.id,
       description: item.description || "Service",

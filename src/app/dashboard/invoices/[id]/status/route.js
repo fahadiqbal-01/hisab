@@ -20,7 +20,7 @@ export async function PATCH(req, { params }) {
     .from("invoices")
     .update({ status: status })
     .eq("id", id)
-    .eq("user_id", session.user.id); // Security: Ensure it's your invoice
+    .eq("user_id", session.user.id); 
 
   if (error)
     return NextResponse.json({ error: error.message }, { status: 500 });

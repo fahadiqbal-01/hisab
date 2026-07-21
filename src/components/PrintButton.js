@@ -26,8 +26,6 @@ export default function PrintButton({ invoiceId, initialStatus }) {
         setStatus(previousStatus);
         alert("Failed to update status");
       } else {
-        // Tell Next.js to refresh the current route, which updates all
-        // components (charts, lists, etc.) with the latest server data.
         router.refresh();
       }
     } catch (error) {

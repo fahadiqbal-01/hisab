@@ -14,7 +14,7 @@ export default function DeleteClientButton({ id }) {
       if (res.error) alert(res.error);
       setIsConfirming(false);
     } finally {
-      // Allow UI to resolve state without blocking
+
       setIsDeleting(false);
     }
   };

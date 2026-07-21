@@ -83,10 +83,7 @@ export default async function ClientsPage() {
         </Link>
       </header>
 
-      {/* 
-          By using Suspense with fallback={null}, the header above renders 
-          INSTANTLY. The list below pops in once Supabase responds.
-      */}
+
       <Suspense fallback={null}>
         <ClientsList userId={session.user.id} />
       </Suspense>
