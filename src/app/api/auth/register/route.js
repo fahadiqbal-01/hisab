@@ -36,7 +36,7 @@ export async function POST(req) {
       );
     }
 
-)
+  
     const { data: authData, error: authError } =
       await supabaseAdmin.auth.admin.createUser({
         email: normalizedEmail,
@@ -62,7 +62,6 @@ export async function POST(req) {
 
     const fullName = `${firstName} ${lastName}`;
 
-
     const { error: insertError } = await supabaseAdmin.from("users").insert([
       {
         id: authData.user.id,
@@ -73,7 +72,6 @@ export async function POST(req) {
 
     if (insertError) {
       console.error("Database Insert Error:", insertError.message);
-
 
       if (authData?.user?.id) {
         const { error: rollbackError } = await supabaseAdmin.auth.admin.deleteUser(
