@@ -9,19 +9,20 @@ export async function middleware(req) {
   });
 
   const { pathname } = req.nextUrl;
+  const hasToken = !!token?.id;
 
   const isAuthPage =
     pathname === "/sign-up" || pathname === "/login" || pathname === "/";
 
-  if (pathname === "/" && !token) {
+  if (pathname === "/" && !hasToken) {
     return NextResponse.redirect(new URL("/sign-up", req.url));
   }
 
-  if (isAuthPage && token) {
+  if (isAuthPage && hasToken) {
     return NextResponse.redirect(new URL("/dashboard", req.url));
   }
 
-  if (pathname.startsWith("/dashboard") && !token) {
+  if (pathname.startsWith("/dashboard") && !hasToken) {
     return NextResponse.redirect(new URL("/sign-up", req.url));
   }
 

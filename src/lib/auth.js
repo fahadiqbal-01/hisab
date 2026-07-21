@@ -8,6 +8,9 @@ const supabaseAdmin = createClient(
 
 const isProduction = process.env.NODE_ENV === "production";
 
+// Global in-memory cache for user ban status to prevent overloading Supabase DB
+const banCache = new Map();
+
 export const authOptions = {
   providers: [
     CredentialsProvider({
@@ -39,10 +42,51 @@ export const authOptions = {
   ],
   callbacks: {
     async jwt({ token, user }) {
-      if (user) token.id = user.id;
+      if (user) {
+        token.id = user.id;
+      }
       return token;
     },
     async session({ session, token }) {
+      if (!token || !token.id) {
+        return null; // Invalidate session
+      }
+
+      const userId = token.id;
+      const now = Date.now();
+      const cached = banCache.get(userId);
+
+      // Check status every 10 seconds
+      const CACHE_TTL = 10 * 1000;
+      let isBanned = false;
+
+      if (cached && now - cached.lastChecked < CACHE_TTL) {
+        isBanned = cached.isBanned;
+      } else {
+        try {
+          const { data, error } = await supabaseAdmin.auth.admin.getUser(userId);
+          
+          isBanned =
+            error ||
+            !data?.user ||
+            (data.user.banned_until && new Date(data.user.banned_until) > new Date());
+
+          banCache.set(userId, {
+            isBanned,
+            lastChecked: now,
+          });
+        } catch (err) {
+          console.error("Supabase live ban check failed:", err);
+          // Fallback to previous cached value if network fails
+          isBanned = cached ? cached.isBanned : false;
+        }
+      }
+
+      if (isBanned) {
+        console.warn(`Active ban detected for user ${userId}. Terminating session.`);
+        return null; // Force invalidate session
+      }
+
       if (session.user) {
         session.user.id = token.id;
       }

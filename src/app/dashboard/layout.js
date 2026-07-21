@@ -1,5 +1,6 @@
 import React from "react";
 import Link from "next/link";
+import { redirect } from "next/navigation";
 import { getCachedServerSession } from "@/lib/session";
 import SignOutButton from "@/components/SignOutButton";
 import SidebarLink from "@/components/SidebarLink";
@@ -18,6 +19,10 @@ export const metadata = {
 
 export default async function DashboardLayout({ children }) {
   const session = await getCachedServerSession();
+
+  if (!session) {
+    redirect("/sign-up");
+  }
 
   const menuItems = [
     { name: "Overview", href: "/dashboard", icon: <MdOutlineAnalytics /> },
