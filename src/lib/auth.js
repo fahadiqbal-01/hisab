@@ -64,7 +64,7 @@ export const authOptions = {
         isBanned = cached.isBanned;
       } else {
         try {
-          const { data, error } = await supabaseAdmin.auth.admin.getUser(userId);
+          const { data, error } = await supabaseAdmin.auth.admin.getUserById(userId);
           
           isBanned =
             error ||
