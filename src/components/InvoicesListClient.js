@@ -24,12 +24,14 @@ export default function InvoicesListClient({ invoices, lang, t, initialStatusFil
 
   const allCount = invoices.length;
   const paidCount = invoices.filter((inv) => inv.status === "paid").length;
-  const dueCount = invoices.filter((inv) => inv.status === "due").length;
+  const dueCount = invoices.filter((inv) => inv.status !== "paid").length;
 
   const filteredInvoices =
     statusFilter === "all"
       ? invoices
-      : invoices.filter((inv) => inv.status === statusFilter);
+      : statusFilter === "paid"
+      ? invoices.filter((inv) => inv.status === "paid")
+      : invoices.filter((inv) => inv.status !== "paid");
 
   const tabs = [
     { id: "all", label: t.allInvoices, count: allCount },

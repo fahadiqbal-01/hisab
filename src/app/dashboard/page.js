@@ -61,7 +61,7 @@ async function DashboardContent({ lang = "en" }) {
   const revenue = invoices?.reduce(
     (acc, inv) => {
       if (inv.status === "paid") acc.collected += inv.total;
-      if (inv.status === "due") acc.pending += inv.total;
+      else acc.pending += inv.total;
       return acc;
     },
     { collected: 0, pending: 0 },
