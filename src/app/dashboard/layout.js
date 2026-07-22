@@ -126,5 +126,4 @@ export default async function DashboardLayout({ children }) {
       </main>
     </div>
   );
-
 }
