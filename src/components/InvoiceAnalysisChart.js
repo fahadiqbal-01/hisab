@@ -159,7 +159,11 @@ export default function InvoiceAnalysisChart({ data }) {
 
   const formatYAxis = (tickItem) => {
     if (tickItem === 0) return "0";
-    return `${(tickItem / 1000).toFixed(0)}K`;
+    if (tickItem >= 1000) {
+      const value = tickItem / 1000;
+      return value % 1 === 0 ? `${value.toFixed(0)}K` : `${value.toFixed(1)}K`;
+    }
+    return tickItem.toLocaleString();
   };
 
   return (
