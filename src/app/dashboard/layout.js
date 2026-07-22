@@ -76,7 +76,7 @@ export default async function DashboardLayout({ children }) {
         <div className="flex flex-col h-full">
           <div className="p-6 mb-2">
             <DasboardLogo className="md:block hidden" />
-            <p className="text-[14px] text-green-300 font-bold ml-2">{t.beta}</p>
+            <p className="text-[14px] text-[#09B882] font-bold ml-2">{t.beta}</p>
           </div>
 
           <nav className="flex-1 px-4 space-y-1.5 overflow-y-auto">
