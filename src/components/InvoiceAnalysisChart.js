@@ -28,22 +28,34 @@ const CustomPill = (props) => {
   } = props;
   const height = Math.max(40, (payload.amount / 50000) * 20);
   const width = 12;
+  const touchWidth = 30;
 
   return (
-    <rect
-      {...rest}
-      x={cx - width / 2}
-      y={cy - height / 2}
-      width={width}
-      height={height}
-      fill={isDark ? "#ffffff" : "#082019"}
-      rx={width / 2}
-      className="transition-all duration-300 hover:fill-emerald-500 dark:hover:fill-emerald-400 cursor-pointer"
-      style={{
-        filter: "drop-shadow(0px 4px 6px rgba(0,0,0,0.15))",
-        ...rest.style,
-      }}
-    />
+    <g {...rest} className="group cursor-pointer">
+      {/* Invisible larger touch/hover target */}
+      <rect
+        x={cx - touchWidth / 2}
+        y={cy - height / 2}
+        width={touchWidth}
+        height={height}
+        fill="black"
+        fillOpacity={0}
+      />
+      {/* Visible styled rect */}
+      <rect
+        x={cx - width / 2}
+        y={cy - height / 2}
+        width={width}
+        height={height}
+        fill={isDark ? "#ffffff" : "#082019"}
+        rx={width / 2}
+        className="transition-all duration-300 group-hover:fill-emerald-500 dark:group-hover:fill-emerald-400"
+        style={{
+          filter: "drop-shadow(0px 4px 6px rgba(0,0,0,0.15))",
+          ...rest.style,
+        }}
+      />
+    </g>
   );
 };
 
@@ -78,10 +90,19 @@ const CustomTooltip = ({ active, payload }) => {
 
 export default function InvoiceAnalysisChart({ data }) {
   const [mounted, setMounted] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
   const { resolvedTheme } = useTheme();
 
   useEffect(() => {
     setMounted(true);
+    const checkMobile = () => {
+      setIsMobile(
+        window.matchMedia("(max-width: 768px)").matches ||
+        "ontouchstart" in window ||
+        (typeof navigator !== "undefined" && navigator.maxTouchPoints > 0)
+      );
+    };
+    checkMobile();
   }, []);
 
   const isDark = mounted && resolvedTheme === "dark";
@@ -137,7 +158,11 @@ export default function InvoiceAnalysisChart({ data }) {
               }}
               domain={["auto", "auto"]}
             />
-            <Tooltip content={<CustomTooltip />} cursor={false} />
+            <Tooltip
+              content={<CustomTooltip />}
+              cursor={false}
+              trigger={isMobile ? "click" : "hover"}
+            />
             <Scatter
               name="Invoices"
               data={paidOnlyData}
