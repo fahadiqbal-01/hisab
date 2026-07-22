@@ -3,11 +3,15 @@ import { useState, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import PrintButton from "./PrintButton";
+import DeleteButton from "./DeleteButton";
 import { updateInvoice } from "@/app/actions/invoices";
 import { ArrowLeft, Edit, Check, CheckCircle2, Clock } from "lucide-react";
+import { getTranslations } from "@/lib/translations";
 
-export default function InvoiceEditor({ initialInvoice, user }) {
+export default function InvoiceEditor({ initialInvoice, user, lang = "en" }) {
   const router = useRouter();
+  const t = getTranslations(lang);
+  const isBn = lang === "bn";
 
   const normalizeInvoice = (sourceInvoice) => ({
     id: sourceInvoice?.id || "new-invoice",
@@ -72,13 +76,14 @@ export default function InvoiceEditor({ initialInvoice, user }) {
       router.refresh();
       router.push("/dashboard/invoices");
     } catch (error) {
-      let userMessage = "Failed to save invoice.";
+      let userMessage = isBn ? "ইনভয়েস সংরক্ষণ করতে ব্যর্থ হয়েছে।" : "Failed to save invoice.";
       if (
         error.message.includes("Could not find the 'note_text' column") ||
         error.message.includes('column "notes" does not exist')
       ) {
-        userMessage =
-          "Failed to save invoice: The 'note_text' field is missing from the database schema. Please ensure the 'invoices' table has a 'note_text' column.";
+        userMessage = isBn
+          ? "ইনভয়েস সংরক্ষণ করতে ব্যর্থ হয়েছে: ডেটাবেজ স্কিমাতে 'note_text' কলামটি নেই। অনুগ্রহ করে নিশ্চিত করুন যে 'invoices' টেবিলে 'note_text' কলাম রয়েছে।"
+          : "Failed to save invoice: The 'note_text' field is missing from the database schema. Please ensure the 'invoices' table has a 'note_text' column.";
       } else if (error.message.includes("Failed to update invoice")) {
         userMessage = error.message;
       }
@@ -98,14 +103,25 @@ export default function InvoiceEditor({ initialInvoice, user }) {
         updatedItem.unit_price = qty > 0 ? (Number(value) || 0) / qty : 0;
       }
 
-      if (field === "quantity") {
-        const qty = Number(value) || 0;
-        updatedItem.unit_price = qty > 0 ? (Number(updatedItem.price) || 0) / qty : 0;
+      if (field === "quantity" || field === "unit_price") {
+        const qty = field === "quantity" ? Number(value) : Number(updatedItem.quantity);
+        const price = field === "unit_price" ? Number(value) : Number(updatedItem.unit_price);
+        updatedItem.price = qty * price;
       }
 
       return updatedItem;
     });
+
     setInvoice({ ...invoice, invoice_items: newItems });
+  };
+
+  const removeItem = (index) => {
+    if (invoice.invoice_items.length > 1) {
+      setInvoice({
+        ...invoice,
+        invoice_items: invoice.invoice_items.filter((_, i) => i !== index),
+      });
+    }
   };
 
   const addNewRow = () => {
@@ -114,39 +130,34 @@ export default function InvoiceEditor({ initialInvoice, user }) {
       invoice_items: [
         ...invoice.invoice_items,
         {
-          description: "New Service",
+          id: `new-${Date.now()}`,
+          description: "",
           quantity: 1,
+          unit_price: "",
           price: 0,
-          unit_price: 0,
-          id: crypto.randomUUID(),
         },
       ],
     });
   };
 
-  const removeItem = (index) => {
-    const newItems = invoice.invoice_items.filter((_, i) => i !== index);
-    setInvoice({ ...invoice, invoice_items: newItems });
-  };
-
   const inputClasses =
-    "bg-transparent border-b border-transparent hover:border-blue-300 focus:border-blue-500 focus:outline-none transition-colors text-[#071f18]";
+    "bg-transparent border-b border-black/10 focus:border-[#082019] outline-none py-1 transition-all";
 
   return (
-    <div className="min-h-screen pb-20 space-y-6 max-w-5xl mx-auto">
-      {/* Action Bar */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white dark:bg-white/5 p-6 rounded-[2rem] border border-black/5 dark:border-white/5 shadow-sm transition-colors duration-300 print:hidden mb-8">
+    <div className="max-w-4xl mx-auto space-y-8 select-none">
+      
+      {/* Top Navigation & Actions */}
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6 bg-white dark:bg-white/5 p-6 md:p-8 rounded-3xl border border-black/5 dark:border-white/5 shadow-sm transition-colors duration-300">
         <div className="flex items-center gap-4">
           <Link
             href="/dashboard/invoices"
-            className="p-2.5 bg-[#fcfaf0] dark:bg-white/5 text-[#082019] dark:text-white rounded-xl hover:bg-black/5 dark:hover:bg-white/10 transition-colors cursor-pointer"
-            title="Back to Invoices"
+            className="p-2.5 rounded-2xl bg-[#fcfaf0] dark:bg-white/5 text-black/50 hover:text-black dark:text-white/40 dark:hover:text-white transition-all cursor-pointer border border-transparent hover:border-black/5 dark:hover:border-white/5"
           >
             <ArrowLeft className="w-5 h-5" />
           </Link>
           <div>
-            <span className="text-[10px] font-bold uppercase tracking-widest text-emerald-600 dark:text-emerald-400">
-              {isEditing ? "Editing Mode" : "Invoice Preview"}
+            <span className="text-[10px] font-bold uppercase tracking-wider text-black/40 dark:text-white/40">
+              {t.invoiceDetailsTitle}
             </span>
             <h2 className="text-xl font-bold text-[#082019] dark:text-white mt-0.5">
               {invoice.invoice_number_full || `Invoice #${invoice.id.slice(0, 8)}`}
@@ -168,7 +179,7 @@ export default function InvoiceEditor({ initialInvoice, user }) {
             ) : (
               <Clock className="w-3.5 h-3.5" />
             )}
-            {invoice.status === "paid" ? "Paid" : "Due"}
+            {invoice.status === "paid" ? t.paidStatus : t.dueStatus}
           </span>
 
           <div className="h-6 w-[1px] bg-black/5 dark:bg-white/10 hidden sm:block" />
@@ -184,13 +195,13 @@ export default function InvoiceEditor({ initialInvoice, user }) {
                 }}
                 className="px-5 py-2.5 rounded-full border border-red-500/20 hover:bg-red-500/5 dark:hover:bg-red-500/10 text-red-600 dark:text-red-400 font-bold uppercase tracking-wider text-[10px] transition-all cursor-pointer"
               >
-                Cancel
+                {t.cancel}
               </button>
               <button
                 onClick={handleSave}
                 className="bg-[#082019] dark:bg-white text-white dark:text-[#082019] px-6 py-2.5 rounded-full font-bold uppercase tracking-wider text-[10px] flex items-center gap-1.5 transition-all shadow-md active:scale-95 cursor-pointer"
               >
-                <Check className="w-3.5 h-3.5" /> {loading ? "Saving..." : "Save Changes"}
+                <Check className="w-3.5 h-3.5" /> {loading ? t.updatingInvoiceBtn : t.saveChanges}
               </button>
             </div>
           ) : (
@@ -199,11 +210,12 @@ export default function InvoiceEditor({ initialInvoice, user }) {
                 onClick={() => setIsEditing(true)}
                 className="px-5 py-2.5 rounded-full border border-black/5 dark:border-white/5 hover:bg-black/5 dark:hover:bg-white/5 text-[#082019] dark:text-white font-bold uppercase tracking-wider text-[10px] flex items-center gap-1.5 transition-all cursor-pointer"
               >
-                <Edit className="w-3.5 h-3.5" /> Edit Invoice
+                <Edit className="w-3.5 h-3.5" /> {t.editInvoice}
               </button>
               <PrintButton
                 invoiceId={invoice.id}
                 initialStatus={invoice.status}
+                t={t}
               />
             </div>
           )}
@@ -262,7 +274,7 @@ export default function InvoiceEditor({ initialInvoice, user }) {
           <section className="grid grid-cols-2 gap-20 mb-24">
             <div>
               <h3 className="text-[10px] font-bold uppercase tracking-[0.2em] text-black/30 mb-2">
-                Billed To
+                {t.billedTo}
               </h3>
               <p className="font-bold text-xl text-[#061e18]">
                 {invoice.clients?.name}
@@ -287,7 +299,7 @@ export default function InvoiceEditor({ initialInvoice, user }) {
             </div>
             <div>
               <h3 className="text-[10px] font-bold uppercase tracking-[0.2em] text-black/30 mb-2">
-                Payment Method
+                {t.paymentMethod}
               </h3>
               <p className="text-sm font-bold text-[#061e18] capitalize">
                 {invoice.payment_method ||
@@ -304,13 +316,13 @@ export default function InvoiceEditor({ initialInvoice, user }) {
             <thead>
               <tr className="border-b border-black/5">
                 <th className="text-left py-4 text-[10px] font-bold uppercase tracking-widest text-black/50">
-                  Description
+                  {t.itemDescription}
                 </th>
                 <th className="text-right py-4 text-[10px] font-bold uppercase tracking-widest text-black/50">
-                  Qty
+                  {t.qty}
                 </th>
                 <th className="text-right py-4 text-[10px] font-bold uppercase tracking-widest text-black/50">
-                  Price
+                  {t.unitPrice}
                 </th>
                 {isEditing && <th className="w-10"></th>}
               </tr>
@@ -387,7 +399,7 @@ export default function InvoiceEditor({ initialInvoice, user }) {
               onClick={addNewRow}
               className="mb-12 text-[10px] font-bold uppercase tracking-widest text-blue-500 hover:text-blue-700"
             >
-              + Add Line Item
+              + {t.addItem}
             </button>
           )}
 
@@ -395,7 +407,7 @@ export default function InvoiceEditor({ initialInvoice, user }) {
             <div className="grid grid-cols-2 gap-20 mb-12 border-t border-black/5 pt-8">
               <div>
                 <label className="text-[10px] font-bold uppercase tracking-[0.2em] text-black/30 mb-2 block">
-                  VAT (%)
+                  {t.vatPct}
                 </label>
                 <input
                   type="number"
@@ -409,7 +421,7 @@ export default function InvoiceEditor({ initialInvoice, user }) {
               </div>
               <div>
                 <label className="text-[10px] font-bold uppercase tracking-[0.2em] text-black/30 mb-2 block">
-                  Tax (%)
+                  {t.taxPct}
                 </label>
                 <input
                   type="number"
@@ -428,26 +440,26 @@ export default function InvoiceEditor({ initialInvoice, user }) {
           <footer className="mt-auto pt-10 border-t-2 border-[#071f18] flex justify-between items-end">
             <div>
               <h3 className="text-[10px] font-bold uppercase tracking-[0.2em] text-black/30 mb-1">
-                Status
+                {t.statusCol}
               </h3>
               <p
                 className={`text-xl font-black uppercase tracking-tighter ${invoice.status === "paid" ? "text-green-600" : "text-orange-500"}`}
               >
-                {invoice.status === "paid" ? "Paid" : "Due"}
+                {invoice.status === "paid" ? t.paidStatus : t.dueStatus}
               </p>
             </div>
             <div className="text-right">
               {(Number(invoice.vat) > 0 || Number(invoice.tax) > 0) && (
                 <div className="mb-4 space-y-1">
                   <div className="flex justify-end gap-4 text-[10px] font-bold uppercase tracking-widest text-black/30">
-                    <span>Subtotal:</span>
+                    <span>{t.subtotal}:</span>
                     <span className="text-[#071f18]">
                       {invoice.currency || "৳"} {subtotal.toLocaleString()}
                     </span>
                   </div>
                   {Number(invoice.vat) > 0 && (
                     <div className="flex justify-end gap-4 text-[10px] font-bold uppercase tracking-widest text-orange-500">
-                      <span>VAT ({invoice.vat}%):</span>
+                      <span>{t.vatPct} ({invoice.vat}%):</span>
                       <span>
                         + ৳{" "}
                         {(
@@ -459,7 +471,7 @@ export default function InvoiceEditor({ initialInvoice, user }) {
                   )}
                   {Number(invoice.tax) > 0 && (
                     <div className="flex justify-end gap-4 text-[10px] font-bold uppercase tracking-widest text-orange-500">
-                      <span>Tax ({invoice.tax}%):</span>
+                      <span>{t.taxPct} ({invoice.tax}%):</span>
                       <span>
                         + ৳{" "}
                         {(
@@ -472,7 +484,7 @@ export default function InvoiceEditor({ initialInvoice, user }) {
                 </div>
               )}
               <h3 className="text-[10px] font-bold uppercase tracking-[0.2em] text-black/30 mb-1">
-                Total Due
+                {t.total}
               </h3>
               <p className="text-6xl font-mono font-extrabold text-[#071f18] leading-tight">
                 <span className="text-2xl mr-1">{invoice.currency || "৳"}</span>
@@ -482,21 +494,21 @@ export default function InvoiceEditor({ initialInvoice, user }) {
           </footer>
           <div className="mt-24">
             <h3 className="text-[10px] font-bold uppercase tracking-[0.2em] text-black/30 mb-2">
-              Note
+              {t.noteText}
             </h3>
             {isEditing ? (
               <textarea
                 className={`${inputClasses} w-full text-sm py-2 resize-none h-20`}
-                placeholder="e.g. Please process the payment using the method mentioned above."
+                placeholder={t.invoiceNotePlaceholder}
                 value={invoice.note_text || ""}
                 onChange={(e) =>
                   setInvoice({ ...invoice, note_text: e.target.value })
                 }
               />
             ) : (
-              <p className="text-sm text-black/50 leading-relaxed  ">
+              <p className="text-sm text-black/50 leading-relaxed">
                 {invoice.note_text ||
-                  "Please process the payment using the method mentioned above. Thank you!"}
+                  (isBn ? "অনুগ্রহ করে উপরোক্ত পেমেন্ট পদ্ধতি ব্যবহার করে পেমেন্ট সম্পন্ন করুন। ধন্যবাদ!" : "Please process the payment using the method mentioned above. Thank you!")}
               </p>
             )}
           </div>

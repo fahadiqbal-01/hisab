@@ -3,7 +3,7 @@ import { useState } from "react";
 import { deleteInvoice } from "@/app/actions/invoices";
 import { motion, AnimatePresence } from "framer-motion";
 
-export default function DeleteButton({ id, label = "Invoice" }) {
+export default function DeleteButton({ id, label = "Invoice", t }) {
   const [isConfirming, setIsConfirming] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
 
@@ -13,6 +13,12 @@ export default function DeleteButton({ id, label = "Invoice" }) {
     setIsConfirming(false);
     setIsDeleting(false);
   };
+
+  const deleteTitle = t ? `${t.delete} ${label === "Invoice" ? (t.invoices.endsWith("সমূহ") ? "ইনভয়েস" : t.invoices) : (t.clients.endsWith("বৃন্দ") ? "গ্রাহক" : t.clients)}?` : `Delete ${label}?`;
+  const deleteDesc = t ? (label === "Invoice" ? t.areYouSureDeleteInvoice : t.areYouSureDeleteClient) : `Are you sure you want to delete this ${label.toLowerCase()}? This action cannot be undone.`;
+  const deletingText = t ? t.deletingBtn : "Deleting...";
+  const yesText = t ? t.yesDelete : `Yes, Delete ${label}`;
+  const cancelText = t ? t.cancel : "Cancel";
 
   return (
     <>
@@ -56,11 +62,10 @@ export default function DeleteButton({ id, label = "Invoice" }) {
               className="relative bg-white dark:bg-[#0d0d0d] p-8 rounded-[2rem] md:rounded-[2.5rem] shadow-2xl border border-black/5 w-full max-w-[320px] text-center"
             >
               <h3 className="text-lg font-bold text-[#071f18] dark:text-white mb-2">
-                Delete {label}?
+                {deleteTitle}
               </h3>
               <p className="text-sm text-black/40 dark:text-white/50 mb-8 leading-relaxed">
-                Are you sure you want to delete this {label.toLowerCase()}? This
-                action cannot be undone.
+                {deleteDesc}
               </p>
               <div className="flex flex-col gap-3">
                 <motion.button
@@ -70,7 +75,7 @@ export default function DeleteButton({ id, label = "Invoice" }) {
                   disabled={isDeleting}
                   className="bg-red-500 text-white py-4 rounded-2xl font-bold uppercase tracking-widest text-[10px] shadow-lg shadow-red-500/20 disabled:opacity-50 cursor-pointer"
                 >
-                  {isDeleting ? "Deleting..." : `Yes, Delete ${label}`}
+                  {isDeleting ? deletingText : yesText}
                 </motion.button>
                 <motion.button
                   whileHover={{ scale: 1.02 }}
@@ -78,7 +83,7 @@ export default function DeleteButton({ id, label = "Invoice" }) {
                   onClick={() => setIsConfirming(false)}
                   className="bg-black/5 dark:bg-white/5 text-black/40 dark:text-white py-4 rounded-2xl font-bold uppercase tracking-widest text-[10px] cursor-pointer"
                 >
-                  Cancel
+                  {cancelText}
                 </motion.button>
               </div>
             </motion.div>

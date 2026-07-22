@@ -2,7 +2,6 @@ import InvoiceAnalysisChart from "@/components/InvoiceAnalysisChart";
 import { supabaseAdmin } from "@/lib/supabase";
 import EmptyFinanceState from "@/components/EmptyFinanceState";
 import { getCachedServerSession } from "@/lib/session";
-import { Suspense } from "react";
 import Link from "next/link";
 import { 
   DollarSign, 
@@ -15,24 +14,25 @@ import {
   ArrowDownRight,
   ChevronRight
 } from "lucide-react";
-
-export const revalidate = 0;
+import { cookies } from "next/headers";
+import { getTranslations } from "@/lib/translations";
 
 export default async function DashboardPage() {
+  const cookieStore = await cookies();
+  const lang = cookieStore.get("lang")?.value || "en";
   return (
-    <Suspense>
-      <DashboardContent />
-    </Suspense>
+    <DashboardContent lang={lang} />
   );
 }
 
-async function DashboardContent() {
+async function DashboardContent({ lang = "en" }) {
+  const t = getTranslations(lang);
   const session = await getCachedServerSession();
 
   if (!session?.user?.id) {
     return (
       <div className="p-10 text-black/20 font-bold uppercase tracking-widest text-xs">
-        Session lost. Please refresh or re-login.
+        {t.sessionLost}
       </div>
     );
   }
@@ -55,7 +55,7 @@ async function DashboardContent() {
     invoices?.some((invoice) => invoice.status === "paid") || false;
 
   if (clientCount === 0 && !hasPaidInvoices) {
-    return <EmptyFinanceState user={session.user} />;
+    return <EmptyFinanceState user={session.user} t={t} />;
   }
 
   const revenue = invoices?.reduce(
@@ -109,13 +109,13 @@ async function DashboardContent() {
 
   const growthDisplay = calculateGrowth();
 
-  const getGreeting = () => {
+  const getGreetingKey = () => {
     const hour = new Date().getHours();
-    if (hour < 12) return "Good morning";
-    if (hour < 17) return "Good afternoon";
-    return "Good evening";
+    if (hour < 12) return "morning";
+    if (hour < 17) return "afternoon";
+    return "evening";
   };
-  const greeting = getGreeting();
+  const greeting = t[getGreetingKey()];
 
   const analysisData =
     invoices?.map((inv) => {
@@ -148,14 +148,14 @@ async function DashboardContent() {
             {session.user.name || "User"}
           </h2>
           <p className="text-sm text-black/50 dark:text-white/40 mt-1.5">
-            Here is your studio performance overview.
+            {t.studioOverview}
           </p>
         </div>
         
         <div className="flex items-center gap-4 bg-[#fcfaf0] dark:bg-white/5 px-5 py-3.5 rounded-2xl border border-black/5 dark:border-white/5 sm:text-right">
           <div>
             <p className="text-[10px] uppercase font-bold tracking-[0.2em] text-black/40 dark:text-white/30">
-              Total Growth
+              {t.totalGrowth}
             </p>
             <div className="flex items-center gap-2 mt-1 sm:justify-end">
               <span className={`flex items-center text-xs font-bold px-2.5 py-0.5 rounded-full ${
@@ -179,7 +179,7 @@ async function DashboardContent() {
           <div className="absolute right-[-20px] top-[-20px] w-24 h-24 rounded-full bg-emerald-500/5 group-hover:scale-125 transition-transform duration-500" />
           <div className="flex justify-between items-start">
             <p className="text-white/60 text-xs uppercase tracking-widest font-bold">
-              Revenue Collected
+              {t.collectedRevenue}
             </p>
             <div className="p-2.5 bg-white/10 text-emerald-400 rounded-2xl">
               <DollarSign className="w-5 h-5" />
@@ -189,7 +189,7 @@ async function DashboardContent() {
             ৳ {revenue.collected.toLocaleString()}
           </h3>
           <p className="text-[10px] text-white/40 mt-2 font-medium tracking-wide">
-            Paid and cleared transactions
+            {t.clearedTrans}
           </p>
         </div>
 
@@ -198,7 +198,7 @@ async function DashboardContent() {
           <div className="absolute right-[-20px] top-[-20px] w-24 h-24 rounded-full bg-orange-500/5 group-hover:scale-125 transition-transform duration-500" />
           <div className="flex justify-between items-start">
             <p className="text-black/40 dark:text-white/40 text-xs uppercase tracking-widest font-bold">
-              Pending Payment
+              {t.pendingAmount}
             </p>
             <div className="p-2.5 bg-orange-500/10 text-orange-600 dark:text-orange-400 rounded-2xl">
               <Clock className="w-5 h-5" />
@@ -208,7 +208,7 @@ async function DashboardContent() {
             ৳ {revenue.pending.toLocaleString()}
           </h3>
           <p className="text-[10px] text-black/40 dark:text-white/40 mt-2 font-medium tracking-wide">
-            Awaiting client clearance
+            {t.awaitingClearance}
           </p>
         </div>
 
@@ -217,7 +217,7 @@ async function DashboardContent() {
           <div className="absolute right-[-20px] top-[-20px] w-24 h-24 rounded-full bg-blue-500/5 group-hover:scale-125 transition-transform duration-500" />
           <div className="flex justify-between items-start">
             <p className="text-black/40 dark:text-white/40 text-xs uppercase tracking-widest font-bold">
-              Total Invoices
+              {t.totalInvoices}
             </p>
             <div className="p-2.5 bg-blue-500/10 text-blue-600 dark:text-blue-400 rounded-2xl">
               <FileText className="w-5 h-5" />
@@ -227,7 +227,7 @@ async function DashboardContent() {
             {invoices?.length || 0}
           </h3>
           <p className="text-[10px] text-black/40 dark:text-white/40 mt-2 font-medium tracking-wide">
-            Invoiced billing entries
+            {t.billingEntries}
           </p>
         </div>
       </div>
@@ -237,24 +237,24 @@ async function DashboardContent() {
         
         {/* Left Side: Chart & Recent Activity */}
         <div className="lg:col-span-2 space-y-6">
-          <InvoiceAnalysisChart data={analysisData} />
+          <InvoiceAnalysisChart data={analysisData} t={t} />
           
           {/* Recent Invoices Card */}
           <div className="bg-white dark:bg-white/5 p-6 md:p-8 rounded-[2.5rem] border border-black/5 dark:border-white/5 shadow-sm transition-colors duration-300">
             <div className="flex justify-between items-center mb-6">
               <div>
                 <h3 className="text-lg font-bold text-[#082019] dark:text-white">
-                  Recent Invoices
+                  {t.recentInvoices}
                 </h3>
                 <p className="text-xs text-black/40 dark:text-white/40 mt-0.5">
-                  Your most recent billing transactions
+                  {t.recentTransactions}
                 </p>
               </div>
               <Link 
                 href="/dashboard/invoices" 
                 className="text-xs font-bold uppercase tracking-wider text-emerald-600 dark:text-emerald-400 hover:underline flex items-center gap-1"
               >
-                View All <ChevronRight className="w-4 h-4" />
+                {t.viewAll} <ChevronRight className="w-4 h-4" />
               </Link>
             </div>
             
@@ -292,7 +292,7 @@ async function DashboardContent() {
                         ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-500/20 dark:text-emerald-400"
                         : "bg-orange-100 text-orange-700 dark:bg-orange-500/20 dark:text-orange-400"
                     }`}>
-                      {inv.status === "paid" ? "Paid" : "Due"}
+                      {inv.status === "paid" ? t.paidStatus : t.dueStatus}
                     </span>
                   </div>
                 </div>
@@ -307,7 +307,7 @@ async function DashboardContent() {
           {/* Quick Actions Panel */}
           <div className="bg-white dark:bg-white/5 p-6 rounded-[2.5rem] border border-black/5 dark:border-white/5 shadow-sm transition-colors duration-300">
             <h3 className="text-lg font-bold text-[#082019] dark:text-white mb-4">
-              Quick Actions
+              {t.quickActions}
             </h3>
             
             <div className="space-y-3">
@@ -319,8 +319,8 @@ async function DashboardContent() {
                   <Plus className="w-5 h-5" />
                 </div>
                 <div className="text-left">
-                  <p className="text-sm font-bold tracking-wide">Create Invoice</p>
-                  <p className="text-[10px] text-white/50">Draft and send new billings</p>
+                  <p className="text-sm font-bold tracking-wide">{t.createInvoice}</p>
+                  <p className="text-[10px] text-white/50">{t.draftSendBillings}</p>
                 </div>
               </Link>
               
@@ -332,8 +332,8 @@ async function DashboardContent() {
                   <Users className="w-5 h-5" />
                 </div>
                 <div className="text-left">
-                  <p className="text-sm font-bold tracking-wide">Manage Clients</p>
-                  <p className="text-[10px] text-black/40 dark:text-white/40">Onboard and track clients</p>
+                  <p className="text-sm font-bold tracking-wide">{t.manageClients}</p>
+                  <p className="text-[10px] text-black/40 dark:text-white/40">{t.onboardTrack}</p>
                 </div>
               </Link>
               
@@ -345,8 +345,8 @@ async function DashboardContent() {
                   <Settings className="w-5 h-5" />
                 </div>
                 <div className="text-left">
-                  <p className="text-sm font-bold tracking-wide">Account Settings</p>
-                  <p className="text-[10px] text-black/40 dark:text-white/40">Configure defaults & profile</p>
+                  <p className="text-sm font-bold tracking-wide">{t.accountSettings}</p>
+                  <p className="text-[10px] text-black/40 dark:text-white/40">{t.configDefaults}</p>
                 </div>
               </Link>
             </div>
@@ -358,10 +358,10 @@ async function DashboardContent() {
               <TrendingUp className="w-6 h-6" />
             </div>
             <h4 className="text-sm font-bold text-[#082019] dark:text-white mb-1">
-              Smart Invoice Delivery
+              {t.smartDelivery}
             </h4>
             <p className="text-xs text-black/40 dark:text-white/40 max-w-[200px] leading-relaxed">
-              Use one-click WhatsApp links to deliver professional invoices instantly.
+              {t.smartDeliveryDesc}
             </p>
           </div>
         </div>
@@ -370,4 +370,3 @@ async function DashboardContent() {
     </div>
   );
 }
-

@@ -4,7 +4,7 @@ import { deleteClient } from "@/app/actions/clients";
 import { motion, AnimatePresence } from "framer-motion";
 import { Trash2 } from "lucide-react";
 
-export default function DeleteClientButton({ id }) {
+export default function DeleteClientButton({ id, t }) {
   const [isConfirming, setIsConfirming] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
 
@@ -15,10 +15,15 @@ export default function DeleteClientButton({ id }) {
       if (res.error) alert(res.error);
       setIsConfirming(false);
     } finally {
-
       setIsDeleting(false);
     }
   };
+
+  const deleteTitle = t ? `${t.delete} ${t.clients.endsWith("বৃন্দ") ? "গ্রাহক" : t.clients}?` : "Delete Client?";
+  const deleteDesc = t ? t.areYouSureDeleteClient : "This action will permanently remove the client and their details.";
+  const deletingText = t ? t.deletingBtn : "Deleting...";
+  const yesText = t ? t.yesDelete : "Yes, Delete Client";
+  const cancelText = t ? t.cancel : "Cancel";
 
   return (
     <>
@@ -48,11 +53,10 @@ export default function DeleteClientButton({ id }) {
               className="relative bg-white dark:bg-[#0d0d0d] p-8 rounded-[2.5rem] shadow-2xl border border-black/5 w-full max-w-[320px] text-center"
             >
               <h3 className="text-lg font-bold text-[#071f18] dark:text-white mb-2">
-                Delete Client?
+                {deleteTitle}
               </h3>
               <p className="text-sm text-black/40 dark:text-white/50 mb-8 leading-relaxed">
-                This action will permanently remove the client and their
-                details.
+                {deleteDesc}
               </p>
               <div className="flex flex-col gap-3">
                 <motion.button
@@ -62,7 +66,7 @@ export default function DeleteClientButton({ id }) {
                   disabled={isDeleting}
                   className="bg-red-500 text-white py-4 rounded-2xl font-bold uppercase tracking-widest text-[10px] shadow-lg shadow-red-500/20 disabled:opacity-50 cursor-pointer"
                 >
-                  {isDeleting ? "Deleting..." : "Yes, Delete Client"}
+                  {isDeleting ? deletingText : yesText}
                 </motion.button>
                 <motion.button
                   whileHover={{ scale: 1.02 }}
@@ -70,7 +74,7 @@ export default function DeleteClientButton({ id }) {
                   onClick={() => setIsConfirming(false)}
                   className="bg-black/5 dark:bg-white/5 text-black/40 dark:text-white py-4 rounded-2xl font-bold uppercase tracking-widest text-[10px] cursor-pointer"
                 >
-                  Cancel
+                  {cancelText}
                 </motion.button>
               </div>
             </motion.div>

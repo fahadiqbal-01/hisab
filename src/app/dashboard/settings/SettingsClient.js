@@ -7,8 +7,14 @@ import AppearanceSettings from "@/components/AppearanceSettings";
 import { motion, AnimatePresence } from "framer-motion";
 import { signOut } from "next-auth/react";
 import { ChevronDown, AlertTriangle } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { getTranslations } from "@/lib/translations";
 
-export default function SettingsClient({ initialProfile, user }) {
+export default function SettingsClient({ initialProfile, user, lang = "en" }) {
+  const router = useRouter();
+  const [currentLang, setCurrentLang] = useState(lang);
+  const t = getTranslations(currentLang);
+
   const [saving, setSaving] = useState(false);
   const [deletingAccount, setDeletingAccount] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
@@ -29,17 +35,23 @@ export default function SettingsClient({ initialProfile, user }) {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
+  function handleLanguageChange(newLang) {
+    setCurrentLang(newLang);
+    document.cookie = `lang=${newLang}; path=/; max-age=31536000; SameSite=Lax`;
+    router.refresh();
+  }
+
   async function handleSave() {
     setSaving(true);
     try {
       const res = await updateProfile(profile);
       if (res.success) {
-        toast.success("Settings updated successfully!");
+        toast.success(t.toastSuccess);
       } else {
-        toast.error(`Save failed: ${res.error}`);
+        toast.error(`${t.toastError}${res.error}`);
       }
     } catch (err) {
-      toast.error("An unexpected error occurred.");
+      toast.error(t.toastUnexpectedError);
     } finally {
       setSaving(false);
     }
@@ -70,28 +82,70 @@ export default function SettingsClient({ initialProfile, user }) {
         {/* Header */}
         <header className="mb-10">
           <h2 className="text-3xl font-bold text-[#082019] dark:text-white">
-            Settings
+            {t.settingsTitle}
           </h2>
-          <p className="text-black/50 dark:text-white/40 mt-1">
-            Configure your professional identity and defaults.
+          <p className="text-black/50 dark:text-white/40 mt-1 text-sm">
+            {t.settingsSubtitle}
           </p>
         </header>
 
         <div className="space-y-6">
           
           {/* Section 1: Theme Settings */}
-          <AppearanceSettings />
+          <AppearanceSettings t={t} />
 
-          {/* Section 2: Branding Settings */}
+          {/* Section 2: Language Preference Settings */}
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4, delay: 0.1 }}
+            className="select-none bg-white dark:bg-white/5 p-6 md:p-8 rounded-[2rem] border border-black/5 dark:border-white/5 shadow-sm transition-colors duration-300"
+          >
+            <header className="mb-6">
+              <h3 className="text-xs font-bold uppercase tracking-[0.2em] text-emerald-600 dark:text-emerald-400">
+                {t.languagePreference}
+              </h3>
+              <p className="text-sm text-black/50 dark:text-white/40 mt-1">
+                {t.languageDesc}
+              </p>
+            </header>
+
+            <div className="grid grid-cols-2 gap-4">
+              {[
+                { id: "en", label: t.english },
+                { id: "bn", label: t.bengali },
+              ].map((option) => {
+                const isActive = currentLang === option.id;
+                return (
+                  <motion.button
+                    key={option.id}
+                    whileTap={{ scale: 0.98 }}
+                    onClick={() => handleLanguageChange(option.id)}
+                    className={`select-none cursor-pointer flex flex-col items-center justify-center p-5 rounded-2xl border-2 transition-all gap-2.5 ${
+                      isActive
+                        ? "bg-[#082019] dark:bg-[#10b981]/10 border-[#082019] dark:border-[#10b981] text-white dark:text-[#10b981] shadow-md shadow-black/5"
+                        : "bg-[#fcfaf0] dark:bg-white/5 border-black/5 dark:border-white/5 text-black/50 dark:text-white/40 hover:bg-black/5 hover:text-black dark:hover:text-white"
+                    }`}
+                  >
+                    <span className="text-xs font-bold tracking-wide uppercase">
+                      {option.label}
+                    </span>
+                  </motion.button>
+                );
+              })}
+            </div>
+          </motion.div>
+
+          {/* Section 3: Branding Settings */}
           <div className="bg-white dark:bg-white/5 p-6 md:p-8 rounded-[2rem] border border-black/5 dark:border-white/5 shadow-sm transition-colors duration-300">
             <h3 className="text-xs font-bold uppercase tracking-[0.2em] text-emerald-600 dark:text-emerald-400 mb-6">
-              Branding Profile
+              {t.brandingProfile}
             </h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {/* Studio Name Input */}
               <div>
                 <label className="text-[10px] font-bold uppercase tracking-wider text-black/40 dark:text-white/40 block mb-2 ml-1">
-                  Studio Name
+                  {t.studioName}
                 </label>
                 <input
                   type="text"
@@ -106,7 +160,7 @@ export default function SettingsClient({ initialProfile, user }) {
               {/* Professional Title Input */}
               <div>
                 <label className="text-[10px] font-bold uppercase tracking-wider text-black/40 dark:text-white/40 block mb-2 ml-1">
-                  Professional Title
+                  {t.professionalTitle}
                 </label>
                 <input
                   type="text"
@@ -123,10 +177,10 @@ export default function SettingsClient({ initialProfile, user }) {
             </div>
           </div>
 
-          {/* Section 3: Payment Settings */}
+          {/* Section 4: Payment Settings */}
           <div className="bg-white dark:bg-white/5 p-6 md:p-8 rounded-[2rem] border border-black/5 dark:border-white/5 shadow-sm transition-colors duration-300">
             <h3 className="text-xs font-bold uppercase tracking-[0.2em] text-emerald-600 dark:text-emerald-400 mb-6">
-              Payment Defaults
+              {t.paymentDefaults}
             </h3>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -134,7 +188,7 @@ export default function SettingsClient({ initialProfile, user }) {
               {/* Payment Method Selector Dropdown */}
               <div className="relative" ref={paymentDropdownRef}>
                 <label className="text-[10px] font-bold uppercase tracking-wider text-black/40 dark:text-white/40 block mb-2 ml-1">
-                  Preferred Method
+                  {t.preferredMethod}
                 </label>
                 <div
                   onClick={() =>
@@ -143,7 +197,7 @@ export default function SettingsClient({ initialProfile, user }) {
                   className="w-full flex justify-between items-center px-4 py-3 bg-[#f6f4ed] dark:bg-white/5 text-black dark:text-white border border-black/5 dark:border-white/5 rounded-xl cursor-pointer hover:bg-black/5 dark:hover:bg-white/10 transition-colors"
                 >
                   <span className="font-semibold capitalize text-sm">
-                    {profile.payment_method || "Select..."}
+                    {profile.payment_method || t.chooseClient}
                   </span>
                   <ChevronDown
                     className={`w-4 h-4 text-black/40 dark:text-white/40 transition-transform duration-200 ${
@@ -192,7 +246,7 @@ export default function SettingsClient({ initialProfile, user }) {
               {/* Account Number Input */}
               <div>
                 <label className="text-[10px] font-bold uppercase tracking-wider text-black/40 dark:text-white/40 block mb-2 ml-1">
-                  Account / Wallet Number
+                  {t.accountNumber}
                 </label>
                 <input
                   type="text"
@@ -206,15 +260,15 @@ export default function SettingsClient({ initialProfile, user }) {
             </div>
           </div>
 
-          {/* Section 4: Danger Zone */}
+          {/* Section 5: Danger Zone */}
           <div className="bg-red-500/5 dark:bg-red-500/2 p-6 md:p-8 rounded-[2rem] border border-red-500/10 dark:border-red-950/20 shadow-sm transition-colors duration-300">
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-6">
               <div>
                 <h3 className="text-xs font-bold uppercase tracking-[0.2em] text-red-700 dark:text-red-400 flex items-center gap-1.5">
-                  <AlertTriangle className="w-4.5 h-4.5" /> Danger Zone
+                  <AlertTriangle className="w-4.5 h-4.5" /> {t.dangerZone}
                 </h3>
                 <p className="text-sm text-black/50 dark:text-white/40 mt-1">
-                  Permanently delete your account and all billing profiles. This action is irreversible.
+                  {t.dangerZoneDesc}
                 </p>
               </div>
               <button
@@ -222,7 +276,7 @@ export default function SettingsClient({ initialProfile, user }) {
                 disabled={deletingAccount}
                 className="w-full sm:w-auto bg-red-800 hover:bg-red-700 active:scale-95 duration-150 text-white px-8 py-3 rounded-full font-bold uppercase tracking-wider text-xs disabled:opacity-50 cursor-pointer shadow-md shrink-0"
               >
-                {deletingAccount ? "Deleting..." : "Delete Account"}
+                {deletingAccount ? t.deletingBtn : t.deleteAccountBtn}
               </button>
             </div>
           </div>
@@ -230,14 +284,14 @@ export default function SettingsClient({ initialProfile, user }) {
           {/* Save Bar Footer */}
           <div className="flex flex-col sm:flex-row justify-between items-center bg-[#082019]/90 dark:bg-white/5 backdrop-blur p-5 rounded-3xl border border-white/5 shadow-lg mt-8 gap-4 transition-colors duration-300">
             <p className="text-white/40 text-[10px] font-bold uppercase tracking-widest sm:pl-2">
-              {saving ? "Saving changes..." : "Settings fully configured"}
+              {saving ? t.savingChanges : t.settingsConfigured}
             </p>
             <button
               onClick={handleSave}
               disabled={saving}
               className="w-full sm:w-auto bg-white text-[#082019] hover:bg-neutral-100 active:scale-95 duration-150 px-10 py-3 rounded-full font-bold uppercase tracking-wider text-xs disabled:opacity-50 cursor-pointer shadow-md"
             >
-              Save Defaults
+              {t.saveDefaultsBtn}
             </button>
           </div>
 
@@ -255,10 +309,10 @@ export default function SettingsClient({ initialProfile, user }) {
               className="w-full max-w-md rounded-[2rem] bg-white dark:bg-[#111614] border border-black/5 dark:border-white/10 p-6 shadow-2xl"
             >
               <h3 className="text-lg font-bold text-[#082019] dark:text-white flex items-center gap-2">
-                <AlertTriangle className="text-red-500 w-5 h-5" /> Delete Account?
+                <AlertTriangle className="text-red-500 w-5 h-5" /> {t.deleteConfirmTitle}
               </h3>
               <p className="mt-2 text-sm text-black/50 dark:text-white/40 leading-relaxed">
-                This action is permanent and cannot be undone. All invoices, client data, and billing settings will be destroyed.
+                {t.deleteConfirmDesc}
               </p>
               <div className="mt-6 flex gap-3 justify-end">
                 <button
@@ -266,14 +320,14 @@ export default function SettingsClient({ initialProfile, user }) {
                   disabled={deletingAccount}
                   className="px-5 py-2 rounded-full border border-black/10 dark:border-white/10 text-black dark:text-white hover:bg-black/5 dark:hover:bg-white/10 transition-colors text-xs font-semibold uppercase tracking-wider cursor-pointer"
                 >
-                  Cancel
+                  {t.cancel}
                 </button>
                 <button
                   onClick={handleDeleteAccount}
                   disabled={deletingAccount}
                   className="px-5 py-2 rounded-full bg-red-600 text-white font-semibold hover:bg-red-700 active:scale-95 transition-colors text-xs font-bold uppercase tracking-wider cursor-pointer shadow-sm"
                 >
-                  {deletingAccount ? "Deleting..." : "Yes, Delete"}
+                  {deletingAccount ? t.deletingBtn : t.yesDelete}
                 </button>
               </div>
             </motion.div>
@@ -283,4 +337,3 @@ export default function SettingsClient({ initialProfile, user }) {
     </>
   );
 }
-

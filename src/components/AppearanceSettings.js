@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { Sun, Moon, Monitor } from "lucide-react";
 
-export default function AppearanceSettings() {
+export default function AppearanceSettings({ t }) {
   const { theme, setTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
 
@@ -20,18 +20,18 @@ export default function AppearanceSettings() {
     >
       <header className="mb-6">
         <h3 className="text-xs font-bold uppercase tracking-[0.2em] text-emerald-600 dark:text-emerald-400">
-          Appearance
+          {t.appearance}
         </h3>
         <p className="text-sm text-black/50 dark:text-white/40 mt-1">
-          Customize how Hisab looks on your device.
+          {t.appearanceDesc}
         </p>
       </header>
 
       <div className="grid grid-cols-3 gap-4">
         {[
-          { id: "light", label: "Light", icon: <Sun className="w-5 h-5" /> },
-          { id: "dark", label: "Dark", icon: <Moon className="w-5 h-5" /> },
-          { id: "system", label: "System", icon: <Monitor className="w-5 h-5" /> },
+          { id: "light", label: t.light, icon: <Sun className="w-5 h-5" /> },
+          { id: "dark", label: t.dark, icon: <Moon className="w-5 h-5" /> },
+          { id: "system", label: t.system, icon: <Monitor className="w-5 h-5" /> },
         ].map((option) => {
           const isActive = theme === option.id;
           return (
@@ -64,4 +64,3 @@ export default function AppearanceSettings() {
     </motion.div>
   );
 }
-

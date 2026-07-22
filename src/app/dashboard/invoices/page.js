@@ -1,19 +1,15 @@
 import React from "react";
 import Link from "next/link";
-import { createClient } from "@supabase/supabase-js";
 import DeleteButton from "@/components/DeleteButton";
-import { Suspense } from "react";
 import { getCachedServerSession } from "@/lib/session";
 import { Plus, FileText, ExternalLink, Calendar, DollarSign } from "lucide-react";
+import { supabaseAdmin } from "@/lib/supabase";
+import { cookies } from "next/headers";
+import { getTranslations } from "@/lib/translations";
 
-export const revalidate = 0;
+async function InvoicesList({ userId, statusFilter, lang }) {
+  const t = getTranslations(lang);
 
-const supabaseAdmin = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL,
-  process.env.SUPABASE_SERVICE_ROLE_KEY,
-);
-
-async function InvoicesList({ userId, statusFilter }) {
   const { data: invoices } = await supabaseAdmin
     .from("invoices")
     .select(
@@ -34,9 +30,9 @@ async function InvoicesList({ userId, statusFilter }) {
       : invoices?.filter((inv) => inv.status === statusFilter);
 
   const tabs = [
-    { id: "all", label: "All Invoices", count: allCount, href: "/dashboard/invoices" },
-    { id: "paid", label: "Paid", count: paidCount, href: "/dashboard/invoices?status=paid" },
-    { id: "due", label: "Due", count: dueCount, href: "/dashboard/invoices?status=due" },
+    { id: "all", label: t.allInvoices, count: allCount, href: "/dashboard/invoices" },
+    { id: "paid", label: t.paid, count: paidCount, href: "/dashboard/invoices?status=paid" },
+    { id: "due", label: t.due, count: dueCount, href: "/dashboard/invoices?status=due" },
   ];
 
   return (
@@ -77,22 +73,22 @@ async function InvoicesList({ userId, statusFilter }) {
               <thead>
                 <tr className="bg-[#fcfaf0] dark:bg-white/2 border-b border-black/5 dark:border-white/5 transition-colors duration-300">
                   <th className="px-6 py-4 text-[10px] uppercase tracking-widest font-bold text-black/40 dark:text-white/40">
-                    Invoice#
+                    {t.invoiceNumberCol}
                   </th>
                   <th className="px-6 py-4 text-[10px] uppercase tracking-widest font-bold text-black/40 dark:text-white/40">
-                    Client
+                    {t.clientCol}
                   </th>
                   <th className="px-6 py-4 text-[10px] uppercase tracking-widest font-bold text-black/40 dark:text-white/40">
-                    Date Created
+                    {t.dateCreatedCol}
                   </th>
                   <th className="px-6 py-4 text-[10px] uppercase tracking-widest font-bold text-black/40 dark:text-white/40">
-                    Amount
+                    {t.amountCol}
                   </th>
                   <th className="px-6 py-4 text-[10px] uppercase tracking-widest font-bold text-black/40 dark:text-white/40">
-                    Status
+                    {t.statusCol}
                   </th>
                   <th className="px-6 py-4 text-[10px] uppercase tracking-widest font-bold text-black/40 dark:text-white/40 text-right">
-                    Actions
+                    {t.actionsCol}
                   </th>
                 </tr>
               </thead>
@@ -112,7 +108,10 @@ async function InvoicesList({ userId, statusFilter }) {
                     cleanNumber = `880${cleanNumber}`;
                   }
 
-                  const message = `Hello ${clientName}, your invoice ${inv.invoice_number_full} for ৳${inv.total.toLocaleString()} is ready. Please check it here.`;
+                  const message = t.whatsappMessage
+                    .replace("{clientName}", clientName)
+                    .replace("{invoiceNumber}", inv.invoice_number_full)
+                    .replace("{total}", inv.total.toLocaleString());
 
                   const whatsappUrl =
                     cleanNumber.length >= 10
@@ -151,7 +150,7 @@ async function InvoicesList({ userId, statusFilter }) {
                               : "bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20"
                           }`}
                         >
-                          {inv.status === "paid" ? "Paid" : "Due"}
+                          {inv.status === "paid" ? t.paidStatus : t.dueStatus}
                         </span>
                       </td>
                       <td className="px-6 py-4.5">
@@ -163,11 +162,11 @@ async function InvoicesList({ userId, statusFilter }) {
                               rel="noopener noreferrer"
                               className="text-emerald-600 dark:text-emerald-400 font-bold uppercase text-[10px] tracking-widest hover:underline flex items-center gap-1 cursor-pointer"
                             >
-                              WhatsApp <ExternalLink className="w-3 h-3" />
+                              {t.whatsApp} <ExternalLink className="w-3 h-3" />
                             </a>
                           ) : (
                             <span className="text-black/20 dark:text-white/20 text-[10px] uppercase tracking-widest font-bold">
-                              No Phone
+                              {t.noPhone}
                             </span>
                           )}
 
@@ -175,10 +174,10 @@ async function InvoicesList({ userId, statusFilter }) {
                             href={`/dashboard/invoices/${inv.id}`}
                             className="text-[#082019] dark:text-white font-bold uppercase text-[10px] tracking-widest hover:underline cursor-pointer"
                           >
-                            View
+                            {t.view}
                           </Link>
 
-                          <DeleteButton id={inv.id} />
+                          <DeleteButton id={inv.id} t={t} />
                         </div>
                       </td>
                     </tr>
@@ -194,10 +193,10 @@ async function InvoicesList({ userId, statusFilter }) {
             <FileText className="w-6 h-6 text-black/30 dark:text-white/30" />
           </div>
           <h3 className="text-base font-bold text-[#082019] dark:text-white mb-1">
-            No Invoices Found
+            {t.noInvoicesFound}
           </h3>
           <p className="text-xs text-black/40 dark:text-white/40 max-w-xs mx-auto leading-relaxed">
-            There are no invoices matching the selected filter state in your studio history.
+            {t.noInvoicesDesc}
           </p>
         </div>
       )}
@@ -210,10 +209,14 @@ export default async function InvoicesPage({ searchParams }) {
   const resolvedSearchParams = await searchParams;
   const statusFilter = resolvedSearchParams?.status || "all";
 
+  const cookieStore = await cookies();
+  const lang = cookieStore.get("lang")?.value || "en";
+  const t = getTranslations(lang);
+
   if (!session?.user?.id) {
     return (
       <div className="p-10 text-black/20 font-bold uppercase text-xs">
-        Session lost.
+        {t.sessionLost}
       </div>
     );
   }
@@ -225,52 +228,21 @@ export default async function InvoicesPage({ searchParams }) {
       <header className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6 bg-white dark:bg-white/5 p-6 md:p-8 rounded-3xl border border-black/5 dark:border-white/5 shadow-sm transition-colors duration-300">
         <div>
           <h2 className="text-3xl font-bold text-[#082019] dark:text-white">
-            Invoices
+            {t.invoices}
           </h2>
           <p className="text-black/50 dark:text-white/40 mt-1.5 text-sm">
-            Track and manage your professional billings.
+            {t.trackAndManageBillings}
           </p>
         </div>
         <Link
           href="/dashboard/invoices/new"
           className="select-none cursor-pointer bg-[#082019] hover:bg-[#0c3127] dark:bg-white dark:text-[#082019] dark:hover:bg-neutral-100 text-white px-6 py-3 rounded-full font-bold text-xs uppercase tracking-widest flex items-center gap-2 shadow-md transition-all active:scale-95 shrink-0"
         >
-          <Plus className="w-4 h-4" /> Create Invoice
+          <Plus className="w-4 h-4" /> {t.createInvoice}
         </Link>
       </header>
 
-      <Suspense
-        fallback={
-          <div className="space-y-6 animate-pulse">
-            <div className="w-64 h-10 rounded-2xl bg-black/5 dark:bg-white/5 border border-black/5 dark:border-white/5" />
-            <div className="bg-white dark:bg-white/5 rounded-[2rem] border border-black/5 dark:border-white/5 overflow-hidden">
-              <table className="w-full text-left border-collapse">
-                <thead className="bg-[#fcfaf0] dark:bg-white/2 border-b border-black/5 dark:border-white/5">
-                  <tr>
-                    {["Invoice#", "Client", "Date Created", "Amount", "Status", "Actions"].map((h) => (
-                      <th key={h} className="px-6 py-4 text-[10px] uppercase tracking-widest font-bold text-black/20 dark:text-white/20">{h}</th>
-                    ))}
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-black/5 dark:divide-white/5">
-                  {[...Array(4)].map((_, i) => (
-                    <tr key={i}>
-                      {[...Array(6)].map((__, j) => (
-                        <td key={j} className="px-6 py-4.5">
-                          <div className="h-4 rounded-full bg-black/5 dark:bg-white/5" style={{ width: j === 5 ? "90px" : j === 0 ? "70px" : "110px" }} />
-                        </td>
-                      ))}
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        }
-      >
-        <InvoicesList userId={session.user.id} statusFilter={statusFilter} />
-      </Suspense>
+      <InvoicesList userId={session.user.id} statusFilter={statusFilter} lang={lang} />
     </section>
   );
 }
-

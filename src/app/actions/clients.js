@@ -1,13 +1,8 @@
 "use server";
-import { createClient } from "@supabase/supabase-js";
 import { revalidatePath } from "next/cache";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
-
-const supabaseAdmin = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL,
-  process.env.SUPABASE_SERVICE_ROLE_KEY,
-);
+import { supabaseAdmin } from "@/lib/supabase";
 
 export async function fetchClients() {
   const session = await getServerSession(authOptions);

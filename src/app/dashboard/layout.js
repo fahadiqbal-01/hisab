@@ -8,6 +8,8 @@ import { MdOutlineAnalytics } from "react-icons/md";
 import { FaFileInvoice, FaUsers } from "react-icons/fa";
 import { SlSettings } from "react-icons/sl";
 import DasboardLogo from "@/components/DasboardLogo";
+import { cookies } from "next/headers";
+import { getTranslations } from "@/lib/translations";
 
 export const metadata = {
   title: "Dashboard",
@@ -24,11 +26,15 @@ export default async function DashboardLayout({ children }) {
     redirect("/sign-up");
   }
 
+  const cookieStore = await cookies();
+  const lang = cookieStore.get("lang")?.value || "en";
+  const t = getTranslations(lang);
+
   const menuItems = [
-    { name: "Overview", href: "/dashboard", icon: <MdOutlineAnalytics /> },
-    { name: "Invoices", href: "/dashboard/invoices", icon: <FaFileInvoice /> },
-    { name: "Clients", href: "/dashboard/clients", icon: <FaUsers /> },
-    { name: "Settings", href: "/dashboard/settings", icon: <SlSettings /> },
+    { name: t.overview, href: "/dashboard", icon: <MdOutlineAnalytics /> },
+    { name: t.invoices, href: "/dashboard/invoices", icon: <FaFileInvoice /> },
+    { name: t.clients, href: "/dashboard/clients", icon: <FaUsers /> },
+    { name: t.settings, href: "/dashboard/settings", icon: <SlSettings /> },
   ];
 
   return (
@@ -70,7 +76,7 @@ export default async function DashboardLayout({ children }) {
         <div className="flex flex-col h-full">
           <div className="p-6 mb-2">
             <DasboardLogo className="md:block hidden" />
-            <p className="text-[14px] text-green-300 font-bold ml-2">BETA</p>
+            <p className="text-[14px] text-green-300 font-bold ml-2">{t.beta}</p>
           </div>
 
           <nav className="flex-1 px-4 space-y-1.5 overflow-y-auto">
@@ -101,7 +107,7 @@ export default async function DashboardLayout({ children }) {
                 </div>
               </div>
             )}
-            <SignOutButton />
+            <SignOutButton text={t.signOut} />
           </div>
         </div>
       </aside>

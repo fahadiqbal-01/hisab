@@ -82,6 +82,13 @@ export async function POST(req) {
       status: "sent",
     };
 
+    console.log("ROUTE HANDLER INVOICE INSERT:", {
+      invoiceBase,
+      serviceKeyExists: !!process.env.SUPABASE_SERVICE_ROLE_KEY,
+      serviceKeyLength: process.env.SUPABASE_SERVICE_ROLE_KEY?.length,
+      sessionUser: session.user,
+    });
+
     const invoice = await insertInvoiceWithNoteFallback(invoiceBase, note_text);
 
 
@@ -106,6 +113,13 @@ export async function POST(req) {
     return NextResponse.json({ success: true });
   } catch (err) {
     console.error("API Error:", err.message);
-    return NextResponse.json({ error: err.message }, { status: 500 });
+    return NextResponse.json(
+      {
+        error: err.message,
+        serviceKeyExists: !!process.env.SUPABASE_SERVICE_ROLE_KEY,
+        serviceKeyLength: process.env.SUPABASE_SERVICE_ROLE_KEY?.length || 0,
+      },
+      { status: 500 },
+    );
   }
 }

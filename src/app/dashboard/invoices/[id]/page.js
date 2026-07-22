@@ -1,13 +1,9 @@
-import { createClient } from "@supabase/supabase-js";
+import { supabaseAdmin } from "@/lib/supabase";
 import { notFound } from "next/navigation";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import InvoiceEditor from "@/components/InvoiceEditor";
-
-const supabaseAdmin = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL,
-  process.env.SUPABASE_SERVICE_ROLE_KEY,
-);
+import { cookies } from "next/headers";
 
 export default async function InvoicePage({ params }) {
   const { id } = await params;
@@ -27,5 +23,14 @@ export default async function InvoicePage({ params }) {
 
   if (!invoice) notFound();
 
-  return <InvoiceEditor initialInvoice={invoice} user={session?.user} />;
+  const cookieStore = await cookies();
+  const lang = cookieStore.get("lang")?.value || "en";
+
+  return (
+    <InvoiceEditor
+      initialInvoice={invoice}
+      user={session?.user}
+      lang={lang}
+    />
+  );
 }

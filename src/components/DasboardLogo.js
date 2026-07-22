@@ -20,7 +20,6 @@ export default function DasboardLogo({ className }) {
   return (
     <Link href="/dashboard">
       <motion.img
-        whileHover={{ scale: 1.05 }}
         whileTap={{ scale: 0.95 }}
         src={logosrc}
         className={` w-15 md:w-30 ml-1 md:ml-2 cursor-pointer ${className} `}

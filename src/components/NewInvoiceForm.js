@@ -2,19 +2,22 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { Plus, Trash2, ChevronDown } from "lucide-react";
+import { getTranslations } from "@/lib/translations";
 
 export default function NewInvoiceForm({
   initialClients,
   initialProfile,
   user,
+  lang = "en",
 }) {
   const router = useRouter();
+  const t = getTranslations(lang);
 
   const [clients] = useState(initialClients || []);
   const [profile] = useState(initialProfile || null);
   const [selectedClientId, setSelectedClientId] = useState("");
   const [selectedClientName, setSelectedClientName] =
-    useState("Choose a client...");
+    useState(t.chooseClient);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
   const [items, setItems] = useState([
@@ -75,7 +78,7 @@ export default function NewInvoiceForm({
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!selectedClientId) {
-      alert("Please select a client");
+      alert(t.pleaseSelectClient);
       return;
     }
     setLoading(true);
@@ -102,12 +105,12 @@ export default function NewInvoiceForm({
       router.refresh();
       router.push("/dashboard/invoices");
     } else {
-      let message = "Failed to create invoice";
+      let message = lang === "bn" ? "ইনভয়েস তৈরি করতে ব্যর্থ হয়েছে" : "Failed to create invoice";
       try {
         const errorPayload = await res.json();
         if (errorPayload?.error) message = errorPayload.error;
       } catch {
-        // Ignore JSON parsing errors and keep fallback message.
+        // Ignore JSON parsing errors
       }
       setLoading(false);
       alert(message);
@@ -125,10 +128,10 @@ export default function NewInvoiceForm({
       {/* Header Banner */}
       <header className="mb-8 md:mb-10 bg-white dark:bg-white/5 p-6 md:p-8 rounded-3xl border border-black/5 dark:border-white/5 shadow-sm transition-colors duration-300">
         <h2 className="text-3xl font-bold text-[#082019] dark:text-white">
-          Create Invoice
+          {t.createInvoice}
         </h2>
         <p className="text-black/50 dark:text-white/40 mt-1.5 text-sm">
-          Generate a professional invoice for your client.
+          {t.generateInvoiceDesc}
         </p>
       </header>
 
@@ -138,7 +141,7 @@ export default function NewInvoiceForm({
           {/* Custom Client Selection Dropdown */}
           <div className="relative" ref={dropdownRef}>
             <label className={labelClass}>
-              Select Client
+              {t.selectClient}
             </label>
             <div
               onClick={() => setIsDropdownOpen(!isDropdownOpen)}
@@ -178,7 +181,7 @@ export default function NewInvoiceForm({
                 ))}
                 {clients.length === 0 && (
                   <div className="px-5 py-4 text-xs text-black/40 dark:text-white/40 italic text-center">
-                    No clients found
+                    {t.noClientsFound}
                   </div>
                 )}
               </div>
@@ -188,7 +191,7 @@ export default function NewInvoiceForm({
           {/* Line Items */}
           <div className="space-y-4">
             <label className={labelClass}>
-              Services / Items
+              {t.invoiceItems}
             </label>
             <div className="space-y-4">
               {items.map((item, index) => (
@@ -198,7 +201,7 @@ export default function NewInvoiceForm({
                 >
                   <div className="flex-1 w-full">
                     <input
-                      placeholder="Description (e.g. Web Development)"
+                      placeholder={t.webDevPlaceholder}
                       value={item.description}
                       onChange={(e) =>
                         updateItem(index, "description", e.target.value)
@@ -211,7 +214,7 @@ export default function NewInvoiceForm({
                     <input
                       type="number"
                       step="any"
-                      placeholder="Qty"
+                      placeholder={t.qty}
                       value={item.quantity}
                       onChange={(e) =>
                         updateItem(index, "quantity", e.target.value)
@@ -224,7 +227,7 @@ export default function NewInvoiceForm({
                     <input
                       type="number"
                       step="any"
-                      placeholder="Price"
+                      placeholder={t.unitPrice}
                       value={item.unit_price}
                       onChange={(e) =>
                         updateItem(index, "unit_price", e.target.value)
@@ -238,7 +241,7 @@ export default function NewInvoiceForm({
                       type="button"
                       onClick={() => removeItem(index)}
                       className="p-3 text-red-400 hover:text-red-600 dark:hover:text-red-400 transition-colors cursor-pointer self-center"
-                      title="Remove item"
+                      title={lang === "bn" ? "আইটেম সরান" : "Remove item"}
                     >
                       <Trash2 className="w-4 h-4" />
                     </button>
@@ -251,7 +254,7 @@ export default function NewInvoiceForm({
               onClick={addItem}
               className="text-xs font-bold uppercase tracking-wider text-emerald-600 dark:text-emerald-400 hover:text-emerald-700 flex items-center gap-1.5 mt-2 transition-colors cursor-pointer select-none"
             >
-              <Plus className="w-3.5 h-3.5" /> Add another item
+              <Plus className="w-3.5 h-3.5" /> {t.addItem}
             </button>
           </div>
 
@@ -259,7 +262,7 @@ export default function NewInvoiceForm({
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-6 border-t border-black/5 dark:border-white/5">
             <div>
               <label className={labelClass}>
-                VAT (%) <span className="text-[9px] font-normal opacity-50 lowercase italic">(optional)</span>
+                {t.vatPct} <span className="text-[9px] font-normal opacity-50 lowercase italic">({lang === "bn" ? "ঐচ্ছিক" : "optional"})</span>
               </label>
               <input
                 type="number"
@@ -272,7 +275,7 @@ export default function NewInvoiceForm({
             </div>
             <div>
               <label className={labelClass}>
-                Tax (%) <span className="text-[9px] font-normal opacity-50 lowercase italic">(optional)</span>
+                {t.taxPct} <span className="text-[9px] font-normal opacity-50 lowercase italic">({lang === "bn" ? "ঐচ্ছিক" : "optional"})</span>
               </label>
               <input
                 type="number"
@@ -288,10 +291,10 @@ export default function NewInvoiceForm({
           {/* Note Field */}
           <div className="pt-6 border-t border-black/5 dark:border-white/5">
             <label className={labelClass}>
-              Invoice Note <span className="text-[9px] font-normal opacity-50 lowercase italic">(optional)</span>
+              {t.noteText} <span className="text-[9px] font-normal opacity-50 lowercase italic">({lang === "bn" ? "ঐচ্ছিক" : "optional"})</span>
             </label>
             <textarea
-              placeholder="e.g. Please process the payment using the method mentioned above."
+              placeholder={t.invoiceNotePlaceholder}
               value={noteText}
               onChange={(e) => setNoteText(e.target.value)}
               className={`${inputClass} resize-none h-24`}
@@ -305,12 +308,12 @@ export default function NewInvoiceForm({
             {(Number(vat) > 0 || Number(tax) > 0) && (
               <div className="flex flex-col gap-1 text-white/50 text-[10px] font-bold uppercase tracking-widest">
                 <div className="flex justify-between md:justify-start md:gap-4">
-                  <span>Subtotal:</span>
+                  <span>{t.subtotal}:</span>
                   <span className="text-white">৳ {calculateSubtotal().toLocaleString()}</span>
                 </div>
                 {Number(vat) > 0 && (
                   <div className="flex justify-between md:justify-start md:gap-4 text-emerald-400">
-                    <span>VAT ({vat}%):</span>
+                    <span>{t.vatPct} ({vat}%):</span>
                     <span>
                       + ৳{" "}
                       {(
@@ -322,7 +325,7 @@ export default function NewInvoiceForm({
                 )}
                 {Number(tax) > 0 && (
                   <div className="flex justify-between md:justify-start md:gap-4 text-emerald-400">
-                    <span>Tax ({tax}%):</span>
+                    <span>{t.taxPct} ({tax}%):</span>
                     <span>
                       + ৳{" "}
                       {(
@@ -336,7 +339,7 @@ export default function NewInvoiceForm({
             )}
             <div>
               <p className="text-white/50 text-sm uppercase tracking-widest font-bold">
-                Total Amount
+                {t.total}
               </p>
               <h3 className="text-4xl font-bold mt-1">
                 ৳ {calculateTotal().toLocaleString()}
@@ -348,9 +351,9 @@ export default function NewInvoiceForm({
             <button
               type="button"
               onClick={() => router.back()}
-              className="text-white/50 hover:text-white dark:hover:text-red-400 transition-colors order-2 sm:order-1 font-bold uppercase tracking-wider text-xs cursor-pointer select-none"
+              className="text-white/50 hover:text-white dark:hover:text-red-400 transition-colors order-2 sm:order-1 font-bold uppercase tracking-wider text-xs cursor-pointer select-none animate-none"
             >
-              Cancel
+              {t.cancel}
             </button>
             <button
               disabled={loading}
@@ -371,10 +374,10 @@ export default function NewInvoiceForm({
                       strokeLinecap="round"
                     />
                   </svg>
-                  Generating...
+                  {t.creatingInvoiceBtn}
                 </>
               ) : (
-                "Save Invoice"
+                t.saveInvoiceBtn
               )}
             </button>
           </div>

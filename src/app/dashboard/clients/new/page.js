@@ -2,11 +2,13 @@ import React from "react";
 import { redirect } from "next/navigation";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
-import { createClient } from "@supabase/supabase-js";
+import { supabaseAdmin } from "@/lib/supabase";
 import Link from "next/link";
 import { revalidatePath } from "next/cache";
 import ClientAlreadyAddedAlert from "@/components/ClientAlreadyAddedAlert";
 import SubmitButton from "@/components/SubmitButton";
+import { cookies } from "next/headers";
+import { getTranslations } from "@/lib/translations";
 
 export default async function NewClientPage({ searchParams }) {
   const session = await getServerSession(authOptions);
@@ -14,16 +16,15 @@ export default async function NewClientPage({ searchParams }) {
     redirect("/sign-up");
   }
 
+  const cookieStore = await cookies();
+  const lang = cookieStore.get("lang")?.value || "en";
+  const t = getTranslations(lang);
+
   const resolvedSearchParams = await searchParams;
   const isDuplicateClient = resolvedSearchParams?.error === "exists";
 
   async function createClientAction(formData) {
     "use server";
-
-    const supabaseAdmin = createClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL,
-      process.env.SUPABASE_SERVICE_ROLE_KEY,
-    );
 
     const actionSession = await getServerSession(authOptions);
     if (!actionSession?.user?.id) return;
@@ -69,15 +70,15 @@ export default async function NewClientPage({ searchParams }) {
 
   return (
     <div className="max-w-2xl mx-auto pb-16 animate-in fade-in duration-500">
-      <ClientAlreadyAddedAlert show={isDuplicateClient} />
+      <ClientAlreadyAddedAlert show={isDuplicateClient} t={t} />
       
       {/* Header Banner */}
       <header className="mb-8 md:mb-10 bg-white dark:bg-white/5 p-6 md:p-8 rounded-3xl border border-black/5 dark:border-white/5 shadow-sm transition-colors duration-300">
         <h2 className="text-3xl font-bold text-[#082019] dark:text-white">
-          New Client
+          {t.newClientTitle}
         </h2>
         <p className="text-black/50 dark:text-white/40 mt-1.5 text-sm">
-          Fill in the details to onboard a new client to your directory.
+          {t.newClientDesc}
         </p>
       </header>
 
@@ -86,7 +87,7 @@ export default async function NewClientPage({ searchParams }) {
           
           <div className="md:col-span-2">
             <label className="block text-[10px] font-bold uppercase tracking-wider text-black/40 dark:text-white/40 mb-2 ml-1">
-              Full Name
+              {t.clientName}
             </label>
             <input
               name="name"
@@ -97,7 +98,7 @@ export default async function NewClientPage({ searchParams }) {
 
           <div className="md:col-span-2">
             <label className="block text-[10px] font-bold uppercase tracking-wider text-black/40 dark:text-white/40 mb-2 ml-1">
-              Company Name <span className="text-[9px] font-normal opacity-50 lowercase italic">(optional)</span>
+              {t.companyOptional}
             </label>
             <input
               name="company"
@@ -108,7 +109,7 @@ export default async function NewClientPage({ searchParams }) {
 
           <div>
             <label className="block text-[10px] font-bold uppercase tracking-wider text-black/40 dark:text-white/40 mb-2 ml-1">
-              Email Address
+              {t.emailAddress}
             </label>
             <input
               name="email"
@@ -120,7 +121,7 @@ export default async function NewClientPage({ searchParams }) {
 
           <div>
             <label className="block text-[10px] font-bold uppercase tracking-wider text-black/40 dark:text-white/40 mb-2 ml-1">
-              Phone Number
+              {t.phoneNumber}
             </label>
             <input
               name="phone"
@@ -131,7 +132,7 @@ export default async function NewClientPage({ searchParams }) {
 
           <div className="md:col-span-2">
             <label className="block text-[10px] font-bold uppercase tracking-wider text-black/40 dark:text-white/40 mb-2 ml-1">
-              Address <span className="text-[9px] font-normal opacity-50 lowercase italic">(optional)</span>
+              {t.addressOptional}
             </label>
             <input
               name="address"
@@ -142,7 +143,7 @@ export default async function NewClientPage({ searchParams }) {
 
           <div>
             <label className="block text-[10px] font-bold uppercase tracking-wider text-black/40 dark:text-white/40 mb-2 ml-1">
-              City / State <span className="text-[9px] font-normal opacity-50 lowercase italic">(optional)</span>
+              {t.cityStateOptional}
             </label>
             <input
               name="city_state"
@@ -153,7 +154,7 @@ export default async function NewClientPage({ searchParams }) {
 
           <div>
             <label className="block text-[10px] font-bold uppercase tracking-wider text-black/40 dark:text-white/40 mb-2 ml-1">
-              Zip Code <span className="text-[9px] font-normal opacity-50 lowercase italic">(optional)</span>
+              {t.zipCodeOptional}
             </label>
             <input
               name="zip_code"
@@ -164,7 +165,7 @@ export default async function NewClientPage({ searchParams }) {
 
           <div className="md:col-span-2">
             <label className="block text-[10px] font-bold uppercase tracking-wider text-black/40 dark:text-white/40 mb-2 ml-1">
-              Country
+              {t.countryOptional}
             </label>
             <input
               name="country"
@@ -176,12 +177,12 @@ export default async function NewClientPage({ searchParams }) {
         </div>
 
         <div className="flex flex-col sm:flex-row items-center gap-4 pt-4">
-          <SubmitButton label="Save Client" pendingLabel="Saving..." />
+          <SubmitButton label={t.createClientBtn} pendingLabel={t.creatingClientBtn} />
           <Link
             href="/dashboard/clients"
             className="select-none cursor-pointer text-[#082019] dark:text-white px-10 py-3.5 rounded-full font-bold text-xs uppercase tracking-wider border border-black/10 dark:border-white/10 hover:bg-black/5 dark:hover:bg-white/5 transition-all text-center w-full md:w-auto"
           >
-            Cancel
+            {t.cancel}
           </Link>
         </div>
       </form>

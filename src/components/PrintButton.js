@@ -4,11 +4,13 @@ import { useRouter } from "next/navigation";
 import html2canvas from "html2canvas";
 import { jsPDF } from "jspdf";
 
-export default function PrintButton({ invoiceId, initialStatus }) {
+export default function PrintButton({ invoiceId, initialStatus, t }) {
   const router = useRouter();
   const [status, setStatus] = useState(initialStatus);
   const [loading, setLoading] = useState(false);
   const [isDownloading, setIsDownloading] = useState(false);
+
+  const isBn = t && t.cancel === "বাতিল করুন";
 
   const markAsPaid = async () => {
     setLoading(true);
@@ -24,14 +26,14 @@ export default function PrintButton({ invoiceId, initialStatus }) {
 
       if (!res.ok) {
         setStatus(previousStatus);
-        alert("Failed to update status");
+        alert(isBn ? "স্ট্যাটাস আপডেট করতে ব্যর্থ হয়েছে" : "Failed to update status");
       } else {
         router.refresh();
       }
     } catch (error) {
       console.error("Update failed:", error);
       setStatus(previousStatus);
-      alert("An unexpected error occurred.");
+      alert(isBn ? "একটি অপ্রত্যাশিত ত্রুটি ঘটেছে।" : "An unexpected error occurred.");
     } finally {
       setLoading(false);
     }
@@ -40,7 +42,7 @@ export default function PrintButton({ invoiceId, initialStatus }) {
   const handleDownloadPDF = async () => {
     const element = document.getElementById("invoice-capture-area");
     if (!element) {
-      alert("Invoice preview not found. Please refresh the page.");
+      alert(isBn ? "ইনভয়েস প্রিভিউ পাওয়া যায়নি। অনুগ্রহ করে পেজটি রিফ্রেশ করুন।" : "Invoice preview not found. Please refresh the page.");
       return;
     }
 
@@ -106,22 +108,27 @@ export default function PrintButton({ invoiceId, initialStatus }) {
     } catch (error) {
       console.error("PDF Error:", error);
       alert(
-        "PDF generation failed. Please check the console for the specific error.",
+        isBn ? "পিডিএফ তৈরি করতে ব্যর্থ হয়েছে।" : "PDF generation failed. Please check the console for the specific error."
       );
     } finally {
       setIsDownloading(false);
     }
   };
 
+  const markPaidLabel = t ? t.markAsPaidBtn : "Mark as Paid";
+  const updatingLabel = t ? t.updatingClientBtn : "Updating...";
+  const downloadLabel = t ? t.downloadPdfBtn : "Download PDF";
+  const generatingLabel = t ? t.creatingInvoiceBtn : "Generating...";
+
   return (
-    <div className="select-none cursor-pointer flex flex-col sm:flex-row items-center gap-3 w-full sm:w-auto print:hidden">
+    <div className="select-none cursor-pointer flex flex-col sm:flex-row items-center gap-3 w-full sm:w-auto print:hidden animate-none">
       {status !== "paid" && (
         <button
           onClick={markAsPaid}
           disabled={loading}
           className="w-full sm:w-auto border border-emerald-500/20 text-emerald-600 dark:text-emerald-400 bg-emerald-500/5 hover:bg-emerald-500/10 px-5 py-2.5 rounded-full text-[10px] font-bold uppercase tracking-wider flex items-center justify-center gap-1.5 transition-all cursor-pointer disabled:opacity-50 text-center whitespace-nowrap"
         >
-          {loading ? "Updating..." : "Mark as Paid"}
+          {loading ? updatingLabel : markPaidLabel}
         </button>
       )}
 
@@ -130,9 +137,8 @@ export default function PrintButton({ invoiceId, initialStatus }) {
         disabled={isDownloading}
         className="select-none cursor-pointer w-full sm:w-auto bg-[#082019] hover:bg-[#0c3127] dark:bg-white dark:text-[#082019] dark:hover:bg-neutral-100 text-white px-5 py-2.5 rounded-full text-[10px] font-bold uppercase tracking-wider flex items-center justify-center gap-1.5 transition-all cursor-pointer shadow-md active:scale-95 disabled:opacity-50 text-center whitespace-nowrap"
       >
-        {isDownloading ? "Generating..." : "Download PDF"}
+        {isDownloading ? generatingLabel : downloadLabel}
       </button>
     </div>
   );
 }
-
