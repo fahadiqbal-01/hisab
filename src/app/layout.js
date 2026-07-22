@@ -4,7 +4,6 @@ import { Providers } from "./providers";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import { Analytics } from "@vercel/analytics/next";
 import { siteConfig } from "@/lib/site";
-import IntroOverlay from "@/components/IntroOverlay";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -79,7 +78,6 @@ export default function RootLayout({ children }) {
     >
       <body className="min-h-full flex flex-col bg-white dark:bg-[#071f18] transition-colors duration-300">
         <Providers>
-          <IntroOverlay />
           {children}
           <SpeedInsights />
           <Analytics />
