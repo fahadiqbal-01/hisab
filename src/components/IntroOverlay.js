@@ -2,30 +2,23 @@
 import React, { useState, useEffect } from "react";
 
 export default function IntroOverlay() {
-  const [visible, setVisible] = useState(false);
+  const [visible, setVisible] = useState(true);
   const [fadeOut, setFadeOut] = useState(false);
 
   useEffect(() => {
-    // Check if the user has already seen the intro splash screen
-    const hasSeen = localStorage.getItem("hasSeenIntro");
-    if (!hasSeen) {
-      setVisible(true);
+    // Begin fade out transition after 2.5 seconds
+    const fadeTimer = setTimeout(() => {
+      setFadeOut(true);
       
-      // Begin fade out transition after 2.5 seconds
-      const fadeTimer = setTimeout(() => {
-        setFadeOut(true);
-        
-        // Fully remove component from DOM after CSS transition completes (500ms)
-        const removeTimer = setTimeout(() => {
-          setVisible(false);
-          localStorage.setItem("hasSeenIntro", "true");
-        }, 500);
-        
-        return () => clearTimeout(removeTimer);
-      }, 2500);
+      // Fully remove component from DOM after CSS transition completes (500ms)
+      const removeTimer = setTimeout(() => {
+        setVisible(false);
+      }, 500);
+      
+      return () => clearTimeout(removeTimer);
+    }, 2500);
 
-      return () => clearTimeout(fadeTimer);
-    }
+    return () => clearTimeout(fadeTimer);
   }, []);
 
   if (!visible) return null;
