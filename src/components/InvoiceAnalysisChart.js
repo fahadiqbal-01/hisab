@@ -1,73 +1,28 @@
 "use client";
-import React, { useState, useEffect } from "react";
+
+import React, { useState, useEffect, useMemo } from "react";
 import { useTheme } from "next-themes";
 import {
-  ScatterChart,
-  Scatter,
+  AreaChart,
+  Area,
   XAxis,
   YAxis,
   Tooltip,
   ResponsiveContainer,
   CartesianGrid,
+  ReferenceLine,
 } from "recharts";
-
-const CustomPill = (props) => {
-  const {
-    cx,
-    cy,
-    payload,
-    isActive,
-    tooltipPayload,
-    tooltipPosition,
-    xAxis,
-    yAxis,
-    active,
-    index,
-    isDark,
-    ...rest
-  } = props;
-  const height = Math.max(40, (payload.amount / 50000) * 20);
-  const width = 12;
-  const touchWidth = 30;
-
-  return (
-    <g {...rest} className="group cursor-pointer">
-      {/* Invisible larger touch/hover target */}
-      <rect
-        x={cx - touchWidth / 2}
-        y={cy - height / 2}
-        width={touchWidth}
-        height={height}
-        fill="black"
-        fillOpacity={0}
-      />
-      {/* Visible styled rect */}
-      <rect
-        x={cx - width / 2}
-        y={cy - height / 2}
-        width={width}
-        height={height}
-        fill={isDark ? "#ffffff" : "#082019"}
-        rx={width / 2}
-        className="transition-all duration-300 group-hover:fill-emerald-500 dark:group-hover:fill-emerald-400"
-        style={{
-          filter: "drop-shadow(0px 4px 6px rgba(0,0,0,0.15))",
-          ...rest.style,
-        }}
-      />
-    </g>
-  );
-};
 
 const CustomTooltip = ({ active, payload }) => {
   if (active && payload && payload.length) {
     const data = payload[0].payload;
+    if (!data.isReal) return null; // Ignore dummy padding points
     return (
       <div className="bg-white dark:bg-[#111614] p-4 rounded-2xl border border-black/5 dark:border-white/10 shadow-xl min-w-[200px] transition-colors duration-300">
         <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-black/40 dark:text-white/40 mb-1">
           {data.date}
         </p>
-        <p className="text-base font-bold text-[#082019] dark:text-white mb-1">
+        <p className="text-base font-bold text-[#082019] dark:text-white mb-1 truncate max-w-[180px]">
           {data.client}
         </p>
         <div className="flex justify-between items-center mt-3 pt-3 border-t border-black/5 dark:border-white/5">
@@ -79,7 +34,7 @@ const CustomTooltip = ({ active, payload }) => {
         <div className="flex justify-between items-center mt-1">
           <p className="text-xs font-medium text-black/60 dark:text-white/60">Status</p>
           <p className="text-xs font-bold uppercase tracking-widest text-emerald-600 dark:text-emerald-400">
-            {data.status}
+            PAID
           </p>
         </div>
       </div>
@@ -88,25 +43,119 @@ const CustomTooltip = ({ active, payload }) => {
   return null;
 };
 
+// Render solid white knobs only on real invoices
+const RenderDot = (props) => {
+  const { cx, cy, payload, dataKey, index, value, ...rest } = props;
+  if (payload && payload.isReal) {
+    return (
+      <circle
+        cx={cx}
+        cy={cy}
+        r={5}
+        stroke="#10B981"
+        strokeWidth={2.5}
+        fill="#ffffff"
+        className="cursor-pointer transition-all duration-300 hover:r-6"
+        {...rest}
+      />
+    );
+  }
+  return null;
+};
+
+// Render matching hover-state active knobs
+const RenderActiveDot = (props) => {
+  const { cx, cy, payload, dataKey, index, value, ...rest } = props;
+  if (payload && payload.isReal) {
+    return (
+      <circle
+        cx={cx}
+        cy={cy}
+        r={7}
+        stroke="#ffffff"
+        strokeWidth={2}
+        fill="#10B981"
+        className="cursor-pointer"
+        {...rest}
+      />
+    );
+  }
+  return null;
+};
+
 export default function InvoiceAnalysisChart({ data }) {
   const [mounted, setMounted] = useState(false);
-  const [isMobile, setIsMobile] = useState(false);
   const { resolvedTheme } = useTheme();
 
   useEffect(() => {
     setMounted(true);
-    const checkMobile = () => {
-      setIsMobile(
-        window.matchMedia("(max-width: 768px)").matches ||
-        "ontouchstart" in window ||
-        (typeof navigator !== "undefined" && navigator.maxTouchPoints > 0)
-      );
-    };
-    checkMobile();
   }, []);
 
   const isDark = mounted && resolvedTheme === "dark";
-  const paidOnlyData = data?.filter((item) => item.status === "paid") || [];
+
+  // Map individual paid invoices and generate wave guides if points are few
+  const chartData = useMemo(() => {
+    if (!data || data.length === 0) return [];
+
+    const paidInvoices = data.filter((item) => item.status === "paid");
+    
+    // Sort chronologically
+    const sorted = [...paidInvoices].sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
+
+    if (sorted.length === 0) return [];
+
+    const counts = {};
+    const realPoints = sorted.map((item) => {
+      const baseLabel = `${item.client} (${item.date})`;
+      counts[baseLabel] = (counts[baseLabel] || 0) + 1;
+      
+      const displayName = counts[baseLabel] > 1 
+        ? `${item.client} (${item.date}) #${counts[baseLabel]}` 
+        : baseLabel;
+
+      return {
+        ...item,
+        displayName,
+        isReal: true,
+      };
+    });
+
+    const totalPaid = realPoints.reduce((acc, item) => acc + item.amount, 0);
+    const average = totalPaid / realPoints.length;
+
+    // Generate virtual start/end padding points to anchor the wave curves
+    const startPadding = {
+      displayName: " ",
+      amount: average * 0.35,
+      isReal: false,
+    };
+    
+    const endPadding = {
+      displayName: "  ",
+      amount: average * 0.45,
+      isReal: false,
+    };
+
+    // If there are exactly 2 paid invoices, insert a center dip to force a wavy equalizer look
+    if (realPoints.length === 2) {
+      const dipPoint = {
+        displayName: "   ",
+        amount: Math.min(realPoints[0].amount, realPoints[1].amount) * 0.5,
+        isReal: false,
+      };
+      return [startPadding, realPoints[0], dipPoint, realPoints[1], endPadding];
+    }
+
+    return [startPadding, ...realPoints, endPadding];
+  }, [data]);
+
+  // Compute average of real paid invoices for the center horizontal baseline
+  const averageAmount = useMemo(() => {
+    const realPoints = chartData.filter(d => d.isReal);
+    if (realPoints.length === 0) return 0;
+    const sum = realPoints.reduce((acc, item) => acc + item.amount, 0);
+    return sum / realPoints.length;
+  }, [chartData]);
 
   const formatYAxis = (tickItem) => {
     if (tickItem === 0) return "0";
@@ -114,39 +163,63 @@ export default function InvoiceAnalysisChart({ data }) {
   };
 
   return (
-    <div className="w-full h-125 bg-white dark:bg-white/5 rounded-[2.5rem] p-6 md:p-8 border border-black/5 dark:border-white/5 shadow-sm transition-colors duration-300">
-      <h3 className="text-[10px] font-bold uppercase tracking-[0.3em] text-black/40 dark:text-white/30 mb-8 ml-2">
-        Individual Paid Invoice Analysis
-      </h3>
+    <div className="w-full h-[500px] bg-white dark:bg-white/5 rounded-[2.5rem] p-6 md:p-8 border border-black/5 dark:border-white/5 shadow-sm transition-colors duration-300">
+      <div className="flex flex-col mb-8 ml-2">
+        <h3 className="text-[10px] font-bold uppercase tracking-[0.3em] text-black/40 dark:text-white/30">
+          Individual Paid Invoice Analysis
+        </h3>
+        <p className="text-xs text-black/50 dark:text-white/40 mt-1">
+          Smooth transaction curve with details triggered on target nodes
+        </p>
+      </div>
 
       {mounted && (
         <ResponsiveContainer
+          key="analysis-chart-container"
           width="100%"
-          height="85%"
+          height="80%"
           minWidth={0}
           minHeight={0}
         >
-          <ScatterChart margin={{ top: 20, right: 10, bottom: 20, left: -30 }}>
+          <AreaChart
+            key="analysis-area-chart"
+            data={chartData}
+            margin={{ top: 20, right: 10, bottom: 20, left: -25 }}
+          >
+            <defs>
+              <linearGradient id="colorEq" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="5%" stopColor="#10B981" stopOpacity={0.45}/>
+                <stop offset="95%" stopColor="#10B981" stopOpacity={0.01}/>
+              </linearGradient>
+            </defs>
+            
+            {/* Vertical grid lines only, matching the EQ reference screenshot */}
             <CartesianGrid
-              vertical={false}
-              stroke={isDark ? "#ffffff" : "#000000"}
-              strokeOpacity={0.04}
+              horizontal={false}
+              vertical={true}
+              stroke={isDark ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.06)"}
             />
+            
             <XAxis
-              dataKey="date"
-              axisLine={true}
-              tickLine={true}
+              dataKey="displayName"
+              axisLine={false}
+              tickLine={false}
               stroke={isDark ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.05)"}
+              tickFormatter={(value) => {
+                // Ticks with space characters are virtual guides; render them blank to keep X-Axis clean
+                if (value.trim() === "") return "";
+                return value.split(" (")[0];
+              }}
               tick={{
                 fill: isDark ? "#ffffff" : "#082019",
                 opacity: 0.5,
                 fontSize: 10,
-                fontWeight: "500",
+                fontWeight: "600",
               }}
               tickMargin={15}
             />
+            
             <YAxis
-              dataKey="amount"
               axisLine={false}
               tickLine={false}
               tickFormatter={formatYAxis}
@@ -156,23 +229,37 @@ export default function InvoiceAnalysisChart({ data }) {
                 fontSize: 10,
                 fontWeight: "500",
               }}
-              domain={["auto", "auto"]}
             />
+            
             <Tooltip
-              content={<CustomTooltip />}
+              trigger="item"
               cursor={false}
-              trigger={isMobile ? "click" : "hover"}
+              content={<CustomTooltip />}
             />
-            <Scatter
-              name="Invoices"
-              data={paidOnlyData}
-              shape={<CustomPill isDark={isDark} />}
-              animationDuration={1500}
+            
+            {/* Horizontal baseline representing the average invoice amount */}
+            {chartData.length > 0 && averageAmount > 0 && (
+              <ReferenceLine
+                y={averageAmount}
+                stroke={isDark ? "rgba(255,255,255,0.12)" : "rgba(0,0,0,0.12)"}
+                strokeWidth={1}
+              />
+            )}
+            
+            <Area
+              key="eq-area"
+              type="monotone"
+              dataKey="amount"
+              stroke="#10B981"
+              strokeWidth={4}
+              fillOpacity={1}
+              fill="url(#colorEq)"
+              dot={<RenderDot />}
+              activeDot={<RenderActiveDot />}
             />
-          </ScatterChart>
+          </AreaChart>
         </ResponsiveContainer>
       )}
     </div>
   );
 }
-
