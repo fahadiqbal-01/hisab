@@ -87,6 +87,8 @@ export async function POST(req) {
       serviceKeyExists: !!process.env.SUPABASE_SERVICE_ROLE_KEY,
       serviceKeyLength: process.env.SUPABASE_SERVICE_ROLE_KEY?.length,
       sessionUser: session.user,
+      supabaseAdminKey: supabaseAdmin.supabaseKey ? supabaseAdmin.supabaseKey.slice(0, 15) + "..." : "missing",
+      supabaseAdminUrl: supabaseAdmin.supabaseUrl,
     });
 
     const invoice = await insertInvoiceWithNoteFallback(invoiceBase, note_text);

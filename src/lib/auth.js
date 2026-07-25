@@ -60,7 +60,7 @@ export const authOptions = {
       } else {
         try {
           const { data, error } = await supabaseAdmin.auth.admin.getUserById(userId);
-          
+
           isBanned =
             error ||
             !data?.user ||
