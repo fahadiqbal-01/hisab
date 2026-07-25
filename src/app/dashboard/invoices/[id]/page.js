@@ -8,6 +8,9 @@ import { cookies } from "next/headers";
 export default async function InvoicePage({ params }) {
   const { id } = await params;
   const session = await getServerSession(authOptions);
+  if (!session?.user?.id) {
+    notFound();
+  }
 
   const { data: invoice } = await supabaseAdmin
     .from("invoices")
@@ -19,6 +22,7 @@ export default async function InvoicePage({ params }) {
     `,
     )
     .eq("id", id)
+    .eq("user_id", session.user.id)
     .single();
 
   if (!invoice) notFound();

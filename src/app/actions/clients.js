@@ -22,6 +22,11 @@ export async function fetchClients() {
 }
 
 export async function updateClient(id, formData) {
+  const session = await getServerSession(authOptions);
+  if (!session?.user?.id) {
+    return { error: "Unauthorized" };
+  }
+
   const { error } = await supabaseAdmin
     .from("clients")
     .update({
@@ -34,7 +39,8 @@ export async function updateClient(id, formData) {
       zip_code: formData.zip_code,
       country: formData.country,
     })
-    .eq("id", id);
+    .eq("id", id)
+    .eq("user_id", session.user.id);
 
   if (error) {
     console.error("Update Error:", error.message);
@@ -46,7 +52,16 @@ export async function updateClient(id, formData) {
 }
 
 export async function deleteClient(id) {
-  const { error } = await supabaseAdmin.from("clients").delete().eq("id", id);
+  const session = await getServerSession(authOptions);
+  if (!session?.user?.id) {
+    return { error: "Unauthorized" };
+  }
+
+  const { error } = await supabaseAdmin
+    .from("clients")
+    .delete()
+    .eq("id", id)
+    .eq("user_id", session.user.id);
 
   if (error) {
     console.error("Delete Error:", error.message);

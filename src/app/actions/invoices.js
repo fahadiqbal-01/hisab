@@ -47,7 +47,15 @@ async function updateInvoiceWithNoteFallback(baseUpdate, noteValue, id, userId) 
 }
 
 export async function deleteInvoice(id) {
-  const { error } = await supabaseAdmin.from("invoices").delete().eq("id", id);
+  const session = await getServerSession(authOptions);
+  if (!session?.user?.id) {
+    return { error: "Unauthorized" };
+  }
+  const { error } = await supabaseAdmin
+    .from("invoices")
+    .delete()
+    .eq("id", id)
+    .eq("user_id", session.user.id);
 
   if (!error) {
     revalidatePath("/dashboard/invoices");

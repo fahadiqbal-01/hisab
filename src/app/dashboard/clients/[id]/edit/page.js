@@ -3,9 +3,15 @@ import { notFound } from "next/navigation";
 import EditClientForm from "@/components/EditClientForm";
 import { cookies } from "next/headers";
 import { getTranslations } from "@/lib/translations";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
 
 export default async function EditClientPage({ params }) {
   const { id } = await params;
+  const session = await getServerSession(authOptions);
+  if (!session?.user?.id) {
+    notFound();
+  }
 
   const cookieStore = await cookies();
   const lang = cookieStore.get("lang")?.value || "en";
@@ -15,6 +21,7 @@ export default async function EditClientPage({ params }) {
     .from("clients")
     .select("*")
     .eq("id", id)
+    .eq("user_id", session.user.id)
     .single();
 
   if (!client) notFound();
