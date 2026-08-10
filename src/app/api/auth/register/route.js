@@ -30,6 +30,25 @@ export async function POST(req) {
       );
     }
 
+    // Also check Supabase auth directly — a user may exist there but have no
+    // corresponding row in the users table (e.g. after a failed rollback).
+    // Without this check, auth.admin.createUser would fail with "already exists"
+    // and we’d show a confusing error to someone whose account is broken.
+    const { data: authList } = await supabaseAdmin.auth.admin.listUsers({
+      filter: `email.eq.${normalizedEmail}`,
+    });
+    const orphanedAuthUser = authList?.users?.find(
+      (u) => u.email?.toLowerCase() === normalizedEmail
+    );
+    if (orphanedAuthUser) {
+      // Auth record exists but no users row — delete the broken auth entry
+      // so the user can register cleanly.
+      console.warn(
+        `Orphaned auth user found for ${normalizedEmail} (id: ${orphanedAuthUser.id}). Cleaning up before re-registration.`
+      );
+      await supabaseAdmin.auth.admin.deleteUser(orphanedAuthUser.id);
+    }
+
   
     const { data: authData, error: authError } =
       await supabaseAdmin.auth.admin.createUser({
@@ -56,13 +75,14 @@ export async function POST(req) {
 
     const fullName = `${firstName} ${lastName}`;
 
-    const { error: insertError } = await supabaseAdmin.from("users").insert([
+    const { error: insertError } = await supabaseAdmin.from("users").upsert(
       {
         id: authData.user.id,
         email: normalizedEmail,
         full_name: fullName,
       },
-    ]);
+      { onConflict: "id", ignoreDuplicates: false }
+    );
 
     if (insertError) {
       console.error("Database Insert Error:", insertError.message);

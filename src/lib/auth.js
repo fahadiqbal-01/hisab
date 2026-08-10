@@ -1,7 +1,18 @@
 import CredentialsProvider from "next-auth/providers/credentials";
 import { supabaseAdmin } from "@/lib/supabase";
+import { createClient } from "@supabase/supabase-js";
 
 const isProduction = process.env.NODE_ENV === "production";
+
+// Separate anon client ONLY for sign-in password verification.
+// The service role client must NEVER call signInWithPassword — it
+// causes Supabase to log 400 warnings and creates ghost auth sessions.
+const getAnonClient = () =>
+  createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
+    { auth: { persistSession: false, autoRefreshToken: false, detectSessionInUrl: false } }
+  );
 
 // Global in-memory cache for user ban status to prevent overloading Supabase DB
 const banCache = new Map();
@@ -17,8 +28,12 @@ export const authOptions = {
       async authorize(credentials) {
         if (!credentials?.email || !credentials?.password) return null;
 
-        const { data, error } = await supabaseAdmin.auth.signInWithPassword({
-          email: credentials.email,
+        // Use the anon client for password verification — NOT the service role client.
+        // Service role + signInWithPassword causes 400 warnings in Supabase logs
+        // and creates phantom auth sessions that don't appear in the dashboard.
+        const anonClient = getAnonClient();
+        const { data, error } = await anonClient.auth.signInWithPassword({
+          email: credentials.email.trim().toLowerCase(),
           password: credentials.password,
         });
 
