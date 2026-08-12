@@ -17,7 +17,7 @@ function SessionSyncGuard({ children }) {
 
 export default function NextAuthProvider({ children }) {
   return (
-    <SessionProvider refetchInterval={5 * 60} refetchOnWindowFocus={true}>
+    <SessionProvider refetchInterval={10} refetchOnWindowFocus={true}>
       <SessionSyncGuard>{children}</SessionSyncGuard>
     </SessionProvider>
   );

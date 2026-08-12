@@ -77,6 +77,17 @@ export const authOptions = {
 
         // Generate unique session ID to enforce single active session per user
         const sessionId = crypto.randomUUID();
+
+        // 1. Revoke all existing Supabase auth sessions/refresh tokens for this user on other devices
+        try {
+          if (data.session?.access_token) {
+            await supabaseAdmin.auth.admin.signOut(data.session.access_token, "others");
+          }
+        } catch (err) {
+          console.warn("Supabase revoke other sessions notice:", err?.message);
+        }
+
+        // 2. Store current session ID in user_metadata
         try {
           await supabaseAdmin.auth.admin.updateUserById(data.user.id, {
             user_metadata: {
@@ -87,6 +98,9 @@ export const authOptions = {
         } catch (err) {
           console.error("Failed to set active session ID in Supabase:", err);
         }
+
+        // 3. Clear banCache entry for this user so all servers re-verify immediately
+        banCache.delete(data.user.id);
 
         return {
           id: data.user.id,
@@ -136,38 +150,20 @@ export const authOptions = {
       }
 
       const userId = token.id;
-      const now = Date.now();
-      const cached = banCache.get(userId);
 
-      // Check status & active session every 10 seconds
-      const CACHE_TTL = 10 * 1000;
       let isBanned = false;
       let activeSessionId = null;
 
-      if (cached && now - cached.lastChecked < CACHE_TTL) {
-        isBanned = cached.isBanned;
-        activeSessionId = cached.activeSessionId;
-      } else {
-        try {
-          const { data, error } = await supabaseAdmin.auth.admin.getUserById(userId);
+      try {
+        const { data, error } = await supabaseAdmin.auth.admin.getUserById(userId);
 
-          isBanned =
-            error ||
-            !data?.user ||
-            (data.user.banned_until && new Date(data.user.banned_until) > new Date());
-          activeSessionId = data?.user?.user_metadata?.active_session_id || null;
-
-          banCache.set(userId, {
-            isBanned,
-            activeSessionId,
-            lastChecked: now,
-          });
-        } catch (err) {
-          console.error("Supabase live ban check failed:", err);
-          // Fallback to previous cached value if network fails
-          isBanned = cached ? cached.isBanned : false;
-          activeSessionId = cached ? cached.activeSessionId : null;
-        }
+        isBanned =
+          error ||
+          !data?.user ||
+          (data.user.banned_until && new Date(data.user.banned_until) > new Date());
+        activeSessionId = data?.user?.user_metadata?.active_session_id || null;
+      } catch (err) {
+        console.error("Supabase live session validation failed:", err);
       }
 
       if (isBanned) {
@@ -175,7 +171,7 @@ export const authOptions = {
         return { ...session, user: null, error: "UserBanned" };
       }
 
-      // Enforce single session per user: if user signed in elsewhere, invalidate old session
+      // Enforce single session per user: if user signed in elsewhere, invalidate old session immediately
       if (token.sessionId && activeSessionId && token.sessionId !== activeSessionId) {
         console.warn(`Session overridden by newer login for user ${userId}.`);
         return { ...session, user: null, error: "SessionTerminated" };
