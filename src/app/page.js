@@ -2,25 +2,22 @@
 
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { useSession } from "next-auth/react";
 
 export default function Home() {
   const router = useRouter();
+  const { data: session, status } = useSession();
 
   useEffect(() => {
-    // Check user session state and redirect immediately in the background
-    fetch("/api/auth/session")
-      .then((res) => res.json())
-      .then((session) => {
-        if (session && Object.keys(session).length > 0) {
-          router.replace("/dashboard");
-        } else {
-          router.replace("/sign-up");
-        }
-      })
-      .catch(() => {
-        router.replace("/sign-up");
-      });
-  }, [router]);
+    if (status === "loading") return;
+
+    if (session && !session.error) {
+      router.replace("/dashboard");
+    } else {
+      router.replace("/sign-up");
+    }
+  }, [session, status, router]);
 
   return null;
 }
+

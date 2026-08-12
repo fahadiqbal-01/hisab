@@ -22,7 +22,7 @@ export const metadata = {
 export default async function DashboardLayout({ children }) {
   const session = await getCachedServerSession();
 
-  if (!session) {
+  if (!session?.user?.id) {
     redirect("/sign-up");
   }
 

@@ -17,6 +17,39 @@ const getAnonClient = () =>
 // Global in-memory cache for user ban status to prevent overloading Supabase DB
 const banCache = new Map();
 
+async function refreshAccessToken(token) {
+  try {
+    const anonClient = getAnonClient();
+    const { data, error } = await anonClient.auth.refreshSession({
+      refresh_token: token.refreshToken,
+    });
+
+    if (error || !data?.session) {
+      console.error("Error refreshing Supabase access token:", error?.message);
+      return {
+        ...token,
+        error: "RefreshAccessTokenError",
+      };
+    }
+
+    return {
+      ...token,
+      accessToken: data.session.access_token,
+      refreshToken: data.session.refresh_token ?? token.refreshToken,
+      accessTokenExpires: data.session.expires_at
+        ? data.session.expires_at * 1000
+        : Date.now() + 3600 * 1000,
+      error: null,
+    };
+  } catch (err) {
+    console.error("Exception during token refresh:", err);
+    return {
+      ...token,
+      error: "RefreshAccessTokenError",
+    };
+  }
+}
+
 export const authOptions = {
   providers: [
     CredentialsProvider({
@@ -46,20 +79,45 @@ export const authOptions = {
           id: data.user.id,
           name: data.user.user_metadata?.full_name || "User",
           email: data.user.email,
+          accessToken: data.session?.access_token,
+          refreshToken: data.session?.refresh_token,
+          accessTokenExpires: data.session?.expires_at
+            ? data.session.expires_at * 1000
+            : Date.now() + 3600 * 1000,
         };
       },
     }),
   ],
   callbacks: {
     async jwt({ token, user }) {
+      // Initial sign in
       if (user) {
         token.id = user.id;
+        token.accessToken = user.accessToken;
+        token.refreshToken = user.refreshToken;
+        token.accessTokenExpires = user.accessTokenExpires;
+        token.error = null;
+        return token;
       }
-      return token;
+
+      if (token.error === "RefreshAccessTokenError") {
+        return token;
+      }
+
+      // Return previous token if the access token has not expired yet (buffer 60 seconds)
+      if (
+        token.accessTokenExpires &&
+        Date.now() < token.accessTokenExpires - 60 * 1000
+      ) {
+        return token;
+      }
+
+      // Access token has expired, try to refresh it
+      return refreshAccessToken(token);
     },
     async session({ session, token }) {
-      if (!token || !token.id) {
-        return null; // Invalidate session
+      if (!token || !token.id || token.error === "RefreshAccessTokenError") {
+        return { ...session, user: null, error: token?.error || "InvalidToken" };
       }
 
       const userId = token.id;
@@ -94,12 +152,14 @@ export const authOptions = {
 
       if (isBanned) {
         console.warn(`Active ban detected for user ${userId}. Terminating session.`);
-        return null; // Force invalidate session
+        return { ...session, user: null, error: "UserBanned" };
       }
 
       if (session.user) {
         session.user.id = token.id;
       }
+      session.accessToken = token.accessToken;
+      session.error = token.error;
       return session;
     },
   },
@@ -130,3 +190,4 @@ export const authOptions = {
     },
   },
 };
+

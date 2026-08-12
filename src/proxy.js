@@ -2,14 +2,29 @@ import { getToken } from "next-auth/jwt";
 import { NextResponse } from "next/server";
 
 export async function proxy(req) {
-  const token = await getToken({
+  let token = await getToken({
     req,
     secret: process.env.NEXTAUTH_SECRET,
-    secureCookie: process.env.NODE_ENV === "production",
   });
 
+  if (!token) {
+    token = await getToken({
+      req,
+      secret: process.env.NEXTAUTH_SECRET,
+      cookieName: "__Secure-next-auth.session-token",
+    });
+  }
+
+  if (!token) {
+    token = await getToken({
+      req,
+      secret: process.env.NEXTAUTH_SECRET,
+      cookieName: "next-auth.session-token",
+    });
+  }
+
   const { pathname } = req.nextUrl;
-  const hasToken = !!token?.id;
+  const hasToken = !!token?.id && !token?.error;
 
   const isAuthPage =
     pathname === "/sign-up" || pathname === "/login" || pathname === "/";
@@ -34,3 +49,5 @@ export const config = {
     "/((?!api/auth|_next/static|_next/image|images|video|favicon.ico).*)",
   ],
 };
+
+
