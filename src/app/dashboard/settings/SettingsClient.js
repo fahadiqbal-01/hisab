@@ -269,7 +269,19 @@ export default function SettingsClient({ initialProfile, user, lang = "en" }) {
               </div>
             </div>
           </div>
-
+ {/* Save Bar Footer */}
+          <div className="flex flex-col sm:flex-row justify-between items-center bg-[#082019]/90 dark:bg-white/5 backdrop-blur p-5 rounded-3xl border border-white/5 shadow-lg mt-8 gap-4 transition-colors duration-300">
+            <p className="text-white/40 text-[10px] font-bold uppercase tracking-widest sm:pl-2">
+              {saving ? t.savingChanges : t.settingsConfigured}
+            </p>
+            <button
+              onClick={handleSave}
+              disabled={saving}
+              className="w-full sm:w-auto bg-white text-[#082019] hover:bg-neutral-100 active:scale-95 duration-150 px-10 py-3 rounded-full font-bold uppercase tracking-wider text-xs disabled:opacity-50 cursor-pointer shadow-md"
+            >
+              {t.saveDefaultsBtn}
+            </button>
+          </div>
           {/* Section 5: Danger Zone */}
           <div className="bg-red-500/5 dark:bg-red-500/2 p-6 md:p-8 rounded-[2rem] border border-red-500/10 dark:border-red-950/20 shadow-sm transition-colors duration-300">
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-6">
@@ -291,19 +303,7 @@ export default function SettingsClient({ initialProfile, user, lang = "en" }) {
             </div>
           </div>
 
-          {/* Save Bar Footer */}
-          <div className="flex flex-col sm:flex-row justify-between items-center bg-[#082019]/90 dark:bg-white/5 backdrop-blur p-5 rounded-3xl border border-white/5 shadow-lg mt-8 gap-4 transition-colors duration-300">
-            <p className="text-white/40 text-[10px] font-bold uppercase tracking-widest sm:pl-2">
-              {saving ? t.savingChanges : t.settingsConfigured}
-            </p>
-            <button
-              onClick={handleSave}
-              disabled={saving}
-              className="w-full sm:w-auto bg-white text-[#082019] hover:bg-neutral-100 active:scale-95 duration-150 px-10 py-3 rounded-full font-bold uppercase tracking-wider text-xs disabled:opacity-50 cursor-pointer shadow-md"
-            >
-              {t.saveDefaultsBtn}
-            </button>
-          </div>
+         
 
         </div>
       </div>
