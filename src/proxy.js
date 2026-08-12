@@ -26,17 +26,15 @@ export async function proxy(req) {
   const { pathname } = req.nextUrl;
   const hasToken = !!token?.id && !token?.error;
 
-  const isAuthPage =
-    pathname === "/sign-up" || pathname === "/login" || pathname === "/";
-
-  if (pathname === "/" && !hasToken) {
+  // Root landing page "/" redirects based on authentication state
+  if (pathname === "/") {
+    if (hasToken) {
+      return NextResponse.redirect(new URL("/dashboard", req.url));
+    }
     return NextResponse.redirect(new URL("/sign-up", req.url));
   }
 
-  if (isAuthPage && hasToken) {
-    return NextResponse.redirect(new URL("/dashboard", req.url));
-  }
-
+  // Protected dashboard routes require authentication
   if (pathname.startsWith("/dashboard") && !hasToken) {
     return NextResponse.redirect(new URL("/sign-up", req.url));
   }
