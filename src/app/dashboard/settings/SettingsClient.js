@@ -23,6 +23,12 @@ export default function SettingsClient({ initialProfile, user, lang = "en" }) {
   const paymentDropdownRef = useRef(null);
 
   useEffect(() => {
+    if (initialProfile && Object.keys(initialProfile).length > 0) {
+      setProfile(initialProfile);
+    }
+  }, [initialProfile]);
+
+  useEffect(() => {
     function handleClickOutside(event) {
       if (
         paymentDropdownRef.current &&
@@ -46,7 +52,11 @@ export default function SettingsClient({ initialProfile, user, lang = "en" }) {
     try {
       const res = await updateProfile(profile);
       if (res.success) {
+        if (res.data) {
+          setProfile(res.data);
+        }
         toast.success(t.toastSuccess);
+        router.refresh();
       } else {
         toast.error(`${t.toastError}${res.error}`);
       }
