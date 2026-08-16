@@ -12,10 +12,6 @@ export default function AuthForm() {
   const [success, setSuccess] = useState("");
   const [loading, setLoading] = useState(false);
 
-  useEffect(() => {
-    router.prefetch("/dashboard");
-  }, [router]);
-
   const handleToggleSign = () => {
     setToggleSign((prev) => !prev);
     setError("");

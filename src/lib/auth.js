@@ -14,8 +14,10 @@ const getAnonClient = () =>
     { auth: { persistSession: false, autoRefreshToken: false, detectSessionInUrl: false } }
   );
 
-// Global in-memory cache for user ban status to prevent overloading Supabase DB
+// Global in-memory cache for user ban & session status to prevent overloading Supabase DB
 const banCache = new Map();
+const userValidationCache = new Map();
+const VALIDATION_TTL_MS = 30 * 1000; // 30 seconds cache TTL
 
 async function refreshAccessToken(token) {
   try {
@@ -78,29 +80,31 @@ export const authOptions = {
         // Generate unique session ID to enforce single active session per user
         const sessionId = crypto.randomUUID();
 
-        // 1. Revoke all existing Supabase auth sessions/refresh tokens for this user on other devices
-        try {
-          if (data.session?.access_token) {
-            await supabaseAdmin.auth.admin.signOut(data.session.access_token, "others");
-          }
-        } catch (err) {
-          console.warn("Supabase revoke other sessions notice:", err?.message);
+        // Perform session revocation & active session ID update concurrently
+        const adminTasks = [];
+        if (data.session?.access_token) {
+          adminTasks.push(
+            supabaseAdmin.auth.admin
+              .signOut(data.session.access_token, "others")
+              .catch((err) => console.warn("Supabase revoke notice:", err?.message))
+          );
         }
+        adminTasks.push(
+          supabaseAdmin.auth.admin
+            .updateUserById(data.user.id, {
+              user_metadata: {
+                ...(data.user.user_metadata || {}),
+                active_session_id: sessionId,
+              },
+            })
+            .catch((err) => console.error("Failed to set active session ID in Supabase:", err))
+        );
 
-        // 2. Store current session ID in user_metadata
-        try {
-          await supabaseAdmin.auth.admin.updateUserById(data.user.id, {
-            user_metadata: {
-              ...(data.user.user_metadata || {}),
-              active_session_id: sessionId,
-            },
-          });
-        } catch (err) {
-          console.error("Failed to set active session ID in Supabase:", err);
-        }
+        await Promise.all(adminTasks);
 
-        // 3. Clear banCache entry for this user so all servers re-verify immediately
+        // Clear cached validation entry for this user so current session updates immediately
         banCache.delete(data.user.id);
+        userValidationCache.delete(data.user.id);
 
         return {
           id: data.user.id,
@@ -150,30 +154,39 @@ export const authOptions = {
       }
 
       const userId = token.id;
+      const now = Date.now();
+      let cached = userValidationCache.get(userId);
 
-      let isBanned = false;
-      let activeSessionId = null;
+      if (!cached || now - cached.timestamp > VALIDATION_TTL_MS) {
+        let isBanned = false;
+        let activeSessionId = null;
 
-      try {
-        const { data, error } = await supabaseAdmin.auth.admin.getUserById(userId);
+        try {
+          const { data, error } = await supabaseAdmin.auth.admin.getUserById(userId);
 
-        isBanned =
-          error ||
-          !data?.user ||
-          (data.user.banned_until && new Date(data.user.banned_until) > new Date());
-        activeSessionId = data?.user?.user_metadata?.active_session_id || null;
-      } catch (err) {
-        console.error("Supabase live session validation failed:", err);
+          isBanned =
+            error ||
+            !data?.user ||
+            (data.user.banned_until && new Date(data.user.banned_until) > new Date());
+          activeSessionId = data?.user?.user_metadata?.active_session_id || null;
+        } catch (err) {
+          console.error("Supabase live session validation failed:", err);
+        }
+
+        cached = { isBanned, activeSessionId, timestamp: now };
+        userValidationCache.set(userId, cached);
       }
 
-      if (isBanned) {
+      if (cached.isBanned) {
         console.warn(`Active ban detected for user ${userId}. Terminating session.`);
+        userValidationCache.delete(userId);
         return { ...session, user: null, error: "UserBanned" };
       }
 
       // Enforce single session per user: if user signed in elsewhere, invalidate old session immediately
-      if (token.sessionId && activeSessionId && token.sessionId !== activeSessionId) {
+      if (token.sessionId && cached.activeSessionId && token.sessionId !== cached.activeSessionId) {
         console.warn(`Session overridden by newer login for user ${userId}.`);
+        userValidationCache.delete(userId);
         return { ...session, user: null, error: "SessionTerminated" };
       }
 
