@@ -96,7 +96,8 @@ export default function SignUp() {
       });
 
       if (res?.ok) {
-        window.location.href = "/dashboard";
+        router.push("/dashboard");
+        router.refresh();
       } else {
         setError(t.invalidCredentials);
         setLoading(false);

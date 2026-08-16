@@ -27,7 +27,7 @@ export default function SidebarLink({ href, icon, name }) {
           ? "bg-white/10 text-white font-medium"
           : "text-white/60 hover:text-white hover:bg-white/5"
       }`}
-      prefetch={true}
+      prefetch={false}
     >
       <span
         className={`text-lg transition-colors duration-150 ${

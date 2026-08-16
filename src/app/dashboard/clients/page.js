@@ -65,7 +65,7 @@ async function ClientsList({ userId, lang }) {
             <div className="flex items-center gap-2 shrink-0 self-center">
               <Link
                 href={`/dashboard/clients/${client.id}/edit`}
-                prefetch={true}
+                prefetch={false}
                 className="p-2 bg-[#fcfaf0] dark:bg-white/5 text-black/40 hover:text-[#082019] dark:text-white/40 dark:hover:text-white rounded-xl transition-all cursor-pointer border border-transparent hover:border-black/5 dark:hover:border-white/5"
               >
                 <Edit className="w-4 h-4" />
@@ -109,7 +109,7 @@ export default async function ClientsPage() {
         </div>
         <Link
           href="/dashboard/clients/new"
-          prefetch={true}
+          prefetch={false}
           className="select-none cursor-pointer bg-[#082019] hover:bg-[#0c3127] dark:bg-white dark:text-[#082019] dark:hover:bg-neutral-100 text-white px-6 py-3 rounded-full font-bold text-xs uppercase tracking-widest flex items-center gap-2 shadow-md transition-all active:scale-95 shrink-0"
         >
           <Plus className="w-4 h-4" /> {t.addClient}
