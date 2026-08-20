@@ -5,10 +5,10 @@ import Link from "next/link";
 import PrintButton from "./PrintButton";
 import DeleteButton from "./DeleteButton";
 import { updateInvoice } from "@/app/actions/invoices";
-import { ArrowLeft, Edit, Check, CheckCircle2, Clock } from "lucide-react";
+import { ArrowLeft, Edit, Check, CheckCircle2, Clock, ExternalLink } from "lucide-react";
 import { getTranslations } from "@/lib/translations";
 
-export default function InvoiceEditor({ initialInvoice, user, lang = "en" }) {
+export default function InvoiceEditor({ initialInvoice, user, lang = "en", shareBaseUrl }) {
   const router = useRouter();
   const t = getTranslations(lang);
   const isBn = lang === "bn";
@@ -56,8 +56,6 @@ export default function InvoiceEditor({ initialInvoice, user, lang = "en" }) {
     const taxAmount = (subtotal * (Number(taxVal) || 0)) / 100;
     return subtotal + vatAmount + taxAmount;
   }, [subtotal, invoice.vat, invoice.tax]);
-
-  if (!initialInvoice) return null;
 
   const handleSave = async () => {
     setLoading(true);
@@ -143,6 +141,23 @@ export default function InvoiceEditor({ initialInvoice, user, lang = "en" }) {
   const inputClasses =
     "bg-transparent border-b border-black/10 focus:border-[#082019] outline-none py-1 transition-all";
 
+  const whatsappUrl = useMemo(() => {
+    const rawPhone = invoice.clients?.phone || "";
+    let phone = rawPhone.replace(/\D/g, "");
+    if (phone.startsWith("01")) phone = `88${phone}`;
+    else if (phone.startsWith("1") && phone.length === 10) phone = `880${phone}`;
+    if (phone.length < 10) return null;
+
+    const message = t.whatsappMessage
+      .replace("{clientName}", invoice.clients?.name || "Client")
+      .replace("{invoiceNumber}", invoice.invoice_number_full || invoice.id.slice(0, 8))
+      .replace("{total}", total.toLocaleString())
+      .concat(`\n\n${shareBaseUrl}/invoice/${invoice.id}`);
+    return `https://api.whatsapp.com/send?phone=${phone}&text=${encodeURIComponent(message)}`;
+  }, [invoice.clients?.name, invoice.clients?.phone, invoice.id, invoice.invoice_number_full, shareBaseUrl, t.whatsappMessage, total]);
+
+  if (!initialInvoice) return null;
+
   return (
     <div className="max-w-4xl mx-auto space-y-8 select-none">
       
@@ -186,6 +201,16 @@ export default function InvoiceEditor({ initialInvoice, user, lang = "en" }) {
 
           {isEditing ? (
             <div className="flex items-center gap-3 w-full sm:w-auto justify-end">
+              {whatsappUrl && (
+                <a
+                  href={whatsappUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="px-5 py-2.5 rounded-full border border-emerald-500/20 hover:bg-emerald-500/5 text-emerald-600 dark:text-emerald-400 font-bold uppercase tracking-wider text-[10px] flex items-center gap-1.5 transition-all cursor-pointer"
+                >
+                  {t.whatsApp} <ExternalLink className="w-3.5 h-3.5" />
+                </a>
+              )}
               <button
                 onClick={() => {
                   setInvoice({

@@ -7,7 +7,7 @@ import DeleteButton from "@/components/DeleteButton";
 import { Calendar, ExternalLink, FileText } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
-export default function InvoicesListClient({ invoices, lang, t, initialStatusFilter }) {
+export default function InvoicesListClient({ invoices, lang, t, initialStatusFilter, shareBaseUrl }) {
   const router = useRouter();
   const [statusFilter, setStatusFilter] = useState(initialStatusFilter || "all");
 
@@ -131,7 +131,8 @@ export default function InvoicesListClient({ invoices, lang, t, initialStatusFil
                     const message = t.whatsappMessage
                       .replace("{clientName}", clientName)
                       .replace("{invoiceNumber}", inv.invoice_number_full)
-                      .replace("{total}", inv.total.toLocaleString());
+                      .replace("{total}", inv.total.toLocaleString())
+                      .concat(`\n\n${shareBaseUrl}/invoice/${inv.id}`);
 
                     const whatsappUrl =
                       cleanNumber.length >= 10
