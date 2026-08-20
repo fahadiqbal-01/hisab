@@ -6,6 +6,7 @@ import { supabaseAdmin } from "@/lib/supabase";
 import { cookies } from "next/headers";
 import { getTranslations } from "@/lib/translations";
 import InvoicesListClient from "@/components/InvoicesListClient";
+import { getSiteUrl } from "@/lib/site";
 
 export default async function InvoicesPage({ searchParams }) {
   const session = await getCachedServerSession();
@@ -60,6 +61,7 @@ export default async function InvoicesPage({ searchParams }) {
         lang={lang} 
         t={t} 
         initialStatusFilter={statusFilter} 
+        shareBaseUrl={getSiteUrl()}
       />
     </section>
   );
