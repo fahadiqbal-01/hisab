@@ -11,7 +11,7 @@ export default async function SharedInvoicePage({ params }) {
   const { id } = await params;
   const { data: invoice } = await supabaseAdmin
     .from("invoices")
-    .select(`*, clients (name, email, company, preferred_payment_method, payment_number), invoice_items (*)`)
+    .select(`*, clients (name, email, company, address, city_state, zip_code, country, preferred_payment_method, payment_number), invoice_items (*)`)
     .eq("id", id)
     .single();
 
