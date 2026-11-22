@@ -4,6 +4,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import InvoiceEditor from "@/components/InvoiceEditor";
 import { cookies } from "next/headers";
+import { getSiteUrl } from "@/lib/site";
 
 export default async function InvoicePage({ params }) {
   const { id } = await params;
@@ -17,7 +18,7 @@ export default async function InvoicePage({ params }) {
     .select(
       `
       *,
-      clients (name, email, company, address, city_state, zip_code, country),
+      clients (name, email, phone, company, address, city_state, zip_code, country),
       invoice_items (*)
     `,
     )
@@ -35,6 +36,7 @@ export default async function InvoicePage({ params }) {
       initialInvoice={invoice}
       user={session?.user}
       lang={lang}
+      shareBaseUrl={getSiteUrl()}
     />
   );
 }
