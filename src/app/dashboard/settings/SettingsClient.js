@@ -100,7 +100,6 @@ export default function SettingsClient({ initialProfile, user, lang = "en" }) {
         </header>
 
         <div className="space-y-6">
-          
           {/* Section 1: Theme Settings */}
           <AppearanceSettings t={t} />
 
